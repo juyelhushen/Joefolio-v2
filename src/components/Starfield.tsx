@@ -51,14 +51,19 @@ export default function Starfield() {
       ctx.clearRect(0, 0, width, height);
 
       for (const star of stars) {
-        const twinkle = reduceMotion ? 0.85 : 0.68 + Math.sin(now * 0.001 * star.speed + star.phase) * 0.25;
+        const twinkle = reduceMotion
+          ? 0.85
+          : 0.68 + Math.sin(now * 0.001 * star.speed + star.phase) * 0.25;
         ctx.beginPath();
         ctx.fillStyle = `rgba(225, 235, 255, ${star.alpha * twinkle})`;
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
         if (!reduceMotion) {
           star.y += 0.025 * star.speed * delta;
-          if (star.y > height + 2) { star.y = -2; star.x = Math.random() * width; }
+          if (star.y > height + 2) {
+            star.y = -2;
+            star.x = Math.random() * width;
+          }
         }
       }
 
@@ -91,7 +96,8 @@ export default function Starfield() {
         meteor.x += Math.cos(meteor.angle) * meteor.speed * delta;
         meteor.y += Math.sin(meteor.angle) * meteor.speed * delta;
         meteor.alpha -= 0.008 * delta;
-        if (meteor.alpha <= 0 || meteor.x < -meteor.length || meteor.y > height + meteor.length) meteors.splice(i, 1);
+        if (meteor.alpha <= 0 || meteor.x < -meteor.length || meteor.y > height + meteor.length)
+          meteors.splice(i, 1);
       }
 
       if (!reduceMotion) raf = window.requestAnimationFrame(draw);
