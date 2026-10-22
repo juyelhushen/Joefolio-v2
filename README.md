@@ -3,6 +3,7 @@
 React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 
 ## Included
+
 - Responsive cosmic hero and navigation
 - Canvas starfield with occasional shooting stars
 - CSS-rendered planet/orbit layers
@@ -29,6 +30,7 @@ npm run build
 Project descriptions are draft copy pending review of current repositories, contribution details, and live URLs. Do not publish experience metrics or claims that have not been verified. Add the current résumé and verified email address before launch. The existing Angular project remains the source reference; this prototype does not overwrite it.
 
 ## Next sprint work
+
 - Confirm project links and case study evidence
 - Replace abstract project visuals with real screenshots
 - Add actual résumé asset and verified contact email
