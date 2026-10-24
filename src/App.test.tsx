@@ -58,14 +58,15 @@ it('opens and closes the mobile navigation menu', () => {
 it('renders documented projects with links to their repositories', () => {
   renderApp();
 
-  expect(screen.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
-  expect(screen.getByRole('heading', { level: 3, name: 'Cut2Short' })).toBeTruthy();
+  const projectSection = within(screen.getByRole('region', { name: /Selected work/ }));
+  expect(projectSection.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
+  expect(projectSection.getByRole('heading', { level: 3, name: 'Cut2Short' })).toBeTruthy();
   expect(
-    screen.getByRole('heading', { level: 3, name: 'Enterprise Knowledge Assistant' }),
+    projectSection.getByRole('heading', { level: 3, name: 'Enterprise Knowledge Assistant' }),
   ).toBeTruthy();
-  expect(screen.queryByRole('heading', { level: 3, name: 'Finmart' })).toBeNull();
+  expect(projectSection.queryByRole('heading', { level: 3, name: 'Finmart' })).toBeNull();
 
-  const projectLinks = screen
+  const projectLinks = projectSection
     .getAllByRole('link')
     .filter((link) => link.classList.contains('project-link'));
 
@@ -75,13 +76,34 @@ it('renders documented projects with links to their repositories', () => {
     'https://github.com/juyelhushen/cut2short-front',
     'https://github.com/juyelhushen/enterprise-knowledge-assistant',
   ]);
-  expect(screen.getByRole('link', { name: 'Sentinel: Repository' })).toBeTruthy();
+  expect(projectSection.getByRole('link', { name: 'Sentinel: Repository' })).toBeTruthy();
   expect(
-    screen.getByRole('link', { name: 'Enterprise Knowledge Assistant: Repository' }),
+    projectSection.getByRole('link', { name: 'Enterprise Knowledge Assistant: Repository' }),
   ).toBeTruthy();
   expect(projectLinks.every((link) => link.getAttribute('rel') === 'noopener noreferrer')).toBe(
     true,
   );
+});
+
+it('grounds the AI Lab in documented projects and their verified repositories', () => {
+  renderApp();
+
+  const aiLab = within(screen.getByRole('region', { name: /Engineering with/ }));
+  expect(aiLab.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
+  expect(
+    aiLab.getByText(/Repair and verification are documented as an internal constrained workflow/),
+  ).toBeTruthy();
+  expect(
+    aiLab.getByText(/PDF ingestion, chunking, and embeddings feed a LangGraph retrieval/),
+  ).toBeTruthy();
+  const repoLink = aiLab
+    .getAllByRole('link', { name: 'Repository' })
+    .find(
+      (link) =>
+        link.getAttribute('href') ===
+        'https://github.com/juyelhushen/enterprise-knowledge-assistant',
+    );
+  expect(repoLink).toBeTruthy();
 });
 
 it('links to the skills section and renders the unconfirmed employment state', () => {
