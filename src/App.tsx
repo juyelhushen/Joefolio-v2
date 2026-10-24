@@ -11,7 +11,9 @@ import {
   X,
 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import AiLabSection from './components/AiLabSection';
 import ExperienceTimeline from './components/ExperienceTimeline';
+import PortfolioAssistant from './components/PortfolioAssistant';
 import ProjectsSection from './components/ProjectsSection';
 import SkillsSection from './components/SkillsSection';
 import Starfield from './components/Starfield';
@@ -219,34 +221,7 @@ export default function App() {
 
         <SkillsSection reduceMotion={reduceMotion ?? false} />
 
-        <section className="ai-lab section-wrap" id="ai-lab">
-          <div className="ai-lab-orb" aria-hidden="true">
-            <div />
-            <div />
-            <div />
-          </div>
-          <div className="ai-lab-content">
-            <span className="section-kicker">EXPERIMENT BAY / 005</span>
-            <h2>
-              Exploring the edge
-              <br />
-              of <em>intelligent systems.</em>
-            </h2>
-            <p>
-              AI Lab will document real experiments, integration patterns, agent workflows, and
-              lessons learned. The interactive portfolio assistant comes later, after the core
-              experience is stable.
-            </p>
-            <a
-              className="text-link"
-              href="https://github.com/juyelhushen"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Explore GitHub <ArrowUpRight size={16} />
-            </a>
-          </div>
-        </section>
+        <AiLabSection />
 
         <section
           className="contact-section section-wrap"
@@ -295,6 +270,7 @@ export default function App() {
           BACK TO ORBIT ↑
         </a>
       </footer>
+      <PortfolioAssistant />
     </div>
   );
 }

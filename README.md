@@ -1,4 +1,4 @@
-# Juyel Hushen — Cosmic Portfolio (Sprint 1/2 prototype)
+# Juyel Hushen — Cosmic Portfolio
 
 React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 
@@ -10,6 +10,8 @@ React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 - Evidence-backed project cards linked to public repositories
 - Engineering introduction, professional experience timeline, and project-backed skills
 - AI Lab and contact sections with verified GitHub and LinkedIn destinations
+- AI Lab case studies grounded in the public Sentinel and Enterprise Knowledge Assistant documentation
+- Portfolio assistant interface with an optional, typed `/api/chat` integration boundary
 - Keyboard-accessible mobile navigation and a skip-to-content link
 - Reduced-motion support for the starfield and page entrance effects
 - Local visual concept asset at `public/images/cosmic-portfolio-concept.png`
@@ -17,9 +19,16 @@ React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 ## Run locally
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
+
+The assistant is intentionally unavailable until a separate backend implements the
+[assistant API contract](./docs/ai-assistant-api.md). To configure a local or deployed service,
+copy `.env.example` to `.env.local` and set `VITE_AI_ASSISTANT_API_URL` to its base URL. Leave the
+value empty to keep the assistant in its honest unavailable state; no sample answers are simulated.
+Vite environment values are public, so never put model/provider credentials or backend secrets in
+this variable.
 
 Production build:
 
@@ -35,6 +44,8 @@ No verified employment history or résumé is available in this repository, so t
 
 ## Follow-up work
 
+- Build and deploy a backend that implements the documented chat contract, portfolio grounding,
+  and server-side safety and access controls; none is included in this frontend
 - Confirm Corban details and a public project destination
 - Replace the CSS project visuals with verified screenshots or diagrams when available
 - Add verified employment history, a current résumé, and a direct contact email
