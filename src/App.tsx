@@ -11,13 +11,16 @@ import {
   X,
 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import ExperienceTimeline from './components/ExperienceTimeline';
 import ProjectsSection from './components/ProjectsSection';
+import SkillsSection from './components/SkillsSection';
 import Starfield from './components/Starfield';
 
 const navItems = [
   ['Home', '#home'],
   ['About', '#about'],
   ['Experience', '#experience'],
+  ['Skills', '#skills'],
   ['Projects', '#projects'],
   ['AI Lab', '#ai-lab'],
   ['Contact', '#contact'],
@@ -171,71 +174,50 @@ export default function App() {
 
         <ProjectsSection reduceMotion={reduceMotion ?? false} />
 
-        <section className="manifesto section-wrap" id="about">
+        <section className="manifesto section-wrap" id="about" aria-labelledby="about-title">
           <div className="manifesto-symbol">
             <Sparkles size={24} strokeWidth={1.2} />
             <span>FIELD NOTES / 002</span>
           </div>
           <div className="manifesto-copy">
-            <h2>
-              Curious by nature.
+            <h2 id="about-title">
+              Build end to end.
               <br />
-              <em>Engineering by craft.</em>
+              <em>Keep the seams clear.</em>
             </h2>
             <p>
-              I enjoy understanding problems deeply, designing clear interfaces between systems, and
-              making software that is reliable, useful, and maintainable. Today, that means
-              combining full-stack fundamentals with deliberate exploration of AI-powered tools.
+              I work across the stack with a backend focus on clear APIs, system integration,
+              persistence, and dependable asynchronous workflows. My project work also explores RAG,
+              LLM applications, and agentic systems, with attention to inspectable retrieval, tools,
+              and verification.
             </p>
           </div>
-          <a className="text-link" href="#experience">
-            Explore my approach <ArrowUpRight size={16} />
+          <a className="text-link" href="#skills">
+            Explore my toolkit <ArrowUpRight size={16} />
           </a>
         </section>
 
-        <section className="experience-section section-wrap" id="experience">
+        <section
+          className="experience-section section-wrap"
+          id="experience"
+          aria-labelledby="experience-title"
+        >
           <div className="section-heading">
             <div>
               <span className="section-kicker">MISSION LOG / 003</span>
-              <h2>
-                How I <em>engineer.</em>
+              <h2 id="experience-title">
+                Professional <em>experience.</em>
               </h2>
             </div>
             <p>
-              Core areas I bring to a project. Specific tools vary by the problem and verified
-              project context.
+              A factual timeline of roles and contributions, added as employment details are
+              confirmed.
             </p>
           </div>
-          <div className="capability-grid">
-            <article>
-              <span className="cap-index">01</span>
-              <h3>Build end to end</h3>
-              <p>
-                Connect thoughtful frontend experiences to well-structured APIs, persistence, and
-                dependable workflows.
-              </p>
-              <span className="cap-line" />
-            </article>
-            <article>
-              <span className="cap-index">02</span>
-              <h3>Design for clarity</h3>
-              <p>
-                Make system boundaries, data flows, and engineering trade-offs explicit and easier
-                to reason about.
-              </p>
-              <span className="cap-line" />
-            </article>
-            <article>
-              <span className="cap-index">03</span>
-              <h3>Explore what’s next</h3>
-              <p>
-                Experiment with AI and developer tooling while staying grounded in useful outcomes
-                and real constraints.
-              </p>
-              <span className="cap-line" />
-            </article>
-          </div>
+          <ExperienceTimeline reduceMotion={reduceMotion ?? false} />
         </section>
+
+        <SkillsSection reduceMotion={reduceMotion ?? false} />
 
         <section className="ai-lab section-wrap" id="ai-lab">
           <div className="ai-lab-orb" aria-hidden="true">
@@ -244,7 +226,7 @@ export default function App() {
             <div />
           </div>
           <div className="ai-lab-content">
-            <span className="section-kicker">EXPERIMENT BAY / 004</span>
+            <span className="section-kicker">EXPERIMENT BAY / 005</span>
             <h2>
               Exploring the edge
               <br />
@@ -266,37 +248,41 @@ export default function App() {
           </div>
         </section>
 
-        <section className="contact-section section-wrap" id="contact">
-          <span className="section-kicker">OPEN CHANNEL / 005</span>
-          <h2>
+        <section
+          className="contact-section section-wrap"
+          id="contact"
+          aria-labelledby="contact-title"
+        >
+          <span className="section-kicker">OPEN CHANNEL / 006</span>
+          <h2 id="contact-title">
             Have a good problem
             <br />
             <em>to solve?</em>
           </h2>
           <p>
-            I’m interested in thoughtful engineering, useful products, and opportunities to keep
-            building.
+            For professional conversations, connect with me on LinkedIn. Visit GitHub to explore my
+            public project repositories.
           </p>
           <div className="contact-actions">
             <a
               className="button button-primary"
-              href="https://github.com/juyelhushen"
+              href="https://linkedin.com/in/juyel-hushen-770674170"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
-              <Github size={16} /> GitHub <ArrowUpRight size={15} />
+              <Linkedin size={16} /> Connect on LinkedIn <ArrowUpRight size={15} />
             </a>
             <a
               className="button button-quiet"
-              href="https://linkedin.com/in/juyel-hushen-770674170"
+              href="https://github.com/juyelhushen"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
-              <Linkedin size={16} /> LinkedIn <ArrowUpRight size={15} />
+              <Github size={16} /> Explore GitHub <ArrowUpRight size={15} />
             </a>
           </div>
           <span className="contact-email-note">
-            Add verified email and current résumé before public launch.
+            Direct email and résumé links will be added once confirmed.
           </span>
         </section>
       </main>

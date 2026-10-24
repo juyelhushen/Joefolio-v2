@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import App from './App';
 
@@ -82,4 +82,29 @@ it('renders documented projects with links to their repositories', () => {
   expect(projectLinks.every((link) => link.getAttribute('rel') === 'noopener noreferrer')).toBe(
     true,
   );
+});
+
+it('links to the skills section and renders the unconfirmed employment state', () => {
+  renderApp();
+
+  expect(screen.getByRole('link', { name: 'Skills' }).getAttribute('href')).toBe('#skills');
+  expect(document.querySelectorAll('#skills')).toHaveLength(1);
+  expect(
+    screen.getByRole('heading', { level: 3, name: 'Professional history is being updated' }),
+  ).toBeTruthy();
+  expect(screen.getByRole('heading', { level: 3, name: 'Backend & APIs' })).toBeTruthy();
+  expect(screen.getByRole('heading', { level: 3, name: 'AI systems' })).toBeTruthy();
+});
+
+it('retains working contact destinations with secure external-link attributes', () => {
+  renderApp();
+
+  const contact = within(screen.getByRole('region', { name: /Have a good problem/ }));
+  const linkedin = contact.getByRole('link', { name: /Connect on LinkedIn/ });
+  const github = contact.getByRole('link', { name: /Explore GitHub/ });
+
+  expect(linkedin.getAttribute('href')).toBe('https://linkedin.com/in/juyel-hushen-770674170');
+  expect(github.getAttribute('href')).toBe('https://github.com/juyelhushen');
+  expect(linkedin.getAttribute('rel')).toBe('noopener noreferrer');
+  expect(github.getAttribute('rel')).toBe('noopener noreferrer');
 });
