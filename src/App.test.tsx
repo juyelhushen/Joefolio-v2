@@ -114,8 +114,8 @@ it('links to the skills section and renders the unconfirmed employment state', (
   expect(
     screen.getByRole('heading', { level: 3, name: 'Professional history is being updated' }),
   ).toBeTruthy();
-  expect(screen.getByRole('heading', { level: 3, name: 'Backend & APIs' })).toBeTruthy();
-  expect(screen.getByRole('heading', { level: 3, name: 'AI systems' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Backend & APIs' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'AI & Agentic Systems' })).toBeTruthy();
 });
 
 it('retains working contact destinations with secure external-link attributes', () => {
