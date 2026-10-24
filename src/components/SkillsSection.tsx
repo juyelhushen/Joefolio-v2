@@ -83,7 +83,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
     const project = projects.find((item) => item.name === projectName);
     return (
       project?.links
-        .filter((link) => !linkLabel || link.label === linkLabel)
+        ?.filter((link) => !linkLabel || link.label === linkLabel)
         .map((link) => ({
           projectName: project.name,
           label: link.label,
