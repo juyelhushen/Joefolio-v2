@@ -19,6 +19,7 @@
     "motion": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "simple-icons": "^16.35.0",
     "typescript": "latest",
     "vite": "latest"
   },

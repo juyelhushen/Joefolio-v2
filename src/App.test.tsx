@@ -114,8 +114,8 @@ it('links to the skills section and renders the unconfirmed employment state', (
   expect(
     screen.getByRole('heading', { level: 3, name: 'Professional history is being updated' }),
   ).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Backend & APIs' })).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'AI & Agentic Systems' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Select Spring Boot skill' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Select LangGraph skill' })).toBeTruthy();
 });
 
 it('retains working contact destinations with secure external-link attributes', () => {
