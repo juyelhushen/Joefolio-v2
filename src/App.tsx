@@ -7,13 +7,12 @@ import {
   Linkedin,
   Mail,
   Menu,
-  Orbit,
   Sparkles,
   X,
 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import ProjectsSection from './components/ProjectsSection';
 import Starfield from './components/Starfield';
-import { projects } from './data/projects';
 
 const navItems = [
   ['Home', '#home'],
@@ -170,109 +169,7 @@ export default function App() {
           <div className="hero-bottom-glow" aria-hidden="true" />
         </section>
 
-        <section className="project-section section-wrap" id="projects">
-          <div className="section-heading">
-            <div>
-              <span className="section-kicker">TRANSMISSION LOG / 001</span>
-              <h2>
-                Selected <em>work.</em>
-              </h2>
-            </div>
-            <p>A few systems and products that reflect how I think, build, and keep learning.</p>
-          </div>
-          <div className="project-grid">
-            {projects.map((project, i) => (
-              <motion.article
-                key={project.name}
-                className={`project-card project-card-${i + 1}`}
-                initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.18 }}
-                transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay: i * 0.08 }}
-              >
-                <div className="project-card-top">
-                  <span className="project-number">
-                    {project.number} / {project.category}
-                  </span>
-                  <ArrowUpRight size={19} />
-                </div>
-                <div className={`project-visual visual-${i + 1}`} aria-hidden="true">
-                  {i === 0 ? (
-                    <>
-                      <div className="visual-window">
-                        <div className="window-bar">
-                          <i />
-                          <i />
-                          <i />
-                        </div>
-                        <div className="window-sidebar" />
-                        <div className="window-main">
-                          <span />
-                          <span />
-                          <span />
-                          <b />
-                        </div>
-                      </div>
-                      <div className="visual-orbit" />
-                    </>
-                  ) : i === 1 ? (
-                    <>
-                      <Orbit className="visual-orbit-icon" size={64} strokeWidth={0.7} />
-                      <div className="visual-node node-a" />
-                      <div className="visual-node node-b" />
-                      <div className="visual-node node-c" />
-                      <div className="visual-connection connection-a" />
-                      <div className="visual-connection connection-b" />
-                    </>
-                  ) : (
-                    <>
-                      <div className="data-bars">
-                        <i />
-                        <i />
-                        <i />
-                        <i />
-                        <i />
-                        <i />
-                      </div>
-                      <div className="data-line" />
-                    </>
-                  )}
-                </div>
-                <div className="project-content">
-                  <h3>{project.name}</h3>
-                  <p>{project.description}</p>
-                  <div className="tech-tags">
-                    {project.stack.map((technology) => (
-                      <span key={technology}>{technology}</span>
-                    ))}
-                  </div>
-                  <div className="project-footer">
-                    <span className="project-status">
-                      <span /> CASE STUDY IN PREPARATION
-                    </span>
-                    {project.href ? (
-                      <a
-                        href={project.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`Open ${project.name} website`}
-                      >
-                        <ArrowUpRight size={16} />
-                      </a>
-                    ) : (
-                      <a href="#contact" aria-label={`Ask about ${project.name}`}>
-                        <ArrowUpRight size={16} />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-          <p className="content-note">
-            Project descriptions are draft copy pending codebase and contribution verification.
-          </p>
-        </section>
+        <ProjectsSection reduceMotion={reduceMotion ?? false} />
 
         <section className="manifesto section-wrap" id="about">
           <div className="manifesto-symbol">

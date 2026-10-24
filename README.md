@@ -7,7 +7,7 @@ React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 - Responsive cosmic hero and navigation
 - Canvas starfield with occasional shooting stars
 - CSS-rendered planet/orbit layers
-- Project cards with draft descriptions
+- Evidence-backed project cards linked to public repositories
 - About, engineering capabilities, AI Lab, and contact sections
 - Keyboard-accessible mobile navigation and a skip-to-content link
 - Reduced-motion support for the starfield and page entrance effects
@@ -26,13 +26,12 @@ Production build:
 npm run build
 ```
 
-## Important content notes
+## Project content notes
 
-Project descriptions are draft copy pending review of current repositories, contribution details, and live URLs. Do not publish experience metrics or claims that have not been verified. Add the current résumé and verified email address before launch. The existing Angular project remains the source reference; this prototype does not overwrite it.
+Project descriptions and technology lists are based on the linked public repositories. The showcase does not claim unverified outcomes or personal contributions. Corban is not included because the available legacy portfolio copy does not provide a project repository or a verified technical stack. No résumé asset or verified email address is currently included.
 
-## Next sprint work
+## Follow-up work
 
-- Confirm project links and case study evidence
-- Replace abstract project visuals with real screenshots
+- Confirm Corban details and a public project destination
+- Replace the CSS project visuals with verified screenshots or diagrams when available
 - Add actual résumé asset and verified contact email
-- Test the production build and browser behavior
