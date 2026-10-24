@@ -167,14 +167,12 @@ export default function App() {
             <span className="note-line" /> A CURIOSITY-DRIVEN ENGINEER{' '}
             <span className="note-coordinate">12° 34' / 56° 78'</span>
           </div>
-          <a className="scroll-cue" href="#projects">
+          <a className="scroll-cue" href="#skills">
             <span>SCROLL TO EXPLORE</span>
             <ArrowDownRight size={19} />
           </a>
           <div className="hero-bottom-glow" aria-hidden="true" />
         </section>
-
-        <ProjectsSection reduceMotion={reduceMotion ?? false} />
 
         <section className="manifesto section-wrap" id="about" aria-labelledby="about-title">
           <div className="manifesto-symbol">
@@ -220,6 +218,8 @@ export default function App() {
         </section>
 
         <SkillsSection reduceMotion={reduceMotion ?? false} />
+
+        <ProjectsSection reduceMotion={reduceMotion ?? false} />
 
         <AiLabSection />
 

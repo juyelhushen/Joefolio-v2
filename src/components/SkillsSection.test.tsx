@@ -73,7 +73,7 @@ it('shows only project links assigned to the selected planet', () => {
       const project = projects.find((item) => item.name === projectName);
       return (
         project?.links
-          .filter((link) => !linkLabel || link.label === linkLabel)
+          ?.filter((link) => !linkLabel || link.label === linkLabel)
           .map((link) => link.href) ?? []
       );
     });
@@ -89,7 +89,7 @@ it('shows only project links assigned to the selected planet', () => {
     ).toBe(true);
     expect(
       expectedLinks.every((href) =>
-        projects.some((project) => project.links.some((link) => link.href === href)),
+        projects.some((project) => project.links?.some((link) => link.href === href)),
       ),
     ).toBe(true);
     if (expectedLinks.length === 0) {

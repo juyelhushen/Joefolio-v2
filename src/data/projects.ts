@@ -1,4 +1,4 @@
-export type ProjectVisual = 'agents' | 'links' | 'knowledge';
+export type ProjectVisual = 'agents' | 'links' | 'knowledge' | 'library' | 'video';
 
 export type ProjectLink = {
   label: string;
@@ -6,12 +6,13 @@ export type ProjectLink = {
 };
 
 export type Project = {
+  id: string;
   number: string;
   name: string;
   category: string;
   problem: string;
   summary: string;
-  engineeringFocus: string;
+  engineeringFocus?: string;
   technologies: readonly string[];
   visual: ProjectVisual;
   links: readonly ProjectLink[];
@@ -19,6 +20,7 @@ export type Project = {
 
 export const projects: readonly Project[] = [
   {
+    id: 'sentinel',
     number: '01',
     name: 'Sentinel',
     category: 'AGENT SYSTEMS',
@@ -33,6 +35,7 @@ export const projects: readonly Project[] = [
     links: [{ label: 'Repository', href: 'https://github.com/juyelhushen/sentinel' }],
   },
   {
+    id: 'cut2short',
     number: '02',
     name: 'Cut2Short',
     category: 'FULL-STACK PLATFORM',
@@ -56,6 +59,7 @@ export const projects: readonly Project[] = [
     ],
   },
   {
+    id: 'enterprise-knowledge-assistant',
     number: '03',
     name: 'Enterprise Knowledge Assistant',
     category: 'RETRIEVAL / RAG',
@@ -73,5 +77,27 @@ export const projects: readonly Project[] = [
         href: 'https://github.com/juyelhushen/enterprise-knowledge-assistant',
       },
     ],
+  },
+  {
+    id: 'library-management-system',
+    number: '04',
+    name: 'Library Management System',
+    category: 'EARLIER PERSONAL PROJECT',
+    problem: 'An earlier personal project in the library-management space.',
+    summary: 'A personal project titled Library Management System.',
+    technologies: [],
+    visual: 'library',
+    links: [],
+  },
+  {
+    id: 'youtube-clone',
+    number: '05',
+    name: 'YouTube Clone',
+    category: 'EARLIER PERSONAL PROJECT',
+    problem: 'An earlier personal project in the video-browsing space.',
+    summary: 'A personal project titled YouTube Clone.',
+    technologies: [],
+    visual: 'video',
+    links: [],
   },
 ];

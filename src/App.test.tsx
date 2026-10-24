@@ -58,31 +58,44 @@ it('opens and closes the mobile navigation menu', () => {
 it('renders documented projects with links to their repositories', () => {
   renderApp();
 
-  const projectSection = within(screen.getByRole('region', { name: /Selected work/ }));
+  const projectSection = within(screen.getByRole('region', { name: /Project Mission Control/ }));
   expect(projectSection.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
-  expect(projectSection.getByRole('heading', { level: 3, name: 'Cut2Short' })).toBeTruthy();
+  expect(projectSection.getByRole('button', { name: /Cut2Short/ })).toBeTruthy();
   expect(
-    projectSection.getByRole('heading', { level: 3, name: 'Enterprise Knowledge Assistant' }),
+    projectSection.getByRole('button', { name: /Enterprise Knowledge Assistant/ }),
   ).toBeTruthy();
-  expect(projectSection.queryByRole('heading', { level: 3, name: 'Finmart' })).toBeNull();
+  expect(projectSection.getByRole('button', { name: /Library Management System/ })).toBeTruthy();
+  expect(projectSection.getByRole('button', { name: /YouTube Clone/ })).toBeTruthy();
 
-  const projectLinks = projectSection
-    .getAllByRole('link')
-    .filter((link) => link.classList.contains('project-link'));
-
-  expect(projectLinks.map((link) => link.getAttribute('href'))).toEqual([
+  const expectedLinks = [
     'https://github.com/juyelhushen/sentinel',
     'https://github.com/juyelhushen/Cut2Short-backend',
     'https://github.com/juyelhushen/cut2short-front',
     'https://github.com/juyelhushen/enterprise-knowledge-assistant',
-  ]);
+  ];
+  const observedLinks = new Set<string>();
+
+  for (const projectName of [
+    'Sentinel',
+    'Cut2Short',
+    'Enterprise Knowledge Assistant',
+    'Library Management System',
+    'YouTube Clone',
+  ]) {
+    fireEvent.click(projectSection.getByRole('button', { name: new RegExp(projectName) }));
+    const projectLinks = projectSection
+      .queryAllByRole('link')
+      .filter((link) => link.classList.contains('project-link'));
+    for (const projectLink of projectLinks) {
+      observedLinks.add(projectLink.getAttribute('href') ?? '');
+      expect(projectLink.getAttribute('rel')).toBe('noopener noreferrer');
+    }
+  }
+
+  expect([...observedLinks]).toEqual(expectedLinks);
+  fireEvent.click(projectSection.getByRole('button', { name: /Sentinel/ }));
   expect(projectSection.getByRole('link', { name: 'Sentinel: Repository' })).toBeTruthy();
-  expect(
-    projectSection.getByRole('link', { name: 'Enterprise Knowledge Assistant: Repository' }),
-  ).toBeTruthy();
-  expect(projectLinks.every((link) => link.getAttribute('rel') === 'noopener noreferrer')).toBe(
-    true,
-  );
+  expect(projectSection.queryByRole('link', { name: /Library Management System:/ })).toBeNull();
 });
 
 it('grounds the AI Lab in documented projects and their verified repositories', () => {
@@ -109,8 +122,23 @@ it('grounds the AI Lab in documented projects and their verified repositories', 
 it('links to the skills section and renders the unconfirmed employment state', () => {
   renderApp();
 
-  expect(screen.getByRole('link', { name: 'Skills' }).getAttribute('href')).toBe('#skills');
+  const skillsLink = screen.getByRole('link', { name: 'Skills' });
+  const projectsLink = screen.getByRole('link', { name: 'Projects' });
+  expect(skillsLink.getAttribute('href')).toBe('#skills');
+  expect(projectsLink.getAttribute('href')).toBe('#projects');
+  const navigationTargets = [
+    ...screen.getByRole('navigation', { name: 'Main navigation' }).querySelectorAll('a'),
+  ].map((link) => link.getAttribute('href'));
+  expect(navigationTargets.indexOf('#skills')).toBeLessThan(navigationTargets.indexOf('#projects'));
   expect(document.querySelectorAll('#skills')).toHaveLength(1);
+  expect(
+    document
+      .querySelector('#skills')
+      ?.compareDocumentPosition(document.querySelector('#projects')!),
+  ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  expect(screen.getByRole('link', { name: /SCROLL TO EXPLORE/ }).getAttribute('href')).toBe(
+    '#skills',
+  );
   expect(
     screen.getByRole('heading', { level: 3, name: 'Professional history is being updated' }),
   ).toBeTruthy();
