@@ -11,15 +11,16 @@ export default function Starfield() {
     const ctx = canvas?.getContext('2d', { alpha: true });
     if (!canvas || !ctx) return;
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const mobile = window.matchMedia('(max-width: 700px)').matches;
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileQuery = window.matchMedia('(max-width: 700px)');
+    let reduceMotion = motionQuery.matches;
+    let mobile = mobileQuery.matches;
     let width = 0;
     let height = 0;
     let raf = 0;
     let lastMeteorAt = 0;
     const stars: Star[] = [];
     const meteors: Meteor[] = [];
-    const starCount = mobile ? 95 : 210;
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.7);
@@ -32,6 +33,11 @@ export default function Starfield() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    const populateStars = () => {
+      stars.length = 0;
+      for (let i = 0; i < (mobile ? 95 : 210); i++) stars.push(randomStar());
+    };
+
     const randomStar = (): Star => ({
       x: Math.random() * width,
       y: Math.random() * height,
@@ -42,7 +48,7 @@ export default function Starfield() {
     });
 
     resize();
-    for (let i = 0; i < starCount; i++) stars.push(randomStar());
+    populateStars();
 
     let previous = 0;
     const draw = (now: number) => {
@@ -100,7 +106,27 @@ export default function Starfield() {
           meteors.splice(i, 1);
       }
 
-      if (!reduceMotion) raf = window.requestAnimationFrame(draw);
+      if (!reduceMotion && !document.hidden) raf = window.requestAnimationFrame(draw);
+    };
+
+    const onResize = () => {
+      resize();
+      if (mobile !== mobileQuery.matches) {
+        mobile = mobileQuery.matches;
+        populateStars();
+      }
+      if (reduceMotion) draw(performance.now());
+    };
+
+    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
+      reduceMotion = event.matches;
+      window.cancelAnimationFrame(raf);
+      meteors.length = 0;
+      if (reduceMotion) draw(performance.now());
+      else {
+        previous = 0;
+        if (!document.hidden) raf = window.requestAnimationFrame(draw);
+      }
     };
 
     const onVisibility = () => {
@@ -108,12 +134,14 @@ export default function Starfield() {
       else if (!reduceMotion) raf = window.requestAnimationFrame(draw);
     };
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', onResize);
+    motionQuery.addEventListener('change', onMotionPreferenceChange);
     document.addEventListener('visibilitychange', onVisibility);
     draw(0);
     return () => {
       window.cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', onResize);
+      motionQuery.removeEventListener('change', onMotionPreferenceChange);
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);

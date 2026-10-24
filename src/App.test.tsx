@@ -35,6 +35,16 @@ it('opens and closes the mobile navigation menu', () => {
     'true',
   );
 
+  expect(screen.getByRole('link', { name: /Explore Projects/ }).getAttribute('href')).toBe(
+    '#projects',
+  );
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).not.toContain(
+    'is-open',
+  );
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open menu' }));
+
+  fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
   fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
   expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).not.toContain(
     'is-open',

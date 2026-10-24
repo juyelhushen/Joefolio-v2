@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
-  Download,
   Github,
   Linkedin,
+  Mail,
   Menu,
   Orbit,
   Sparkles,
   X,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import Starfield from './components/Starfield';
 import { projects } from './data/projects';
 
@@ -42,12 +42,31 @@ function Planet() {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const reduceMotion = useReducedMotion();
   const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        menuToggleRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
 
   return (
     <div className="site-shell">
       <Starfield />
       <div className="space-grain" aria-hidden="true" />
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <header className="site-header">
         <a href="#home" className="brand" aria-label="Juyel Hushen home" onClick={closeMenu}>
           <span className="brand-mark">
@@ -55,7 +74,11 @@ export default function App() {
           </span>
           <span className="brand-name">JUYEL HUSHEN</span>
         </a>
-        <nav className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
+        <nav
+          className={`main-nav ${menuOpen ? 'is-open' : ''}`}
+          id="main-navigation"
+          aria-label="Main navigation"
+        >
           {navItems.map(([label, href], index) => (
             <a key={label} href={href} className={index === 0 ? 'active' : ''} onClick={closeMenu}>
               {label}
@@ -63,26 +86,29 @@ export default function App() {
           ))}
         </nav>
         <a className="header-cta" href="#contact">
-          <Download size={15} /> <span>Résumé / Contact</span>
+          <Mail size={15} /> <span>Contact</span>
         </a>
         <button
+          ref={menuToggleRef}
           className="menu-toggle"
-          onClick={() => setMenuOpen(!menuOpen)}
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
+          aria-controls="main-navigation"
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </header>
 
-      <main>
+      <main id="main-content">
         <section className="hero section-wrap" id="home">
           <Planet />
           <motion.div
             className="hero-copy"
-            initial={{ opacity: 0, y: 18 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.8, ease: 'easeOut' }}
           >
             <div className="eyebrow">
               <span className="eyebrow-dot" /> SOFTWARE ENGINEER{' '}
@@ -100,7 +126,7 @@ export default function App() {
             </p>
             <div className="hero-actions">
               <a className="button button-primary" href="#projects">
-                Explore my work <ArrowRight size={17} />
+                Explore Projects <ArrowRight size={17} />
               </a>
               <a className="button button-quiet" href="#contact">
                 Let’s connect <ArrowUpRight size={16} />
@@ -159,10 +185,10 @@ export default function App() {
               <motion.article
                 key={project.name}
                 className={`project-card project-card-${i + 1}`}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.18 }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay: i * 0.08 }}
               >
                 <div className="project-card-top">
                   <span className="project-number">
