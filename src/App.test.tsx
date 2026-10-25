@@ -108,6 +108,16 @@ it('grounds the AI Lab in documented projects and their verified repositories', 
   renderApp();
 
   const aiLab = within(screen.getByRole('region', { name: /Engineering with/ }));
+  const legacyLink = aiLab.getByRole('link', { name: 'Visit my previous portfolio' });
+  expect(legacyLink.getAttribute('href')).toBe('https://juyelhushen.netlify.app/');
+  expect(legacyLink.getAttribute('target')).toBe('_blank');
+  expect(legacyLink.getAttribute('rel')).toBe('noopener noreferrer');
+  const orbits = aiLab.getAllByTestId('legacy-orbit');
+  expect(orbits).toHaveLength(3);
+  for (const orbit of orbits) {
+    expect(orbit.getAttribute('aria-hidden')).toBe('true');
+    expect(orbit.querySelectorAll('.legacy-orbit-satellite').length).toBeGreaterThan(0);
+  }
   expect(aiLab.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
   expect(
     aiLab.getByText(/Repair and verification are documented as an internal constrained workflow/),
