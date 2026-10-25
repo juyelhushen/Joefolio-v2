@@ -202,16 +202,16 @@ export default function App() {
           id="experience"
           aria-labelledby="experience-title"
         >
-          <div className="section-heading">
+          <div className="section-heading career-heading">
             <div>
-              <span className="section-kicker">MISSION LOG / 003</span>
+              <span className="section-kicker">CAREER ODYSSEY / 003</span>
               <h2 id="experience-title">
-                Professional <em>experience.</em>
+                Every chapter <em>built something.</em>
               </h2>
             </div>
             <p>
-              A factual timeline of roles and contributions, added as employment details are
-              confirmed.
+              Four career chapters, from a Java Developer Internship through to my current Software
+              Engineer II role.
             </p>
           </div>
           <ExperienceTimeline reduceMotion={reduceMotion ?? false} />
