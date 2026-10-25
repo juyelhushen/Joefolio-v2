@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import ProjectVisual from './ProjectVisual';
+import ProjectUniverse from './ProjectUniverse';
 import { projects } from '../data/projects';
 
 type ProjectsSectionProps = {
@@ -22,14 +23,26 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
     >
       <div className="section-heading mission-heading">
         <div>
-          <span className="section-kicker">ENGINEERING ARCHIVE / 007</span>
+          <span className="section-kicker">PROJECT UNIVERSE / 007</span>
           <h2 id="projects-title">
-            Project <em>Mission Control.</em>
+            The Project <em>Universe.</em>
           </h2>
         </div>
         <p>
-          A field guide to the problems, systems, and engineering decisions behind my project work.
+          Five distinct systems, explored through the engineering ideas and evidence behind each.
         </p>
+      </div>
+
+      <div
+        className="project-universe-stage"
+        data-active-project={selectedProject.id}
+        data-reduced-motion={reduceMotion ? 'true' : 'false'}
+      >
+        <ProjectUniverse activeProjectId={selectedProject.id} reduceMotion={reduceMotion} />
+        <div className="project-universe-caption" aria-hidden="true">
+          <span>CONCEPTUAL ENGINEERING CONSTELLATION</span>
+          <span>INDEPENDENT PROJECTS · SHARED CURIOSITY</span>
+        </div>
       </div>
 
       <div className="mission-console">

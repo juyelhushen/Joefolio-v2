@@ -37,7 +37,7 @@ export const skillGroups: readonly SkillGroup[] = [
     icon: 'code',
     description:
       'API and service-boundary work documented in incident investigation, link management, and document Q&A projects.',
-    skills: ['Java', 'Spring Boot', 'Python', 'FastAPI', 'REST APIs'],
+    skills: ['Java', 'Spring Boot', 'Python', 'FastAPI', 'REST APIs', 'AWS', 'Docker'],
     evidenceProjects: [
       { projectName: 'Sentinel' },
       { projectName: 'Cut2Short', linkLabel: 'Backend repository' },
@@ -243,5 +243,33 @@ export const skillPlanets: readonly SkillPlanet[] = [
       { projectName: 'Sentinel' },
       { projectName: 'Enterprise Knowledge Assistant' },
     ],
+  },
+  {
+    id: 'aws',
+    name: 'AWS',
+    domainId: 'backend',
+    icon: 'aws',
+    color: '#FF9900',
+    orbit: 6,
+    durationSeconds: 41,
+    phaseDegrees: 95,
+    direction: 'counterclockwise',
+    description:
+      'The YouTube Clone backend uses Amazon S3 for uploaded files through a dedicated S3 service.',
+    evidenceProjects: [{ projectName: 'YouTube Clone' }],
+  },
+  {
+    id: 'docker',
+    name: 'Docker',
+    domainId: 'backend',
+    icon: 'docker',
+    color: '#2496ED',
+    orbit: 3,
+    durationSeconds: 27,
+    phaseDegrees: 5,
+    direction: 'clockwise',
+    description:
+      'Docker is part of the skills inventory. No project-specific container configuration is associated with the inspected repositories.',
+    evidenceProjects: [],
   },
 ];

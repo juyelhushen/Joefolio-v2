@@ -58,7 +58,7 @@ it('opens and closes the mobile navigation menu', () => {
 it('renders documented projects with links to their repositories', () => {
   renderApp();
 
-  const projectSection = within(screen.getByRole('region', { name: /Project Mission Control/ }));
+  const projectSection = within(screen.getByRole('region', { name: /Project Universe/ }));
   expect(projectSection.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
   expect(projectSection.getByRole('button', { name: /Cut2Short/ })).toBeTruthy();
   expect(
@@ -72,6 +72,12 @@ it('renders documented projects with links to their repositories', () => {
     'https://github.com/juyelhushen/Cut2Short-backend',
     'https://github.com/juyelhushen/cut2short-front',
     'https://github.com/juyelhushen/enterprise-knowledge-assistant',
+    'https://github.com/juyelhushen/library.management',
+    'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/BooksController.java',
+    'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/OrderController.java',
+    'https://github.com/juyelhushen/youtube-clone',
+    'https://github.com/juyelhushen/youtube-clone/blob/master/backend/src/main/java/com/youtubeclone/service/S3Service.java',
+    'https://github.com/juyelhushen/youtube-clone/blob/master/frontend/ui/package.json',
   ];
   const observedLinks = new Set<string>();
 

@@ -82,22 +82,71 @@ export const projects: readonly Project[] = [
     id: 'library-management-system',
     number: '04',
     name: 'Library Management System',
-    category: 'EARLIER PERSONAL PROJECT',
-    problem: 'An earlier personal project in the library-management space.',
-    summary: 'A personal project titled Library Management System.',
-    technologies: [],
+    category: 'LIBRARY SYSTEM',
+    problem:
+      'A library catalogue needs book and category management alongside a straightforward order and return workflow.',
+    summary:
+      'A full-stack library application with book and category APIs, catalogue-management screens, and order and return endpoints.',
+    engineeringFocus:
+      'The Java 11 / Spring Boot 3.0.2 backend uses Spring Data JPA and PostgreSQL. Its Angular 15.2 client and Spring Security/JWT components support the application workflows.',
+    technologies: [
+      'Java 11',
+      'Spring Boot 3.0.2',
+      'Angular 15.2',
+      'Spring Data JPA',
+      'PostgreSQL JDBC',
+      'Spring Security',
+      'JWT',
+    ],
     visual: 'library',
-    links: [],
+    links: [
+      {
+        label: 'Repository',
+        href: 'https://github.com/juyelhushen/library.management',
+      },
+      {
+        label: 'Book API',
+        href: 'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/BooksController.java',
+      },
+      {
+        label: 'Order API',
+        href: 'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/OrderController.java',
+      },
+    ],
   },
   {
     id: 'youtube-clone',
     number: '05',
     name: 'YouTube Clone',
-    category: 'EARLIER PERSONAL PROJECT',
-    problem: 'An earlier personal project in the video-browsing space.',
-    summary: 'A personal project titled YouTube Clone.',
-    technologies: [],
+    category: 'VIDEO PLATFORM',
+    problem: 'A video platform needs connected upload, playback, user, and discussion experiences.',
+    summary:
+      'A full-stack video application with upload and playback flows, channels, comments, history, likes, and subscriptions.',
+    engineeringFocus:
+      'The Java 17 / Spring Boot 3.1.4 Maven backend uses MongoDB and OAuth2 resource-server integration; its Angular 16.2 client pairs with an S3 service for uploaded files.',
+    technologies: [
+      'Java 17',
+      'Spring Boot 3.1.4',
+      'Maven multi-module',
+      'Angular 16.2',
+      'MongoDB',
+      'OAuth2 Resource Server',
+      'AWS S3',
+    ],
     visual: 'video',
-    links: [],
+    links: [
+      {
+        label: 'Repository',
+        href: 'https://github.com/juyelhushen/youtube-clone',
+      },
+      {
+        label: 'S3 upload service',
+        href: 'https://github.com/juyelhushen/youtube-clone/blob/master/backend/src/main/java/com/youtubeclone/service/S3Service.java',
+      },
+      {
+        label: 'Frontend manifest',
+        href: 'https://github.com/juyelhushen/youtube-clone/blob/master/frontend/ui/package.json',
+      },
+    ],
   },
 ];
