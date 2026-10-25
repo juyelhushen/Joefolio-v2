@@ -3,6 +3,7 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight, Mail, Menu, Sparkles, X } fro
 import { motion, useReducedMotion } from 'motion/react';
 import AiLabSection from './components/AiLabSection';
 import CosmicContactSection from './components/CosmicContactSection';
+import CosmicFooter from './components/CosmicFooter';
 import ExperienceTimeline from './components/ExperienceTimeline';
 import PortfolioAssistant from './components/PortfolioAssistant';
 import ProjectsSection from './components/ProjectsSection';
@@ -38,6 +39,7 @@ function Planet() {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const homeHeadingRef = useRef<HTMLHeadingElement>(null);
   const reduceMotion = useReducedMotion();
   const closeMenu = () => setMenuOpen(false);
 
@@ -110,7 +112,7 @@ export default function App() {
               <span className="eyebrow-separator">/</span> FULL-STACK{' '}
               <span className="eyebrow-separator">/</span> AI ENGINEERING
             </div>
-            <h1>
+            <h1 ref={homeHeadingRef} id="home-title" tabIndex={-1}>
               I build software
               <br />
               that solves <em>real problems.</em>
@@ -216,15 +218,7 @@ export default function App() {
 
         <CosmicContactSection reduceMotion={reduceMotion ?? false} />
       </main>
-      <footer className="site-footer section-wrap">
-        <a href="#home" className="footer-brand">
-          JH<span>•</span>
-        </a>
-        <p>BUILT WITH CURIOSITY · ANCHORED IN ENGINEERING</p>
-        <a href="#home" className="back-top">
-          BACK TO ORBIT ↑
-        </a>
-      </footer>
+      <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion ?? false} />
       <PortfolioAssistant />
     </div>
   );
