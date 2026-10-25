@@ -108,7 +108,7 @@ it('grounds the AI Lab in documented projects and their verified repositories', 
   renderApp();
 
   const aiLab = within(screen.getByRole('region', { name: /Engineering with/ }));
-  const legacyLink = aiLab.getByRole('link', { name: 'Visit my previous portfolio' });
+  const legacyLink = aiLab.getByRole('link', { name: 'Visit Previous Portfolio' });
   expect(legacyLink.getAttribute('href')).toBe('https://juyelhushen.netlify.app/');
   expect(legacyLink.getAttribute('target')).toBe('_blank');
   expect(legacyLink.getAttribute('rel')).toBe('noopener noreferrer');

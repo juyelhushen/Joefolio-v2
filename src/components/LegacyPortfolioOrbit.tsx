@@ -33,14 +33,14 @@ export default function LegacyPortfolioOrbit() {
         href="https://juyelhushen.netlify.app/"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Visit my previous portfolio"
+        aria-label="Visit Previous Portfolio"
       >
         <span className="legacy-portfolio-gateway">
           <Globe2 size={25} strokeWidth={1.45} aria-hidden="true" />
           <span>JH</span>
         </span>
         <span className="legacy-portfolio-label" aria-hidden="true">
-          EXPLORE LEGACY PORTFOLIO
+          Visit Previous Portfolio
         </span>
       </a>
       <span className="legacy-orbit-spark legacy-orbit-spark-one" aria-hidden="true" />
