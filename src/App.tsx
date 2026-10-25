@@ -1,17 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
-  Github,
-  Linkedin,
-  Mail,
-  Menu,
-  Sparkles,
-  X,
-} from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Mail, Menu, Sparkles, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import AiLabSection from './components/AiLabSection';
+import CosmicContactSection from './components/CosmicContactSection';
 import ExperienceTimeline from './components/ExperienceTimeline';
 import PortfolioAssistant from './components/PortfolioAssistant';
 import ProjectsSection from './components/ProjectsSection';
@@ -223,43 +214,7 @@ export default function App() {
 
         <AiLabSection />
 
-        <section
-          className="contact-section section-wrap"
-          id="contact"
-          aria-labelledby="contact-title"
-        >
-          <span className="section-kicker">OPEN CHANNEL / 006</span>
-          <h2 id="contact-title">
-            Have a good problem
-            <br />
-            <em>to solve?</em>
-          </h2>
-          <p>
-            For professional conversations, connect with me on LinkedIn. Visit GitHub to explore my
-            public project repositories.
-          </p>
-          <div className="contact-actions">
-            <a
-              className="button button-primary"
-              href="https://linkedin.com/in/juyel-hushen-770674170"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Linkedin size={16} /> Connect on LinkedIn <ArrowUpRight size={15} />
-            </a>
-            <a
-              className="button button-quiet"
-              href="https://github.com/juyelhushen"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github size={16} /> Explore GitHub <ArrowUpRight size={15} />
-            </a>
-          </div>
-          <span className="contact-email-note">
-            Direct email and résumé links will be added once confirmed.
-          </span>
-        </section>
+        <CosmicContactSection reduceMotion={reduceMotion ?? false} />
       </main>
       <footer className="site-footer section-wrap">
         <a href="#home" className="footer-brand">

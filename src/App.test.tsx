@@ -157,9 +157,9 @@ it('preserves section order and renders the Career Odyssey alongside Skills and 
 it('retains working contact destinations with secure external-link attributes', () => {
   renderApp();
 
-  const contact = within(screen.getByRole('region', { name: /Have a good problem/ }));
-  const linkedin = contact.getByRole('link', { name: /Connect on LinkedIn/ });
-  const github = contact.getByRole('link', { name: /Explore GitHub/ });
+  const contact = within(screen.getByRole('region', { name: /Send a Message into Orbit/ }));
+  const linkedin = contact.getByRole('link', { name: 'LinkedIn' });
+  const github = contact.getByRole('link', { name: 'GitHub' });
 
   expect(linkedin.getAttribute('href')).toBe('https://linkedin.com/in/juyel-hushen-770674170');
   expect(github.getAttribute('href')).toBe('https://github.com/juyelhushen');
