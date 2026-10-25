@@ -1,24 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Mail, Menu, Sparkles, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import AiLabSection from './components/AiLabSection';
 import CosmicContactSection from './components/CosmicContactSection';
 import CosmicFooter from './components/CosmicFooter';
+import CosmicMeshBackground from './components/CosmicMeshBackground';
 import ExperienceTimeline from './components/ExperienceTimeline';
 import PortfolioAssistant from './components/PortfolioAssistant';
 import ProjectsSection from './components/ProjectsSection';
+import ScrollReveal from './components/ScrollReveal';
 import SkillsSection from './components/SkillsSection';
 import Starfield from './components/Starfield';
 
 const navItems = [
-  ['Home', '#home'],
-  ['About', '#about'],
-  ['Experience', '#experience'],
-  ['Skills', '#skills'],
-  ['Projects', '#projects'],
-  ['AI Lab', '#ai-lab'],
-  ['Contact', '#contact'],
-];
+  { label: 'Home', id: 'home' },
+  { label: 'About', id: 'about' },
+  { label: 'Experience', id: 'experience' },
+  { label: 'Skills', id: 'skills' },
+  { label: 'Projects', id: 'projects' },
+  { label: 'AI Lab', id: 'ai-lab' },
+  { label: 'Contact', id: 'contact' },
+] as const;
 
 function Planet() {
   return (
@@ -37,11 +39,125 @@ function Planet() {
 }
 
 export default function App() {
+  const initialHashTarget = navItems.find(
+    (item) => item.id === (typeof window === 'undefined' ? '' : window.location.hash.slice(1)),
+  );
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<(typeof navItems)[number]['id']>(
+    initialHashTarget?.id ?? 'home',
+  );
   const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const navigationRef = useRef<HTMLElement>(null);
+  const pendingNavigationRef = useRef<(typeof navItems)[number]['id'] | null>(
+    initialHashTarget?.id ?? null,
+  );
   const homeHeadingRef = useRef<HTMLHeadingElement>(null);
   const reduceMotion = useReducedMotion();
   const closeMenu = () => setMenuOpen(false);
+
+  const updateActiveSection = useCallback(() => {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    const activationLine =
+      (header?.getBoundingClientRect().bottom ?? 0) + 16 + Math.min(140, window.innerHeight * 0.2);
+    const pendingId = pendingNavigationRef.current;
+    if (pendingId) {
+      const pendingSection = document.getElementById(pendingId);
+      if (pendingSection && pendingSection.getBoundingClientRect().top > activationLine) return;
+      pendingNavigationRef.current = null;
+    }
+
+    const page = document.documentElement;
+    if (
+      page.scrollHeight > window.innerHeight &&
+      window.scrollY + window.innerHeight >= page.scrollHeight - 2
+    ) {
+      setActiveSection((current) => (current === 'contact' ? current : 'contact'));
+      return;
+    }
+
+    let currentSection: (typeof navItems)[number]['id'] = 'home';
+    for (const item of navItems) {
+      const section = document.getElementById(item.id);
+      if (section && section.getBoundingClientRect().top <= activationLine)
+        currentSection = item.id;
+    }
+    setActiveSection((current) => (current === currentSection ? current : currentSection));
+  }, []);
+
+  const handleNavigationClick = (id: (typeof navItems)[number]['id']) => {
+    pendingNavigationRef.current = id;
+    setActiveSection(id);
+    closeMenu();
+  };
+
+  useEffect(() => {
+    const clearPendingNavigation = () => {
+      pendingNavigationRef.current = null;
+    };
+    const handleScrollKey = (event: KeyboardEvent) => {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) {
+        clearPendingNavigation();
+      }
+    };
+    const syncHistoryNavigation = () => {
+      if (
+        pendingNavigationRef.current &&
+        window.location.hash === `#${pendingNavigationRef.current}`
+      )
+        return;
+      const hashId = window.location.hash.slice(1);
+      const hashTarget = navItems.find((item) => item.id === hashId);
+      pendingNavigationRef.current = hashTarget?.id ?? null;
+      if (hashTarget) setActiveSection(hashTarget.id);
+      requestAnimationFrame(updateActiveSection);
+    };
+
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    window.addEventListener('resize', updateActiveSection);
+    window.addEventListener('wheel', clearPendingNavigation, { passive: true });
+    window.addEventListener('touchstart', clearPendingNavigation, { passive: true });
+    window.addEventListener('keydown', handleScrollKey);
+    window.addEventListener('hashchange', syncHistoryNavigation);
+    window.addEventListener('popstate', syncHistoryNavigation);
+    const initialFrame = requestAnimationFrame(updateActiveSection);
+    return () => {
+      cancelAnimationFrame(initialFrame);
+      window.removeEventListener('scroll', updateActiveSection);
+      window.removeEventListener('resize', updateActiveSection);
+      window.removeEventListener('wheel', clearPendingNavigation);
+      window.removeEventListener('touchstart', clearPendingNavigation);
+      window.removeEventListener('keydown', handleScrollKey);
+      window.removeEventListener('hashchange', syncHistoryNavigation);
+      window.removeEventListener('popstate', syncHistoryNavigation);
+    };
+  }, [updateActiveSection]);
+
+  useLayoutEffect(() => {
+    const navigation = navigationRef.current;
+    if (!navigation) return;
+
+    const updateIndicator = () => {
+      const activeLink = navigation.querySelector<HTMLAnchorElement>(
+        `[data-nav-id="${activeSection}"]`,
+      );
+      if (!activeLink) return;
+      navigation.style.setProperty(
+        '--active-indicator-left',
+        `${activeLink.offsetLeft + (activeLink.offsetWidth - 17) / 2}px`,
+      );
+    };
+
+    updateIndicator();
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateIndicator);
+    observer?.observe(navigation);
+    document.fonts?.ready.then(updateIndicator);
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [activeSection, menuOpen]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -59,30 +175,45 @@ export default function App() {
 
   return (
     <div className="site-shell">
+      <CosmicMeshBackground />
       <Starfield />
       <div className="space-grain" aria-hidden="true" />
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
       <header className="site-header">
-        <a href="#home" className="brand" aria-label="Juyel Hushen home" onClick={closeMenu}>
+        <a
+          href="#home"
+          className="brand"
+          aria-label="Juyel Hushen home"
+          onClick={() => handleNavigationClick('home')}
+        >
           <span className="brand-mark">
             JH<span className="brand-spark">•</span>
           </span>
           <span className="brand-name">JUYEL HUSHEN</span>
         </a>
         <nav
+          ref={navigationRef}
           className={`main-nav ${menuOpen ? 'is-open' : ''}`}
           id="main-navigation"
           aria-label="Main navigation"
         >
-          {navItems.map(([label, href], index) => (
-            <a key={label} href={href} className={index === 0 ? 'active' : ''} onClick={closeMenu}>
+          {navItems.map(({ label, id }) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              data-nav-id={id}
+              className={activeSection === id ? 'active' : ''}
+              aria-current={activeSection === id ? 'location' : undefined}
+              onClick={() => handleNavigationClick(id)}
+            >
               {label}
             </a>
           ))}
+          <span className="main-nav-indicator" aria-hidden="true" />
         </nav>
-        <a className="header-cta" href="#contact">
+        <a className="header-cta" href="#contact" onClick={() => handleNavigationClick('contact')}>
           <Mail size={15} /> <span>Contact</span>
         </a>
         <button
@@ -168,11 +299,11 @@ export default function App() {
         </section>
 
         <section className="manifesto section-wrap" id="about" aria-labelledby="about-title">
-          <div className="manifesto-symbol">
+          <ScrollReveal className="manifesto-symbol">
             <Sparkles size={24} strokeWidth={1.2} />
             <span>FIELD NOTES / 002</span>
-          </div>
-          <div className="manifesto-copy">
+          </ScrollReveal>
+          <ScrollReveal className="manifesto-copy" delay={0.08}>
             <h2 id="about-title">
               Build end to end.
               <br />
@@ -184,10 +315,12 @@ export default function App() {
               LLM applications, and agentic systems, with attention to inspectable retrieval, tools,
               and verification.
             </p>
-          </div>
-          <a className="text-link" href="#skills">
-            Explore my toolkit <ArrowUpRight size={16} />
-          </a>
+          </ScrollReveal>
+          <ScrollReveal className="manifesto-link-reveal" delay={0.14}>
+            <a className="text-link" href="#skills">
+              Explore my toolkit <ArrowUpRight size={16} />
+            </a>
+          </ScrollReveal>
         </section>
 
         <section
@@ -195,7 +328,7 @@ export default function App() {
           id="experience"
           aria-labelledby="experience-title"
         >
-          <div className="section-heading career-heading">
+          <ScrollReveal className="section-heading career-heading">
             <div>
               <span className="section-kicker">CAREER ODYSSEY / 003</span>
               <h2 id="experience-title">
@@ -206,8 +339,10 @@ export default function App() {
               Four career chapters, from a Java Developer Internship through to my current Software
               Engineer II role.
             </p>
-          </div>
-          <ExperienceTimeline reduceMotion={reduceMotion ?? false} />
+          </ScrollReveal>
+          <ScrollReveal className="career-odyssey-reveal">
+            <ExperienceTimeline reduceMotion={reduceMotion ?? false} />
+          </ScrollReveal>
         </section>
 
         <SkillsSection reduceMotion={reduceMotion ?? false} />

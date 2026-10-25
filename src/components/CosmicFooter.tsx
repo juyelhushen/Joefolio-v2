@@ -2,6 +2,7 @@ import { useRef, useState, type RefObject } from 'react';
 import { Linkedin, Plane } from 'lucide-react';
 import { motion } from 'motion/react';
 import { siGithub, siLeetcode, type SimpleIcon } from 'simple-icons';
+import ScrollReveal from './ScrollReveal';
 
 type CosmicFooterProps = {
   homeHeadingRef: RefObject<HTMLHeadingElement | null>;
@@ -76,7 +77,7 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
 
   return (
     <footer className="site-footer section-wrap">
-      <div className="footer-connect">
+      <ScrollReveal className="footer-connect">
         <span className="section-kicker">COSMIC CONNECT / END OF TRANSMISSION</span>
         <h2>Let’s connect across the universe.</h2>
         <p>
@@ -114,13 +115,13 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
           <Plane size={16} aria-hidden="true" />
           <span>Fly to top</span>
         </button>
-      </div>
-      <div className="site-footer-bottom">
+      </ScrollReveal>
+      <ScrollReveal className="site-footer-bottom">
         <a href="#home" className="footer-brand" aria-label="Juyel Hushen home">
           JH<span>•</span>
         </a>
         <p>© {currentYear} JUYEL HUSHEN · BUILT WITH CURIOSITY</p>
-      </div>
+      </ScrollReveal>
       {flight && (
         <motion.div
           key={`${flight.x}-${flight.y}`}

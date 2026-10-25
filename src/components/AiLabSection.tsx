@@ -1,6 +1,7 @@
 import { ArrowUpRight, Network, ShieldCheck } from 'lucide-react';
 import { projects } from '../data/projects';
 import LegacyPortfolioOrbit from './LegacyPortfolioOrbit';
+import ScrollReveal from './ScrollReveal';
 
 const caseStudies = [
   {
@@ -22,7 +23,7 @@ const caseStudies = [
 export default function AiLabSection() {
   return (
     <section className="ai-lab section-wrap" id="ai-lab" aria-labelledby="ai-lab-title">
-      <div className="ai-lab-heading">
+      <ScrollReveal className="ai-lab-heading">
         <span className="section-kicker">EXPERIMENT BAY / 005</span>
         <h2 id="ai-lab-title">
           Engineering with
@@ -33,9 +34,9 @@ export default function AiLabSection() {
           Applied AI work is strongest when its sources, tools, and boundaries are inspectable.
           These projects explore retrieval-grounded answers and controlled agent workflows.
         </p>
-      </div>
+      </ScrollReveal>
       <LegacyPortfolioOrbit />
-      <div className="ai-lab-cases">
+      <ScrollReveal className="ai-lab-cases">
         {caseStudies.map((study) => {
           const project = projects.find((item) => item.name === study.name);
           const Icon = study.icon;
@@ -69,7 +70,7 @@ export default function AiLabSection() {
             </article>
           );
         })}
-      </div>
+      </ScrollReveal>
     </section>
   );
 }
