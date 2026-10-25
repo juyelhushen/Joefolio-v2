@@ -56,6 +56,12 @@ it('renders the four career chapters in reverse chronological order', () => {
     'Nayamsoft',
     'Test Yantra',
   ]);
+  expect(experience.map(({ chapter }) => chapter)).toEqual([4, 3, 2, 1]);
+  expect(
+    within(timeline)
+      .getAllByText(/^CHAPTER \//)
+      .map((chapter) => chapter.textContent),
+  ).toEqual(['CHAPTER / 4', 'CHAPTER / 3', 'CHAPTER / 2', 'CHAPTER / 1']);
 });
 
 it('omits the unresolved Test Yantra dates and shows the other supplied periods', () => {
@@ -118,6 +124,9 @@ it('supports keyboard selection and exposes the selected milestone state', () =>
 it('disables continuous route movement under reduced motion while keeping roles visible', () => {
   render(<ExperienceTimeline reduceMotion />);
 
+  expect(document.querySelector('.career-odyssey')?.getAttribute('data-reduced-motion')).toBe(
+    'true',
+  );
   expect(document.querySelectorAll('.career-route[data-motion="reduced"]')).toHaveLength(2);
   expect(document.querySelector('.career-route-signal')).toBeNull();
   expect(document.querySelector('.career-route-desktop .career-route-line')).toBeTruthy();

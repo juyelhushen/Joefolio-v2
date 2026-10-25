@@ -32,11 +32,17 @@ function CareerRoute({
           y1="0"
           y2="1"
         >
-          <stop offset="0%" stopColor="#ffbc8f" stopOpacity=".82" />
-          <stop offset="52%" stopColor="#a5a6ff" stopOpacity=".82" />
-          <stop offset="100%" stopColor="#77bbff" stopOpacity=".3" />
+          <stop offset="0%" stopColor="#77bbff" stopOpacity=".82" />
+          <stop offset="42%" stopColor="#8fd8ce" stopOpacity=".82" />
+          <stop offset="72%" stopColor="#c3a9ff" stopOpacity=".82" />
+          <stop offset="100%" stopColor="#ffc38e" stopOpacity=".3" />
         </linearGradient>
       </defs>
+      <path
+        className="career-route-aura"
+        d={route}
+        stroke={`url(#career-route-gradient-${mobile ? 'mobile' : 'desktop'})`}
+      />
       {reduceMotion ? (
         <path
           id={routeId}
@@ -80,6 +86,7 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
           return (
             <motion.li
               className={`experience-entry${selected ? ' is-selected' : ''}${entry.current ? ' is-current' : ''}`}
+              data-chapter={entry.chapter}
               key={entry.id}
               initial={reduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -89,9 +96,7 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
               <article className="experience-card" id={`career-card-${entry.id}`}>
                 <div className="experience-card-heading">
                   <div>
-                    <span className="experience-chapter">
-                      CHAPTER / {String(index + 1).padStart(2, '0')}
-                    </span>
+                    <span className="experience-chapter">CHAPTER / {entry.chapter}</span>
                     <p className="experience-employer">{entry.employer}</p>
                     <h3>{entry.role}</h3>
                   </div>
