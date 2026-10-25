@@ -208,11 +208,51 @@ button {
   min-width: 178px;
 }
 .brand-mark {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+  isolation: isolate;
   font-family: var(--font-display);
   font-size: 32px;
   line-height: 1;
   font-weight: 700;
   letter-spacing: -2px;
+  color: #f4f7ff;
+  text-shadow: 0 0 18px rgba(118, 181, 255, 0.28);
+}
+.brand-mark::before {
+  position: absolute;
+  z-index: -1;
+  inset: -6px -9px;
+  border: 1px solid rgba(114, 194, 255, 0.42);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+  transform: rotate(-18deg) scaleY(0.64);
+  box-shadow: 0 0 12px rgba(74, 174, 255, 0.13);
+}
+.brand-mark-text {
+  position: relative;
+  z-index: 1;
+}
+.brand-orbit {
+  position: absolute;
+  inset: -6px -9px;
+  pointer-events: none;
+  animation: brand-orbit-turn 18s linear infinite;
+}
+.brand-orbit > span {
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a8eaff;
+  box-shadow:
+    0 0 5px 2px rgba(113, 211, 255, 0.7),
+    0 0 12px 4px rgba(82, 169, 255, 0.35);
+  transform: translateY(-50%);
 }
 .brand-spark,
 .footer-brand span {
@@ -268,14 +308,37 @@ button {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 12px 0;
-  border: 0;
-  border-radius: 0;
-  color: #e5e8f1;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 178, 111, 0.42);
+  border-radius: 999px;
+  color: #ffd0a4;
+  background: rgba(255, 158, 88, 0.075);
   font-size: 12px;
-  transition: color 0.25s;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 0 20px rgba(255, 142, 71, 0.07);
+  transition:
+    color 0.25s,
+    background-color 0.25s,
+    border-color 0.25s,
+    box-shadow 0.25s,
+    transform 0.25s;
 }
-.header-cta:hover,
+.header-cta svg {
+  color: #ffb879;
+  transition: transform 0.25s;
+}
+.header-cta:hover {
+  border-color: rgba(255, 194, 137, 0.78);
+  color: #fff0dd;
+  background: rgba(255, 158, 88, 0.14);
+  box-shadow: 0 0 24px rgba(255, 142, 71, 0.17);
+  transform: translateY(-1px);
+}
+.header-cta:hover svg {
+  transform: translate(2px, -2px);
+}
 .button-quiet:hover {
   color: #ffd0aa;
 }
@@ -300,7 +363,14 @@ button {
   background: rgba(255, 158, 88, 0.06);
 }
 @media (prefers-reduced-motion: reduce) {
+  .brand-orbit {
+    animation: none;
+  }
   .main-nav-indicator {
+    transition-duration: 0ms;
+  }
+  .header-cta,
+  .header-cta svg {
     transition-duration: 0ms;
   }
 }
@@ -3073,7 +3143,7 @@ button {
     200% 100%;
   background-position:
     center,
-    0% 50%;
+    0% calc(50% + 8px);
   box-shadow:
     inset -35px -12px 46px rgba(0, 5, 20, 0.82),
     inset 13px 3px 25px rgba(98, 183, 255, 0.15),
@@ -3112,7 +3182,7 @@ button {
   animation: none;
   background-position:
     center,
-    50% 50%;
+    50% calc(50% + 8px);
 }
 .earth-destination-label {
   position: absolute;
@@ -3237,11 +3307,16 @@ button {
     rotate: 360deg;
   }
 }
+@keyframes brand-orbit-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @keyframes earth-map-turn {
   to {
     background-position:
       center,
-      200% 50%;
+      200% calc(50% + 8px);
   }
 }
 @keyframes earth-arrival-pulse {
@@ -3561,13 +3636,14 @@ button {
   }
   .header-cta {
     margin-left: auto;
-    padding: 10px 11px;
-    font-size: 0;
-    gap: 0;
+    min-height: 40px;
+    padding: 0 9px;
+    font-size: 10px;
+    gap: 4px;
   }
   .header-cta svg {
-    width: 17px;
-    height: 17px;
+    width: 14px;
+    height: 14px;
   }
   .menu-toggle {
     display: flex;
@@ -4136,6 +4212,23 @@ button {
   .site-footer-bottom p {
     font-size: 7px;
     letter-spacing: 1px;
+  }
+}
+@media (max-width: 380px) {
+  .site-header {
+    width: calc(100% - 24px);
+    gap: 8px;
+  }
+  .brand {
+    min-width: 110px;
+  }
+  .brand-name {
+    letter-spacing: 2.4px;
+    white-space: nowrap;
+  }
+  .header-cta {
+    gap: 3px;
+    padding-inline: 8px;
   }
 }
 @media (max-width: 600px) {

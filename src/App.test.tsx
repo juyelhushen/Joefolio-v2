@@ -129,6 +129,26 @@ it('keeps each navigation target present and exposes one animated active indicat
   expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe('#home');
 });
 
+it('keeps the animated JH brand link and prominent Get in Touch destination', () => {
+  renderApp();
+
+  const brand = document.querySelector<HTMLAnchorElement>('.site-header .brand');
+  expect(brand).toBeTruthy();
+  if (!brand) throw new Error('The navbar brand link was not rendered.');
+  const decoration = brand.querySelector('.brand-orbit');
+  expect(brand.getAttribute('href')).toBe('#home');
+  expect(brand.textContent).toContain('JUYEL HUSHEN');
+  expect(decoration?.getAttribute('aria-hidden')).toBe('true');
+  expect(decoration?.querySelector('a, button')).toBeNull();
+
+  const contactCta = screen.getByRole('link', { name: 'Get in Touch' });
+  expect(contactCta.getAttribute('href')).toBe('#contact');
+  fireEvent.click(contactCta);
+  expect(
+    document.querySelector('#main-navigation [aria-current="location"]')?.getAttribute('href'),
+  ).toBe('#contact');
+});
+
 it('immediately activates the clicked destination and closes the mobile menu', () => {
   renderApp();
 

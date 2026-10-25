@@ -63,6 +63,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       specular: new Color(0x183d68),
     });
     const earth = new Mesh(geometry, material);
+    earth.rotation.x = 0.06;
     scene.add(earth);
 
     const atmosphere = new Mesh(

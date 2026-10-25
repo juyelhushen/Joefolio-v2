@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Mail, Menu, Sparkles, X } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Menu, Sparkles, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import AiLabSection from './components/AiLabSection';
 import CosmicContactSection from './components/CosmicContactSection';
@@ -189,7 +189,12 @@ export default function App() {
           onClick={() => handleNavigationClick('home')}
         >
           <span className="brand-mark">
-            JH<span className="brand-spark">•</span>
+            <span className="brand-mark-text">
+              JH<span className="brand-spark">•</span>
+            </span>
+            <span className="brand-orbit" aria-hidden="true">
+              <span />
+            </span>
           </span>
           <span className="brand-name">JUYEL HUSHEN</span>
         </a>
@@ -214,7 +219,8 @@ export default function App() {
           <span className="main-nav-indicator" aria-hidden="true" />
         </nav>
         <a className="header-cta" href="#contact" onClick={() => handleNavigationClick('contact')}>
-          <Mail size={15} /> <span>Contact</span>
+          <span>Get in Touch</span>
+          <ArrowUpRight size={16} aria-hidden="true" />
         </a>
         <button
           ref={menuToggleRef}
