@@ -1,5 +1,6 @@
 import { ArrowUpRight, Network, ShieldCheck } from 'lucide-react';
 import { projects } from '../data/projects';
+import LegacyPortfolioOrbit from './LegacyPortfolioOrbit';
 
 const caseStudies = [
   {
@@ -33,11 +34,7 @@ export default function AiLabSection() {
           These projects explore retrieval-grounded answers and controlled agent workflows.
         </p>
       </div>
-      <div className="ai-lab-orb" aria-hidden="true">
-        <div />
-        <div />
-        <div />
-      </div>
+      <LegacyPortfolioOrbit />
       <div className="ai-lab-cases">
         {caseStudies.map((study) => {
           const project = projects.find((item) => item.name === study.name);
