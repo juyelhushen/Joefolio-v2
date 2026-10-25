@@ -26,6 +26,28 @@ it('renders orbiting technology planets from the existing skills inventory', () 
   }
 });
 
+it('includes AWS with YouTube S3 evidence and Docker without an unsupported project claim', () => {
+  const section = renderSkills();
+
+  for (const name of ['AWS', 'Docker']) {
+    expect(within(section).getByRole('button', { name: `Select ${name} skill` })).toBeTruthy();
+    expect(skillGroups.find((group) => group.id === 'backend')?.skills).toContain(name);
+  }
+
+  fireEvent.click(within(section).getByRole('button', { name: 'Select AWS skill' }));
+  expect(section.textContent).toContain('Amazon S3');
+  const youtubeRepositoryLink = within(section)
+    .getAllByRole('link')
+    .find((link) => link.getAttribute('href') === 'https://github.com/juyelhushen/youtube-clone');
+  expect(youtubeRepositoryLink).toBeTruthy();
+
+  fireEvent.click(within(section).getByRole('button', { name: 'Select Docker skill' }));
+  expect(section.textContent).toContain(
+    'No project-specific container configuration is associated',
+  );
+  expect(within(section).queryByRole('link')).toBeNull();
+});
+
 it('configures distinct continuous orbital speeds and phase offsets', () => {
   renderSkills();
 

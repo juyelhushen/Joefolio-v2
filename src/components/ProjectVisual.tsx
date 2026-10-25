@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, Check, FileText, Play, Search, Shield } from 'lucide-react';
+import { ArrowDown, ArrowRight, Check, FileText, Play, Search, Shield, Upload } from 'lucide-react';
 import type { ProjectVisual as ProjectVisualType } from '../data/projects';
 
 type ProjectVisualProps = {
@@ -92,12 +92,20 @@ export default function ProjectVisual({ visual }: ProjectVisualProps) {
             <Search />
             <span>CATALOGUE</span>
           </div>
+          <div className="visual-library-flow">
+            <span>BOOK RECORD</span>
+            <ArrowRight />
+            <span>ORDER</span>
+            <ArrowRight />
+            <span>RETURN</span>
+          </div>
         </div>
       )}
 
       {visual === 'video' && (
         <div className="visual-video-browser">
           <div className="visual-video-feature">
+            <span className="visual-video-timeline-label">PLAYBACK TIMELINE</span>
             <span className="visual-video-play">
               <Play fill="currentColor" />
             </span>
@@ -109,6 +117,11 @@ export default function ProjectVisual({ visual }: ProjectVisualProps) {
             <i />
             <i />
             <i />
+          </div>
+          <div className="visual-video-storage">
+            <Upload />
+            <span>UPLOAD</span>
+            <strong>AWS S3</strong>
           </div>
           <div className="visual-video-nav">
             <span>VIDEO</span>

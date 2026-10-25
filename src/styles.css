@@ -629,7 +629,99 @@ button {
   max-width: 760px;
   font-size: clamp(34px, 4vw, 49px);
 }
+.project-universe-stage {
+  position: relative;
+  height: 218px;
+  overflow: hidden;
+  border-top: 1px solid rgba(137, 166, 210, 0.12);
+  border-bottom: 1px solid rgba(137, 166, 210, 0.12);
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(48, 68, 116, 0.15), transparent 62%),
+    linear-gradient(90deg, transparent, rgba(137, 166, 210, 0.025), transparent);
+}
+.project-universe-stage::before,
+.project-universe-stage::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(141, 174, 222, 0.12), transparent);
+  content: '';
+}
+.project-universe-stage::before {
+  top: 29%;
+}
+.project-universe-stage::after {
+  bottom: 25%;
+}
+.project-universe-graphic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.project-universe-route {
+  stroke: url(#universe-path-gradient);
+  stroke-width: 1.3;
+  stroke-dasharray: 2 7;
+  animation: project-universe-drift 25s linear infinite;
+}
+.project-universe-route-2,
+.project-universe-route-4 {
+  animation-direction: reverse;
+}
+.project-universe-packet {
+  fill: #c7ddff;
+  filter: drop-shadow(0 0 5px rgba(140, 189, 255, 0.9));
+}
+.project-universe-node-halo {
+  fill: rgba(116, 150, 204, 0.1);
+  stroke: rgba(147, 180, 229, 0.32);
+  stroke-width: 1;
+  transition:
+    fill var(--motion-fast) var(--ease-standard),
+    stroke var(--motion-fast) var(--ease-standard);
+}
+.project-universe-node-core {
+  fill: #9fbae0;
+  filter: drop-shadow(0 0 5px rgba(138, 181, 241, 0.56));
+  transition:
+    fill var(--motion-fast) var(--ease-standard),
+    r var(--motion-fast) var(--ease-standard);
+}
+.project-universe-node-tick {
+  fill: none;
+  stroke: rgba(151, 180, 219, 0.32);
+  stroke-width: 1;
+}
+.project-universe-node.is-active .project-universe-node-halo {
+  fill: rgba(140, 173, 228, 0.22);
+  stroke: rgba(186, 207, 243, 0.86);
+}
+.project-universe-node.is-active .project-universe-node-core {
+  fill: #eef5ff;
+}
+.project-universe-caption {
+  position: absolute;
+  z-index: 1;
+  right: 2px;
+  bottom: 13px;
+  left: 2px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  color: #7687a3;
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 1.15px;
+  pointer-events: none;
+}
 .mission-console {
+  position: relative;
+  z-index: 1;
+  margin-top: -34px;
   display: grid;
   gap: 16px;
 }
@@ -959,6 +1051,32 @@ button {
   width: 13px;
   height: 13px;
 }
+.visual-library-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(5px, 1.2vw, 12px);
+  color: #bfd6c1;
+  font-size: 7px;
+  letter-spacing: 0.8px;
+}
+.visual-library-flow svg {
+  width: 12px;
+  height: 12px;
+  color: #819c85;
+}
+.visual-library-shelf span {
+  animation: library-record-glint 5s ease-in-out infinite;
+}
+.visual-library-shelf span:nth-child(2) {
+  animation-delay: -1.2s;
+}
+.visual-library-shelf span:nth-child(3) {
+  animation-delay: -2.1s;
+}
+.visual-library-shelf span:nth-child(5) {
+  animation-delay: -3.3s;
+}
 .visual-video-browser {
   position: relative;
   z-index: 1;
@@ -978,6 +1096,14 @@ button {
   background:
     linear-gradient(135deg, rgba(240, 113, 126, 0.2), transparent 55%),
     linear-gradient(20deg, #171522, #24344a);
+}
+.visual-video-timeline-label {
+  position: absolute;
+  top: 11px;
+  left: 11px;
+  color: rgba(255, 224, 226, 0.72);
+  font-size: 7px;
+  letter-spacing: 0.8px;
 }
 .visual-video-play {
   display: grid;
@@ -1016,6 +1142,30 @@ button {
   border: 1px solid rgba(255, 133, 142, 0.18);
   border-radius: 7px;
   background: linear-gradient(120deg, rgba(255, 133, 142, 0.18), rgba(41, 53, 76, 0.76));
+}
+.visual-video-storage {
+  display: flex;
+  min-height: 26px;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 153, 0, 0.2);
+  border-radius: 7px;
+  color: #c7adb0;
+  background: rgba(31, 21, 19, 0.58);
+  font-size: 7px;
+  letter-spacing: 0.8px;
+}
+.visual-video-storage svg {
+  width: 12px;
+  height: 12px;
+  color: #ffb84b;
+}
+.visual-video-storage strong {
+  margin-left: auto;
+  color: #ffd08b;
+  font-weight: 600;
 }
 .visual-video-nav {
   position: absolute;
@@ -1181,6 +1331,20 @@ button {
 }
 .visual-video-play {
   animation: mission-video-glow 3.6s ease-in-out infinite;
+}
+@keyframes project-universe-drift {
+  to {
+    stroke-dashoffset: -54;
+  }
+}
+@keyframes library-record-glint {
+  0%,
+  100% {
+    filter: brightness(0.9);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
 }
 @keyframes mission-node-signal {
   0%,
@@ -2298,6 +2462,12 @@ button {
   }
 }
 @media (max-width: 900px) {
+  .project-universe-stage {
+    height: 190px;
+  }
+  .mission-console {
+    margin-top: -28px;
+  }
   .mission-feature {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2462,6 +2632,17 @@ button {
   .project-section {
     padding-top: 28px;
     padding-bottom: 82px;
+  }
+  .project-universe-stage {
+    height: 150px;
+  }
+  .project-universe-caption {
+    bottom: 10px;
+    font-size: 6px;
+    letter-spacing: 0.65px;
+  }
+  .mission-console {
+    margin-top: -20px;
   }
   .section-heading {
     align-items: flex-start;
@@ -2819,7 +3000,15 @@ button {
   }
   .skill-orbit-frame,
   .skill-planet-counter,
-  .solar-core-corona {
+  .solar-core-corona,
+  .project-universe-route,
+  .project-universe-packet,
+  .visual-pipeline-node-active,
+  .visual-link-flow > .visual-flow-arrow,
+  .visual-retrieval i:first-of-type,
+  .visual-library-search svg,
+  .visual-library-shelf span,
+  .visual-video-play {
     animation: none !important;
   }
   .skill-orbit-frame {

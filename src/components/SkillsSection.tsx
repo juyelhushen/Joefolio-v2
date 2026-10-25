@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
+import { Cloud } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { SimpleIcon } from 'simple-icons';
 import {
   siApachekafka,
+  siDocker,
   siFastapi,
   siLanggraph,
   siOllama,
@@ -27,6 +29,7 @@ const technologyIcons: Record<string, SimpleIcon> = {
   sqlite: siSqlite,
   redis: siRedis,
   apachekafka: siApachekafka,
+  docker: siDocker,
   python: siPython,
   langgraph: siLanggraph,
   ollama: siOllama,
@@ -148,15 +151,19 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                   onClick={() => setSelectedPlanetId(planet.id)}
                 >
                   <span className="skill-planet-counter" style={counterStyle} aria-hidden="true">
-                    <svg
-                      className="skill-planet-logo"
-                      viewBox="0 0 24 24"
-                      role="img"
-                      focusable="false"
-                      style={{ color: planet.color }}
-                    >
-                      <path d={icon.path} />
-                    </svg>
+                    {planet.icon === 'aws' ? (
+                      <Cloud className="skill-planet-logo" aria-hidden="true" />
+                    ) : (
+                      <svg
+                        className="skill-planet-logo"
+                        viewBox="0 0 24 24"
+                        role="img"
+                        focusable="false"
+                        style={{ color: planet.color }}
+                      >
+                        <path d={icon.path} />
+                      </svg>
+                    )}
                     <span className="skill-planet-label">{planet.name}</span>
                   </span>
                 </button>
@@ -177,9 +184,13 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
         >
           <div className="skill-detail-heading">
             <span className="skill-detail-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d={selectedIcon.path} />
-              </svg>
+              {selectedPlanet.icon === 'aws' ? (
+                <Cloud aria-hidden="true" />
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d={selectedIcon.path} />
+                </svg>
+              )}
             </span>
             <span className="skill-detail-kicker">
               {selectedDomain?.name ?? 'Engineering'} /{' '}
