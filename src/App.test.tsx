@@ -125,7 +125,7 @@ it('grounds the AI Lab in documented projects and their verified repositories', 
   expect(repoLink).toBeTruthy();
 });
 
-it('links to the skills section and renders the unconfirmed employment state', () => {
+it('preserves section order and renders the Career Odyssey alongside Skills and Projects', () => {
   renderApp();
 
   const skillsLink = screen.getByRole('link', { name: 'Skills' });
@@ -146,10 +146,12 @@ it('links to the skills section and renders the unconfirmed employment state', (
     '#skills',
   );
   expect(
-    screen.getByRole('heading', { level: 3, name: 'Professional history is being updated' }),
+    screen.getByRole('heading', { level: 2, name: /Every chapter built something/ }),
   ).toBeTruthy();
+  expect(screen.getByRole('heading', { level: 3, name: 'Software Engineer II' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Select Spring Boot skill' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Select LangGraph skill' })).toBeTruthy();
+  expect(screen.getByRole('group', { name: 'Project archive' })).toBeTruthy();
 });
 
 it('retains working contact destinations with secure external-link attributes', () => {
