@@ -4,6 +4,7 @@ import App from './App';
 
 afterEach(() => {
   cleanup();
+  window.history.replaceState(null, '', '/');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -53,6 +54,126 @@ it('opens and closes the mobile navigation menu', () => {
   expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).not.toContain(
     'is-open',
   );
+});
+
+it('tracks the active section while scrolling down and back up', () => {
+  renderApp();
+  Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 });
+
+  const sectionTops: Record<string, number> = {
+    home: 88,
+    about: 900,
+    experience: 1800,
+    skills: 2700,
+    projects: 3600,
+    'ai-lab': 4500,
+    contact: 5400,
+  };
+  for (const id of Object.keys(sectionTops)) {
+    vi.spyOn(document.getElementById(id)!, 'getBoundingClientRect').mockImplementation(() => {
+      const top = sectionTops[id];
+      return {
+        top,
+        bottom: top + 800,
+        left: 0,
+        right: 1200,
+        width: 1200,
+        height: 800,
+        x: 0,
+        y: top,
+        toJSON: () => ({}),
+      };
+    });
+  }
+
+  const currentLink = () =>
+    document.querySelector('#main-navigation a[aria-current="location"]')?.getAttribute('href');
+  expect(currentLink()).toBe('#home');
+
+  sectionTops.about = 100;
+  sectionTops.experience = 1000;
+  fireEvent.scroll(window);
+  expect(currentLink()).toBe('#about');
+
+  sectionTops.about = -900;
+  sectionTops.experience = 100;
+  sectionTops.skills = 1000;
+  fireEvent.scroll(window);
+  expect(currentLink()).toBe('#experience');
+
+  sectionTops.about = 100;
+  sectionTops.experience = 1000;
+  sectionTops.skills = 2000;
+  fireEvent.scroll(window);
+  expect(currentLink()).toBe('#about');
+});
+
+it('keeps each navigation target present and exposes one animated active indicator', () => {
+  renderApp();
+
+  const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
+  const links = [...navigation.querySelectorAll<HTMLAnchorElement>('a[data-nav-id]')];
+  expect(links.map((link) => link.getAttribute('href'))).toEqual([
+    '#home',
+    '#about',
+    '#experience',
+    '#skills',
+    '#projects',
+    '#ai-lab',
+    '#contact',
+  ]);
+  for (const link of links) {
+    expect(document.getElementById(link.dataset.navId ?? '')).toBeTruthy();
+  }
+  expect(navigation.querySelectorAll('.main-nav-indicator')).toHaveLength(1);
+  expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe('#home');
+});
+
+it('immediately activates the clicked destination and closes the mobile menu', () => {
+  renderApp();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+  const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
+  fireEvent.click(within(navigation).getByRole('link', { name: 'Projects' }));
+
+  expect(screen.getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe(
+    'false',
+  );
+  expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe(
+    '#projects',
+  );
+});
+
+it('tracks direct hash navigation and browser history targets', () => {
+  window.history.replaceState(null, '', '/#contact');
+  renderApp();
+  const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
+  expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe(
+    '#contact',
+  );
+
+  window.history.replaceState(null, '', '/#skills');
+  fireEvent(window, new PopStateEvent('popstate'));
+  expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe(
+    '#skills',
+  );
+});
+
+it('keeps the cosmic mesh, starfield, and grain as non-interactive global background layers', () => {
+  renderApp();
+
+  const mesh = document.querySelector('.cosmic-mesh-background');
+  const meshCanvas = mesh?.querySelector('canvas.cosmic-mesh-canvas');
+  const starfield = document.querySelector('canvas.starfield');
+  const grain = document.querySelector('.space-grain');
+
+  expect(mesh).toBeTruthy();
+  expect(mesh?.getAttribute('aria-hidden')).toBe('true');
+  expect(mesh?.getAttribute('data-mode')).toBe('fallback');
+  expect(meshCanvas).toBeTruthy();
+  expect(starfield).toBeTruthy();
+  expect(grain).toBeTruthy();
+  expect(document.querySelector('#main-content')).toBeTruthy();
 });
 
 it('renders documented projects with links to their repositories', () => {

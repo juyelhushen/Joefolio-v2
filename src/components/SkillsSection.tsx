@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { Cloud } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { SimpleIcon } from 'simple-icons';
+import ScrollReveal from './ScrollReveal';
 import {
   siApachekafka,
   siDocker,
@@ -97,7 +98,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
 
   return (
     <section className="skills-section section-wrap" id="skills" aria-labelledby="skills-title">
-      <div className="section-heading skills-heading">
+      <ScrollReveal className="section-heading skills-heading">
         <div>
           <span className="section-kicker">ENGINEERING SOLAR SYSTEM / 006</span>
           <h2 id="skills-title">
@@ -105,9 +106,9 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
           </h2>
         </div>
         <p>Explore the tools, disciplines, and systems behind my engineering work.</p>
-      </div>
+      </ScrollReveal>
 
-      <div className="skills-solar-system">
+      <ScrollReveal className="skills-solar-system">
         <div
           className="skills-orbit-scene"
           role="group"
@@ -229,7 +230,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
             )}
           </div>
         </motion.article>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }
