@@ -1,0 +1,336 @@
+.career-odyssey {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: 39px;
+  padding: 24px 0;
+  background:
+    radial-gradient(ellipse at 16% 13%, rgba(85, 125, 198, 0.1), transparent 30%),
+    radial-gradient(ellipse at 86% 64%, rgba(135, 105, 181, 0.08), transparent 32%),
+    radial-gradient(circle at 6% 24%, rgba(197, 219, 255, 0.34) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 87% 16%, rgba(197, 219, 255, 0.24) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 18% 76%, rgba(197, 219, 255, 0.2) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 92% 89%, rgba(197, 219, 255, 0.22) 0 1px, transparent 1.5px);
+}
+.career-route {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.career-route-aura {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  opacity: 0.12;
+  filter: drop-shadow(0 0 10px rgba(136, 166, 237, 0.5));
+  vector-effect: non-scaling-stroke;
+}
+.career-route-desktop {
+  width: 100%;
+}
+.career-route-mobile {
+  display: none;
+}
+.career-route-line {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-dasharray: 3 7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 5px rgba(137, 173, 240, 0.28));
+}
+.career-route-signal {
+  fill: #e9f3ff;
+  filter: drop-shadow(0 0 5px rgba(145, 192, 255, 0.85));
+}
+.experience-timeline {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.experience-entry {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  min-height: 174px;
+  grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1fr);
+  align-items: center;
+  gap: 15px;
+  --career-accent: #8fc7ff;
+  animation: career-float 7.4s ease-in-out infinite;
+}
+.experience-entry:nth-child(2) {
+  animation-duration: 8.3s;
+  animation-delay: -2.1s;
+}
+.experience-entry:nth-child(3) {
+  animation-duration: 7.8s;
+  animation-delay: -4.4s;
+}
+.experience-entry:nth-child(4) {
+  animation-duration: 8.8s;
+  animation-delay: -1.3s;
+}
+.experience-entry[data-chapter='3'] {
+  --career-accent: #c3a9ff;
+}
+.experience-entry[data-chapter='2'] {
+  --career-accent: #8fd8ce;
+}
+.experience-entry[data-chapter='1'] {
+  --career-accent: #ffc38e;
+}
+.experience-marker {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  place-items: center;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--career-accent), transparent 38%);
+  border-radius: 50%;
+  color: var(--career-accent);
+  background: rgba(7, 11, 23, 0.95);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--career-accent), transparent 74%);
+  cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    background var(--motion-fast) var(--ease-standard);
+}
+.experience-marker-core {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+.experience-marker:hover,
+.experience-entry.is-selected .experience-marker {
+  transform: scale(1.14);
+  background: rgba(19, 27, 46, 0.98);
+  box-shadow: 0 0 27px color-mix(in srgb, var(--career-accent), transparent 58%);
+}
+.experience-marker:focus-visible {
+  outline: 2px solid #f0f5ff;
+  outline-offset: 4px;
+}
+.experience-card {
+  position: relative;
+  min-width: 0;
+  min-height: 137px;
+  grid-column: 1;
+  grid-row: 1;
+  padding: 22px 24px;
+  border: 1px solid color-mix(in srgb, var(--career-accent), transparent 80%);
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(
+      ellipse at 0% 0%,
+      color-mix(in srgb, var(--career-accent), transparent 92%),
+      transparent 58%
+    ),
+    linear-gradient(135deg, rgba(11, 16, 30, 0.95), rgba(7, 11, 22, 0.91));
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.12),
+    inset 0 1px rgba(255, 255, 255, 0.025);
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+.experience-entry:nth-child(even) .experience-card {
+  grid-column: 3;
+}
+.experience-entry.is-selected .experience-card,
+.experience-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--career-accent), transparent 46%);
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.2),
+    0 0 28px color-mix(in srgb, var(--career-accent), transparent 92%),
+    inset 0 1px rgba(255, 255, 255, 0.04);
+}
+.experience-entry.is-current .experience-card {
+  min-height: 151px;
+  border-color: color-mix(in srgb, var(--career-accent), transparent 58%);
+  background:
+    radial-gradient(
+      ellipse at 100% 0%,
+      color-mix(in srgb, var(--career-accent), transparent 88%),
+      transparent 62%
+    ),
+    linear-gradient(135deg, rgba(16, 20, 34, 0.97), rgba(8, 12, 23, 0.94));
+}
+.career-odyssey[data-reduced-motion='true'] .experience-entry {
+  animation: none;
+}
+.experience-entry.is-current .experience-card::before {
+  position: absolute;
+  top: -1px;
+  left: 24px;
+  width: 62px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--career-accent), transparent);
+  content: '';
+}
+.experience-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.experience-employer {
+  margin: 0 0 7px;
+  color: var(--career-accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.25px;
+}
+.experience-chapter {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.35px;
+}
+.experience-card h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font: 600 clamp(17px, 1.8vw, 22px)/1.32 var(--font-display);
+  letter-spacing: -0.3px;
+}
+.experience-card-meta {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 10px;
+}
+.experience-dates {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: right;
+}
+.experience-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.05px;
+  white-space: nowrap;
+}
+.experience-current::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--career-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--career-accent), transparent 18%);
+  content: '';
+}
+@keyframes career-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4px;
+  }
+}
+@media (max-width: 900px) {
+  .experience-entry {
+    grid-template-columns: minmax(0, 1fr) 66px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .experience-card {
+    padding: 19px;
+  }
+  .experience-card-heading {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .experience-card-meta {
+    justify-items: start;
+  }
+  .experience-dates {
+    text-align: left;
+    font-size: 11px;
+  }
+}
+@media (max-width: 740px) {
+  .career-odyssey {
+    margin-top: 25px;
+  }
+  .career-route-desktop {
+    display: none;
+  }
+  .career-route-mobile {
+    left: 0;
+    display: block;
+    width: 52px;
+  }
+  .experience-timeline {
+    gap: 15px;
+  }
+  .experience-marker {
+    width: 30px;
+    height: 30px;
+    grid-column: 1;
+  }
+  .experience-entry {
+    min-height: 152px;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 10px;
+    animation-name: career-float-mobile;
+  }
+  @keyframes career-float-mobile {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -2px;
+    }
+  }
+  .experience-card,
+  .experience-entry:nth-child(even) .experience-card {
+    min-height: 125px;
+    grid-column: 2;
+    padding: 17px;
+  }
+  .experience-card-heading {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .experience-card-meta {
+    justify-items: start;
+  }
+  .experience-dates {
+    font-size: 9px;
+    text-align: left;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .career-route-signal {
+    display: none;
+  }
+  .experience-entry {
+    animation: none !important;
+  }
+}

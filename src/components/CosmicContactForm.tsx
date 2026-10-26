@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent, type FormEvent, type RefObject } fr
 import { LoaderCircle, Send } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { ContactMessage } from '../lib/contact-api';
+import './CosmicContactForm.css';
 
 export type ContactStatus = 'idle' | 'pending' | 'flying' | 'success' | 'error';
 

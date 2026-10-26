@@ -1,8 +1,8 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
 import ProjectsSection from './ProjectsSection';
-import ProjectUniverse from './ProjectUniverse';
-import { projects } from '../data/projects';
+import ProjectUniverse from '../../components/ProjectUniverse';
+import { projects } from '../../data/projects';
 
 afterEach(cleanup);
 

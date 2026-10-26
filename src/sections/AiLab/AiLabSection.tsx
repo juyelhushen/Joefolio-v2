@@ -1,7 +1,8 @@
 import { ArrowUpRight, Network, ShieldCheck } from 'lucide-react';
-import { projects } from '../data/projects';
-import LegacyPortfolioOrbit from './LegacyPortfolioOrbit';
-import ScrollReveal from './ScrollReveal';
+import { projects } from '../../data/projects';
+import LegacyPortfolioOrbit from '../../components/LegacyPortfolioOrbit';
+import ScrollReveal from '../../components/ScrollReveal';
+import './AiLabSection.css';
 
 const caseStudies = [
   {

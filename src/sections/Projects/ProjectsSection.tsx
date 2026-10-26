@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
-import ProjectCard from './ProjectCard';
-import ProjectVisual from './ProjectVisual';
-import ProjectUniverse from './ProjectUniverse';
-import ScrollReveal from './ScrollReveal';
-import { projects } from '../data/projects';
+import ProjectCard from '../../components/ProjectCard';
+import ProjectVisual from '../../components/ProjectVisual';
+import ProjectUniverse from '../../components/ProjectUniverse';
+import ScrollReveal from '../../components/ScrollReveal';
+import { projects } from '../../data/projects';
+import './ProjectsSection.css';
 
 type ProjectsSectionProps = {
   reduceMotion: boolean;

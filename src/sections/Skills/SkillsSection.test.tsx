@@ -1,8 +1,8 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
 import SkillsSection from './SkillsSection';
-import { projects } from '../data/projects';
-import { skillGroups, skillPlanets } from '../data/skills';
+import { projects } from '../../data/projects';
+import { skillGroups, skillPlanets } from '../../data/skills';
 
 afterEach(cleanup);
 

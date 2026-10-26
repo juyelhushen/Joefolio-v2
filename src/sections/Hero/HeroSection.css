@@ -1,0 +1,442 @@
+.hero {
+  position: relative;
+  display: flex;
+  height: min(760px, calc(100svh - 88px));
+  min-height: 650px;
+  align-items: center;
+  padding-top: 10px;
+}
+
+.hero .hero-copy {
+  position: relative;
+  z-index: 5;
+  width: min(670px, 61%);
+  padding-bottom: 20px;
+}
+
+.hero .eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 14px rgba(255, 158, 88, 0.8);
+}
+
+.hero .eyebrow-separator {
+  color: var(--color-text-muted);
+}
+
+.hero h1 {
+  max-width: 750px;
+  margin: 31px 0 22px;
+  font-family: var(--font-display);
+  font-size: var(--type-hero);
+  font-weight: 650;
+  letter-spacing: -0.055em;
+  line-height: 1.03;
+}
+
+.hero h1 em {
+  color: var(--orange);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.hero .hero-intro {
+  max-width: 540px;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body);
+  line-height: 1.75;
+}
+
+.hero .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 27px;
+}
+
+.hero .hero-proof {
+  display: flex;
+  width: min(570px, 100%);
+  gap: 0;
+  margin-top: 52px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(185, 199, 230, 0.14);
+}
+
+.hero .hero-proof > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0 25px;
+  border-right: 1px solid rgba(185, 199, 230, 0.18);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+}
+
+.hero .hero-proof > div:first-child {
+  padding-left: 0;
+}
+
+.hero .hero-proof > div:last-child {
+  border: 0;
+}
+
+.hero .proof-index {
+  color: var(--orange);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  letter-spacing: -1px;
+}
+
+.hero .hero-side-note {
+  position: absolute;
+  top: 45%;
+  right: -2px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  writing-mode: vertical-rl;
+}
+
+.hero .note-line {
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(transparent, var(--orange), transparent);
+}
+
+.hero .note-coordinate {
+  color: var(--color-text-muted);
+  font-size: 9px;
+}
+
+.hero .scroll-cue {
+  position: absolute;
+  right: 2px;
+  bottom: 49px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.hero .scroll-cue svg {
+  color: var(--orange);
+}
+
+.hero .hero-bottom-glow {
+  position: absolute;
+  z-index: -1;
+  right: 2%;
+  bottom: 5%;
+  width: 67%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(80, 143, 255, 0.6),
+    rgba(255, 158, 88, 0.45),
+    transparent
+  );
+  filter: blur(4px);
+  box-shadow: 0 0 30px rgba(79, 139, 255, 0.22);
+}
+
+.hero .planet-scene {
+  position: absolute;
+  z-index: 0;
+  inset: -2% -7% 0 34%;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 100%);
+}
+
+.hero .planet-scene::before {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 67% 51%, rgba(255, 135, 68, 0.1), transparent 38%),
+    radial-gradient(ellipse at 56% 22%, rgba(72, 117, 210, 0.13), transparent 33%);
+  content: '';
+}
+
+.hero .ringed-planet {
+  position: absolute;
+  top: 7%;
+  right: 2%;
+  width: clamp(220px, 32vw, 440px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 28%,
+    #ced5e5 0,
+    #737e98 16%,
+    #38415e 34%,
+    #10182d 61%,
+    #060914 76%
+  );
+  box-shadow:
+    inset -25px -10px 45px #02030a,
+    inset 12px 12px 37px rgba(255, 201, 147, 0.23),
+    0 0 100px rgba(58, 102, 184, 0.12);
+  animation: hero-planet-float 14s ease-in-out infinite;
+}
+
+.hero .ringed-planet::before {
+  position: absolute;
+  top: 38%;
+  right: -42%;
+  left: -30%;
+  height: 36%;
+  border: 14px solid rgba(240, 172, 117, 0.65);
+  border-radius: 50%;
+  box-shadow:
+    0 0 22px rgba(255, 162, 91, 0.25),
+    inset 0 0 12px rgba(255, 206, 164, 0.55);
+  clip-path: inset(0 0 47% 0);
+  content: '';
+  filter: blur(0.3px);
+  transform: rotate(-17deg);
+}
+
+.hero .ringed-planet::after {
+  position: absolute;
+  top: 43%;
+  right: -30%;
+  left: -40%;
+  height: 25%;
+  border: 7px solid rgba(116, 139, 192, 0.4);
+  border-radius: 50%;
+  content: '';
+  filter: blur(1px);
+  transform: rotate(-17deg);
+}
+
+.hero .planet-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    130deg,
+    transparent 22%,
+    rgba(3, 5, 12, 0.1) 40%,
+    rgba(2, 4, 11, 0.9) 79%
+  );
+}
+
+.hero .planet-orbit {
+  position: absolute;
+  border: 1px solid rgba(119, 153, 214, 0.17);
+  border-radius: 50%;
+  transform: rotate(-24deg);
+}
+
+.hero .orbit-one {
+  top: 43%;
+  left: 8%;
+  width: 100%;
+  height: 34%;
+}
+
+.hero .orbit-two {
+  top: 47%;
+  left: 17%;
+  width: 86%;
+  height: 25%;
+  border-color: rgba(251, 163, 99, 0.18);
+}
+
+.hero .small-planet {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 29% 27%, #a8b9d8, #344465 40%, #0a1124 75%);
+  box-shadow:
+    inset -8px -5px 16px #030611,
+    0 0 25px rgba(67, 115, 203, 0.14);
+}
+
+.hero .small-planet-one {
+  top: 53%;
+  left: 27%;
+  width: 76px;
+  height: 76px;
+  animation: hero-planet-float 11s ease-in-out infinite reverse;
+}
+
+.hero .small-planet-two {
+  top: 22%;
+  left: 62%;
+  width: 27px;
+  height: 27px;
+  background: radial-gradient(circle at 30% 24%, #ffc28e, #8b543e 38%, #1a1727 76%);
+}
+
+.hero .nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(34px);
+  opacity: 0.35;
+}
+
+.hero .nebula-one {
+  top: 11%;
+  left: 12%;
+  width: 230px;
+  height: 160px;
+  background: #24386e;
+}
+
+.hero .nebula-two {
+  right: 0;
+  bottom: 9%;
+  width: 280px;
+  height: 190px;
+  background: #663623;
+  opacity: 0.2;
+}
+
+@keyframes hero-planet-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@media (max-width: 1000px) {
+  .hero .hero-copy {
+    width: 68%;
+  }
+
+  .hero .planet-scene {
+    right: -17%;
+    left: 29%;
+    opacity: 0.8;
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 6.8vw, 72px);
+  }
+}
+
+@media (max-width: 740px) {
+  .hero {
+    height: auto;
+    min-height: 760px;
+    align-items: flex-start;
+    padding-top: 82px;
+  }
+
+  .hero .hero-copy {
+    width: 100%;
+    padding-bottom: 210px;
+  }
+
+  .hero .eyebrow {
+    gap: 7px;
+    flex-wrap: wrap;
+    font-size: 10px;
+    letter-spacing: 0.07em;
+  }
+
+  .hero h1 {
+    margin: 26px 0 18px;
+    font-size: clamp(43px, 11vw, 64px);
+    letter-spacing: -0.055em;
+  }
+
+  .hero .hero-intro {
+    max-width: 440px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .hero .hero-actions {
+    margin-top: 22px;
+  }
+
+  .hero .hero-proof {
+    margin-top: 37px;
+    padding-top: 16px;
+  }
+
+  .hero .hero-proof > div {
+    gap: 6px;
+    padding: 0 12px;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+
+  .hero .proof-index {
+    font-size: 15px;
+  }
+
+  .hero .planet-scene {
+    inset: auto -22% 4% 5%;
+    height: 370px;
+    opacity: 0.78;
+    mask-image: linear-gradient(180deg, transparent, #000 17%, #000 85%, transparent);
+  }
+
+  .hero .ringed-planet {
+    top: 1%;
+    right: 1%;
+    width: 245px;
+  }
+
+  .hero .small-planet-one {
+    top: 49%;
+    left: 18%;
+    width: 53px;
+    height: 53px;
+  }
+
+  .hero .small-planet-two {
+    top: 24%;
+    left: 39%;
+    width: 19px;
+    height: 19px;
+  }
+
+  .hero .hero-side-note {
+    top: 35%;
+    right: 1px;
+    font-size: 9px;
+  }
+
+  .hero .note-line {
+    height: 29px;
+  }
+
+  .hero .note-coordinate {
+    display: none;
+  }
+
+  .hero .scroll-cue {
+    right: 0;
+    bottom: 13px;
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero .ringed-planet,
+  .hero .small-planet-one {
+    animation: none;
+  }
+}

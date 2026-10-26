@@ -1,0 +1,353 @@
+.contact-section h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.045em;
+  font-weight: 600;
+  line-height: 1.02;
+}
+.contact-section h2 em {
+  font-weight: 600;
+  color: var(--orange);
+  font-style: italic;
+}
+.contact-section {
+  position: relative;
+  isolation: isolate;
+  text-align: center;
+  padding: 112px 0 105px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 76% 45%, rgba(42, 106, 193, 0.11), transparent 40%),
+    radial-gradient(ellipse at 16% 77%, rgba(111, 86, 158, 0.08), transparent 33%);
+}
+.contact-section h2 {
+  font-size: clamp(45px, 6vw, 75px);
+  margin: 21px 0 17px;
+}
+.contact-heading-reveal > .section-kicker {
+  justify-content: center;
+}
+.contact-heading-reveal,
+.contact-layout-reveal {
+  width: 100%;
+}
+.contact-intro {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  line-height: 1.75;
+  max-width: 530px;
+}
+.contact-layout {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 590px;
+  grid-template-columns: minmax(0, 1.03fr) minmax(0, 0.97fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  margin-top: 35px;
+  isolation: isolate;
+}
+.contact-social-links a:focus-visible {
+  outline: 2px solid #e8f3ff;
+  outline-offset: 4px;
+}
+.contact-social-links {
+  display: flex;
+  align-items: center;
+  gap: 21px;
+  margin: 17px 4px 0;
+}
+.contact-social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+.contact-social-links a:hover {
+  color: #eef5ff;
+}
+.contact-celestial-column {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  min-height: 510px;
+  place-items: center;
+}
+.contact-earth-target {
+  position: relative;
+  z-index: 1;
+  width: min(100%, clamp(300px, 34vw, 470px));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  isolation: isolate;
+  filter: drop-shadow(0 20px 38px rgba(0, 17, 50, 0.55));
+}
+.earth-halo {
+  position: absolute;
+  inset: -8%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(35, 117, 219, 0.18),
+    rgba(42, 113, 211, 0.07) 45%,
+    transparent 72%
+  );
+  filter: blur(12px);
+  transition:
+    transform 0.8s ease,
+    opacity 0.8s ease,
+    filter 0.8s ease;
+}
+.contact-earth-target[data-lit='true'] .earth-halo {
+  transform: scale(1.16);
+  opacity: 1;
+  filter: blur(17px) brightness(1.65);
+}
+.earth-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background-image:
+    radial-gradient(ellipse at 29% 24%, rgba(156, 220, 255, 0.15), transparent 32%),
+    var(--earth-texture);
+  background-repeat: no-repeat;
+  background-size:
+    100% 100%,
+    200% 100%;
+  background-position:
+    center,
+    0% calc(50% + 8px);
+  box-shadow:
+    inset -35px -12px 46px rgba(0, 5, 20, 0.82),
+    inset 13px 3px 25px rgba(98, 183, 255, 0.15),
+    0 0 0 1px rgba(111, 177, 255, 0.28);
+  animation: earth-map-turn 50s linear infinite;
+}
+.earth-fallback::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 23% 32%, rgba(205, 237, 255, 0.21), transparent 34%),
+    linear-gradient(105deg, transparent 39%, rgba(2, 8, 22, 0.1) 55%, rgba(1, 6, 18, 0.55) 100%);
+  content: '';
+}
+.contact-earth-target[data-reduced-motion='true'] .earth-fallback {
+  animation: none;
+  background-position:
+    center,
+    50% calc(50% + 8px);
+}
+.contact-earth-target:has(.earth-renderer:not(.is-fallback)) .earth-fallback {
+  opacity: 0;
+}
+.earth-destination-label {
+  position: absolute;
+  right: 3%;
+  bottom: -13%;
+  left: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: #9db7d8;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  white-space: nowrap;
+}
+.earth-destination-label span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #87d7ff;
+  box-shadow: 0 0 11px #69c5ff;
+}
+.contact-orbit {
+  position: absolute;
+  width: min(112%, 570px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(109, 164, 234, 0.11);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.contact-orbit-one {
+  transform: rotate(-21deg) scaleY(0.63);
+  animation: contact-orbit-turn 42s linear infinite;
+}
+.contact-orbit-two {
+  width: min(122%, 620px);
+  transform: rotate(34deg) scaleY(0.79);
+  border-color: rgba(159, 124, 228, 0.1);
+  animation: contact-orbit-turn 58s linear infinite reverse;
+}
+.contact-stars {
+  position: absolute;
+  inset: 3%;
+  background:
+    radial-gradient(circle at 11% 21%, rgba(215, 233, 255, 0.67) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 87% 27%, rgba(177, 206, 255, 0.55) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 23% 83%, rgba(221, 237, 255, 0.62) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 92% 73%, rgba(188, 214, 255, 0.5) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 73% 8%, rgba(196, 218, 255, 0.5) 0 1px, transparent 1.8px);
+  pointer-events: none;
+}
+.contact-flight-route {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.contact-flight-route path {
+  fill: none;
+  stroke: rgba(129, 190, 255, 0.3);
+  stroke-width: 1.4;
+  stroke-dasharray: 2 9;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(110, 178, 255, 0.45));
+  transition:
+    stroke 0.35s ease,
+    stroke-width 0.35s ease,
+    opacity 0.35s ease;
+}
+.contact-flight-route.is-active path {
+  stroke: rgba(188, 225, 255, 0.9);
+  stroke-width: 2;
+  stroke-dasharray: 1 8;
+}
+.contact-envelope-flight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: 48px;
+  height: 38px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(132, 197, 255, 0.88));
+}
+.contact-envelope-flight svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.contact-envelope-flight rect {
+  fill: #eef7ff;
+  stroke: #b8ddff;
+  stroke-width: 1.5;
+}
+.contact-envelope-flight path {
+  fill: none;
+  stroke: #709bc8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+.contact-envelope-flight .envelope-seal {
+  fill: #ffac68;
+  stroke: #fff2df;
+  stroke-width: 1;
+}
+.contact-earth-target[data-lit='true'] {
+  animation: earth-arrival-pulse 1.2s ease-out 1;
+}
+@keyframes contact-orbit-turn {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes earth-map-turn {
+  to {
+    background-position:
+      center,
+      200% calc(50% + 8px);
+  }
+}
+@keyframes earth-arrival-pulse {
+  35% {
+    filter: drop-shadow(0 0 48px rgba(67, 165, 255, 0.82));
+  }
+  100% {
+    filter: drop-shadow(0 20px 38px rgba(0, 17, 50, 0.55));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-orbit,
+  .earth-fallback,
+  .contact-earth-target[data-lit='true'] {
+    animation: none;
+  }
+}
+@media (max-width: 1000px) {
+  .contact-layout {
+    gap: 25px;
+  }
+  .contact-celestial-column {
+    min-height: 430px;
+  }
+  .contact-earth-target {
+    width: min(100%, 360px);
+  }
+}
+@media (max-width: 740px) {
+  .contact-section {
+    padding: 84px 0 76px;
+  }
+  .contact-section h2 {
+    font-size: 48px;
+    letter-spacing: -2px;
+  }
+  .contact-section > p {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+  .contact-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  .contact-actions .button {
+    width: 100%;
+  }
+  .contact-section {
+    overflow: hidden;
+  }
+  .contact-layout {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 25px;
+    margin-top: 25px;
+  }
+  .contact-celestial-column {
+    min-height: 350px;
+    margin: 6px 0 24px;
+  }
+  .contact-earth-target {
+    width: min(82vw, 310px);
+  }
+  .contact-orbit {
+    width: min(100%, 390px);
+  }
+  .contact-orbit-two {
+    width: min(108%, 420px);
+  }
+  .contact-social-links {
+    justify-content: center;
+  }
+  .earth-destination-label {
+    font-size: 7px;
+    letter-spacing: 1.2px;
+  }
+}

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, expect, it, vi } from 'vitest';
 import CosmicContactSection from './CosmicContactSection';
 
-vi.mock('./EarthGlobe', () => ({
+vi.mock('../../components/EarthGlobe', () => ({
   default: () => <div data-testid="earth-webgl-scene" />,
 }));
 

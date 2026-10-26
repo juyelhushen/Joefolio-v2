@@ -1,0 +1,502 @@
+.skills-section {
+  padding: 34px 0 96px;
+}
+.skills-heading {
+  margin-bottom: 32px;
+}
+.skills-solar-system {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.75fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 56px);
+}
+.skills-orbit-scene {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 1.04;
+  justify-self: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(247, 172, 93, 0.08), transparent 15%),
+    radial-gradient(ellipse at 50% 50%, rgba(45, 71, 141, 0.14), transparent 66%);
+}
+.skills-orbit-scene::before,
+.skills-orbit-scene::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+  background-image:
+    radial-gradient(circle, rgba(218, 230, 255, 0.55) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(130, 177, 255, 0.42) 0 1px, transparent 1.5px);
+  background-position:
+    22px 28px,
+    67px 83px;
+  background-size:
+    121px 113px,
+    173px 157px;
+  opacity: 0.26;
+}
+.skills-orbit-scene::after {
+  background-position: 107px 47px;
+  background-size: 197px 181px;
+  opacity: 0.16;
+}
+.solar-orbit-track,
+.skill-orbit-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.solar-orbit-track {
+  border: 1px solid rgba(153, 169, 222, 0.14);
+  pointer-events: none;
+}
+.solar-orbit-track-1,
+.skill-orbit-frame-1 {
+  width: 27%;
+  height: 27%;
+}
+.solar-orbit-track-2,
+.skill-orbit-frame-2 {
+  width: 40%;
+  height: 40%;
+}
+.solar-orbit-track-3,
+.skill-orbit-frame-3 {
+  width: 53%;
+  height: 53%;
+}
+.solar-orbit-track-4,
+.skill-orbit-frame-4 {
+  width: 66%;
+  height: 66%;
+}
+.solar-orbit-track-5,
+.skill-orbit-frame-5 {
+  width: 79%;
+  height: 79%;
+}
+.solar-orbit-track-6,
+.skill-orbit-frame-6 {
+  width: 92%;
+  height: 92%;
+}
+.solar-orbit-track-2 {
+  border-color: rgba(105, 199, 222, 0.15);
+}
+.solar-orbit-track-4 {
+  border-color: rgba(178, 145, 255, 0.15);
+}
+.solar-orbit-track-6 {
+  border-color: rgba(255, 174, 104, 0.16);
+  box-shadow: 0 0 18px rgba(255, 174, 104, 0.025);
+}
+.skill-orbit-frame {
+  z-index: 3;
+  border: 0;
+  animation-name: skill-orbit-revolution;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+.skill-orbit-planet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 23%, rgba(255, 255, 255, 0.24), transparent 13%),
+    radial-gradient(circle at 38% 32%, color-mix(in srgb, currentColor 34%, #17192c), #090d1d 74%);
+  box-shadow:
+    inset -7px -8px 13px rgba(0, 0, 0, 0.76),
+    inset 2px 2px 7px rgba(255, 255, 255, 0.09),
+    0 0 16px color-mix(in srgb, currentColor 25%, transparent);
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    scale var(--motion-fast) var(--ease-standard);
+}
+.skill-orbit-planet:hover,
+.skill-orbit-planet.is-selected,
+.skill-orbit-planet:focus-visible {
+  border-color: color-mix(in srgb, currentColor 80%, white);
+  box-shadow:
+    inset -6px -7px 12px rgba(0, 0, 0, 0.68),
+    inset 2px 2px 8px rgba(255, 255, 255, 0.13),
+    0 0 25px color-mix(in srgb, currentColor 45%, transparent);
+  scale: 1.14;
+}
+.skill-planet-counter {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  animation-name: skill-planet-counterrotation;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.skill-planet-logo {
+  display: block;
+  width: 48%;
+  height: 48%;
+  fill: currentColor;
+}
+.skill-planet-label {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  z-index: 1;
+  max-width: 130px;
+  padding: 5px 8px;
+  border: 1px solid rgba(173, 192, 228, 0.2);
+  border-radius: 999px;
+  color: var(--color-text-primary);
+  background: rgba(7, 10, 21, 0.94);
+  font-size: 10px;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+.skill-orbit-planet.is-selected .skill-planet-label,
+.skill-orbit-planet:hover .skill-planet-label,
+.skill-orbit-planet:focus-visible .skill-planet-label {
+  opacity: 1;
+}
+.skill-orbit-frame:hover,
+.skill-orbit-frame:focus-within,
+.skill-orbit-frame:hover .skill-planet-counter,
+.skill-orbit-frame:focus-within .skill-planet-counter {
+  animation-play-state: paused;
+}
+.solar-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  width: 116px;
+  height: 116px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid rgba(255, 212, 157, 0.7);
+  border-radius: 50%;
+  color: #fff6df;
+  background:
+    radial-gradient(circle at 34% 27%, rgba(255, 255, 237, 0.95), transparent 9%),
+    radial-gradient(
+      circle at 40% 34%,
+      #fff5c8 0,
+      #ffc36e 24%,
+      #f4874d 48%,
+      #7d3e5f 76%,
+      #17162d 100%
+    );
+  box-shadow:
+    0 0 25px rgba(255, 174, 94, 0.34),
+    0 0 75px rgba(255, 129, 73, 0.14),
+    inset -13px -12px 24px rgba(60, 19, 43, 0.56);
+  transform: translate(-50%, -50%);
+}
+.solar-core-corona {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(255, 193, 132, 0.24);
+  border-radius: 50%;
+  animation: solar-corona 4.5s ease-in-out infinite alternate;
+}
+.solar-core strong {
+  position: relative;
+  font: 600 24px/1 var(--font-display);
+  letter-spacing: -1.5px;
+}
+.solar-core small {
+  position: relative;
+  color: #fff0d3;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.1px;
+}
+.skill-detail {
+  min-width: 0;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid rgba(173, 192, 228, 0.17);
+  border-radius: 19px;
+  background:
+    radial-gradient(ellipse at 100% 0%, var(--domain-glow), transparent 46%), rgba(8, 12, 25, 0.83);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.15);
+}
+.skill-detail-backend {
+  --domain-color: #76dbe6;
+  --domain-glow: rgba(64, 198, 218, 0.1);
+}
+.skill-detail-frontend {
+  --domain-color: #b6a2ff;
+  --domain-glow: rgba(147, 113, 255, 0.12);
+}
+.skill-detail-data {
+  --domain-color: #8ebaff;
+  --domain-glow: rgba(91, 153, 247, 0.12);
+}
+.skill-detail-ai {
+  --domain-color: #a5e0c5;
+  --domain-glow: rgba(82, 199, 156, 0.1);
+}
+.skill-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.skill-detail-icon {
+  display: grid;
+  width: 37px;
+  height: 37px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--domain-color) 36%, transparent);
+  border-radius: 12px;
+  color: var(--domain-color);
+  background: color-mix(in srgb, var(--domain-color) 10%, transparent);
+}
+.skill-detail-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
+.skill-detail-kicker {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.skill-detail h3 {
+  margin: 16px 0 5px;
+  font: 600 clamp(21px, 2.4vw, 28px)/1.3 var(--font-display);
+}
+.skill-detail-domain {
+  margin: 0 0 12px;
+  color: var(--domain-color);
+  font-size: 11px;
+  letter-spacing: 0.7px;
+}
+.skill-detail-description {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.skill-detail-block {
+  margin-top: 24px;
+}
+.skill-detail-block + .skill-detail-block {
+  margin-top: 21px;
+}
+.skill-detail-block h4 {
+  margin: 0;
+  color: #dce3f1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.skill-detail-tags,
+.skill-evidence-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 11px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.skill-detail-tags li {
+  padding: 6px 9px;
+  border: 1px solid rgba(173, 192, 228, 0.17);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 11px;
+}
+.skill-evidence-note {
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.skill-evidence-list {
+  flex-direction: column;
+  gap: 7px;
+}
+.skill-evidence-list a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 1px solid rgba(173, 192, 228, 0.12);
+  border-radius: 9px;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 11px;
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+.skill-evidence-list a span:last-child {
+  color: var(--domain-color);
+}
+.skill-evidence-list a:hover {
+  border-color: color-mix(in srgb, var(--domain-color) 40%, transparent);
+  color: #fff;
+}
+@keyframes skill-orbit-revolution {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes skill-planet-counterrotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@keyframes solar-corona {
+  from {
+    opacity: 0.62;
+    scale: 0.98;
+  }
+  to {
+    opacity: 1;
+    scale: 1.04;
+  }
+}
+.skills-orbit-scene[data-reduced-motion='true'] .skill-orbit-frame,
+.skills-orbit-scene[data-reduced-motion='true'] .skill-planet-counter {
+  animation: none;
+}
+@media (max-width: 1000px) {
+  .skills-solar-system {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .skills-orbit-scene {
+    width: min(100%, 640px);
+  }
+}
+@media (max-width: 740px) {
+  .skills-section {
+    padding: 18px 0 62px;
+  }
+  .skills-heading {
+    margin-bottom: 22px;
+  }
+  .skills-solar-system {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .skills-orbit-scene {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 1;
+  }
+  .solar-orbit-track-1,
+  .skill-orbit-frame-1 {
+    width: 29%;
+    height: 29%;
+  }
+  .solar-orbit-track-2,
+  .skill-orbit-frame-2 {
+    width: 42%;
+    height: 42%;
+  }
+  .solar-orbit-track-3,
+  .skill-orbit-frame-3 {
+    width: 55%;
+    height: 55%;
+  }
+  .solar-orbit-track-4,
+  .skill-orbit-frame-4 {
+    width: 68%;
+    height: 68%;
+  }
+  .solar-orbit-track-5,
+  .skill-orbit-frame-5 {
+    width: 74%;
+    height: 74%;
+  }
+  .solar-orbit-track-6,
+  .skill-orbit-frame-6 {
+    width: 80%;
+    height: 80%;
+  }
+  .skill-orbit-planet {
+    width: 44px;
+    height: 44px;
+  }
+  .skill-planet-label {
+    top: calc(100% + 5px);
+    padding: 4px 6px;
+    font-size: 9px;
+  }
+  .solar-core {
+    width: 82px;
+    height: 82px;
+  }
+  .solar-core strong {
+    font-size: 19px;
+  }
+  .solar-core small {
+    font-size: 8px;
+    letter-spacing: 0.8px;
+  }
+  .skill-detail {
+    padding: 20px;
+  }
+  .skill-detail h3 {
+    font-size: 22px;
+  }
+  .skill-evidence-list a {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 3px 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skill-orbit-frame,
+  .skill-planet-counter,
+  .solar-core-corona {
+    animation: none !important;
+  }
+  .skill-orbit-frame {
+    transform: translate(-50%, -50%) rotate(var(--skill-orbit-phase)) !important;
+  }
+  .skill-planet-counter {
+    transform: rotate(var(--skill-counter-phase)) !important;
+  }
+}

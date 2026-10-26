@@ -3,7 +3,8 @@ import type { CSSProperties } from 'react';
 import { Cloud } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { SimpleIcon } from 'simple-icons';
-import ScrollReveal from './ScrollReveal';
+import ScrollReveal from '../../components/ScrollReveal';
+import './SkillsSection.css';
 import {
   siApachekafka,
   siDocker,
@@ -18,9 +19,9 @@ import {
   siSqlite,
   siTypescript,
 } from 'simple-icons';
-import { projects } from '../data/projects';
-import { skillGroups, skillPlanets } from '../data/skills';
-import type { SkillPlanet } from '../data/skills';
+import { projects } from '../../data/projects';
+import { skillGroups, skillPlanets } from '../../data/skills';
+import type { SkillPlanet } from '../../data/skills';
 
 const technologyIcons: Record<string, SimpleIcon> = {
   springboot: siSpringboot,

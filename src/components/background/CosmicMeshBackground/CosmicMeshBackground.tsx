@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import './CosmicMeshBackground.css';
 
 const vertexShaderSource = `
   attribute vec2 a_position;

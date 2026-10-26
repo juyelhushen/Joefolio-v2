@@ -16,6 +16,7 @@ import {
   WebGLRenderer,
   PerspectiveCamera,
 } from 'three';
+import './EarthGlobe.css';
 
 type EarthGlobeProps = {
   lit: boolean;

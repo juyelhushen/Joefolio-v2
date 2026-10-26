@@ -1,0 +1,278 @@
+.project-section {
+  padding: 35px 0 125px;
+  position: relative;
+}
+.project-detail {
+  margin-bottom: 11px;
+}
+.project-detail-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.project-detail p,
+.project-summary,
+.project-focus p {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.75;
+  margin: 0;
+}
+.project-detail p {
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+.project-summary {
+  margin-bottom: 16px;
+}
+.project-focus {
+  width: 100%;
+  margin-bottom: 17px;
+  padding: 11px 0 0 12px;
+  border-left: 1px solid rgba(122, 185, 255, 0.42);
+}
+.project-focus .project-detail-label {
+  color: #86b5e9;
+}
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: auto 0 17px;
+  padding: 0;
+  list-style: none;
+}
+.tech-tags li {
+  padding: 5px 8px;
+  border: 1px solid rgba(173, 192, 228, 0.18);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+.project-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  width: 100%;
+  padding-top: 13px;
+  border-top: 1px solid rgba(173, 192, 228, 0.12);
+}
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-accent-primary);
+  font-size: 13px;
+  font-weight: 600;
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+.project-link:hover {
+  color: #fff;
+}
+.project-section {
+  padding-top: 40px;
+}
+.mission-heading h2 {
+  max-width: 760px;
+  font-size: clamp(34px, 4vw, 49px);
+}
+.mission-console {
+  position: relative;
+  z-index: 1;
+  margin-top: -34px;
+  display: grid;
+  gap: 16px;
+}
+.mission-feature-host {
+  min-width: 0;
+}
+.mission-feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  min-height: 400px;
+  overflow: hidden;
+  border: 1px solid rgba(153, 180, 223, 0.2);
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(75, 107, 174, 0.1), transparent 50%),
+    linear-gradient(135deg, rgba(11, 17, 33, 0.96), rgba(5, 9, 20, 0.96));
+  box-shadow:
+    0 28px 75px rgba(0, 0, 0, 0.23),
+    inset 0 1px rgba(255, 255, 255, 0.025);
+}
+.mission-feature-visual {
+  display: flex;
+  min-width: 0;
+  min-height: 400px;
+  flex-direction: column;
+  padding: 21px;
+  border-right: 1px solid rgba(153, 180, 223, 0.12);
+  background:
+    linear-gradient(rgba(147, 174, 219, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 174, 219, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse at 52% 48%, rgba(66, 93, 156, 0.12), transparent 57%),
+    rgba(4, 8, 18, 0.58);
+  background-size:
+    25px 25px,
+    25px 25px,
+    auto,
+    auto;
+}
+.mission-feature-meta,
+.mission-feature-index,
+.mission-navigation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.35px;
+  line-height: 1.5;
+}
+.mission-feature-meta span:last-child {
+  color: #acbad2;
+  text-align: right;
+}
+.mission-feature-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(22px, 3vw, 38px);
+}
+.mission-feature-index {
+  width: 100%;
+  color: #8291ab;
+}
+.mission-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #9eb9a8;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.mission-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #86cf9e;
+  box-shadow: 0 0 10px rgba(134, 207, 158, 0.52);
+}
+.mission-feature-copy h3 {
+  margin: 20px 0 22px;
+  color: #f2f4fb;
+  font: 600 clamp(25px, 2.6vw, 36px)/1.16 var(--font-display);
+  letter-spacing: -1px;
+}
+.mission-feature-copy .project-detail {
+  width: 100%;
+}
+.mission-feature-copy .project-detail-label {
+  color: #9eafd0;
+}
+.mission-feature-copy .project-detail p,
+.mission-feature-copy .project-focus p {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+.mission-feature-copy .project-summary {
+  margin-bottom: 13px;
+}
+.mission-feature-copy .project-focus {
+  margin: 0 0 17px;
+}
+.mission-feature-copy .tech-tags {
+  margin: auto 0 17px;
+  padding-top: 10px;
+}
+.mission-feature-copy .project-footer {
+  margin-top: auto;
+}
+.mission-navigation {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(153, 180, 223, 0.15);
+  border-radius: 15px;
+  background: rgba(8, 12, 24, 0.65);
+}
+.mission-navigation-heading {
+  padding: 0 3px 11px;
+  color: #8291ab;
+}
+.mission-navigation-heading span:last-child {
+  color: #64728d;
+}
+.mission-navigation-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+}
+@media (max-width: 900px) {
+  .mission-console {
+    margin-top: -28px;
+  }
+  .mission-feature {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mission-feature-visual {
+    min-height: 330px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(153, 180, 223, 0.12);
+  }
+  .mission-navigation-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 740px) {
+  .project-section {
+    padding-top: 28px;
+    padding-bottom: 82px;
+  }
+  .mission-console {
+    margin-top: -20px;
+  }
+  .mission-heading h2 {
+    max-width: 100%;
+    font-size: clamp(31px, 9vw, 39px);
+    letter-spacing: -1.7px;
+  }
+  .mission-feature {
+    border-radius: 15px;
+  }
+  .mission-feature-visual {
+    min-height: 285px;
+    padding: 15px;
+  }
+  .mission-feature-copy {
+    padding: 21px;
+  }
+  .mission-feature-copy h3 {
+    font-size: 27px;
+  }
+  .mission-navigation {
+    padding: 12px;
+  }
+  .mission-navigation-list {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: rgba(139, 176, 235, 0.4) rgba(255, 255, 255, 0.04);
+    scrollbar-width: thin;
+    padding: 1px 1px 8px;
+  }
+  .mission-feature-meta,
+  .mission-feature-index {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+}

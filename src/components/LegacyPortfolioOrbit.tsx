@@ -1,4 +1,5 @@
 import { Globe2 } from 'lucide-react';
+import './LegacyPortfolioOrbit.css';
 
 const orbitDefinitions = [
   { className: 'legacy-orbit-outer', satellites: ['legacy-satellite-cyan'] },
