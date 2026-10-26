@@ -61,7 +61,11 @@ export function advanceStars(
   }
 }
 
-export default function Starfield() {
+type StarfieldProps = {
+  paused?: boolean;
+};
+
+export default function Starfield({ paused = false }: StarfieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -169,19 +173,19 @@ export default function Starfield() {
     const handleFrame = (now: number) => {
       const deltaSeconds = Math.min(Math.max((now - lastFrameAt) / 1000, 0), 0.08);
       lastFrameAt = now;
-      if (!reduceMotion) {
+      if (!reduceMotion && !paused) {
         advanceStars(stars, deltaSeconds, width, height);
         spawnMeteor(now);
         updateMeteors(deltaSeconds);
       }
       drawStars(now);
-      if (!reduceMotion) drawMeteors();
+      if (!reduceMotion && !paused) drawMeteors();
     };
 
     const start = () => {
       window.cancelAnimationFrame(raf);
       lastFrameAt = performance.now();
-      if (!reduceMotion && !document.hidden) {
+      if (!reduceMotion && !paused && !document.hidden) {
         raf = window.requestAnimationFrame(tick);
       } else {
         handleFrame(lastFrameAt);
@@ -190,7 +194,7 @@ export default function Starfield() {
 
     const tick = (now: number) => {
       handleFrame(now);
-      if (!reduceMotion && !document.hidden) raf = window.requestAnimationFrame(tick);
+      if (!reduceMotion && !paused && !document.hidden) raf = window.requestAnimationFrame(tick);
     };
 
     resize();
@@ -201,7 +205,7 @@ export default function Starfield() {
     const onResize = () => {
       mobile = mobileQuery?.matches ?? window.innerWidth <= 700;
       resize();
-      if (reduceMotion) handleFrame(performance.now());
+      if (reduceMotion || paused) handleFrame(performance.now());
     };
 
     const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
@@ -225,7 +229,7 @@ export default function Starfield() {
       mobileQuery?.removeEventListener('change', onResize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, []);
+  }, [paused]);
 
   return <canvas ref={canvasRef} className="starfield" aria-hidden="true" />;
 }

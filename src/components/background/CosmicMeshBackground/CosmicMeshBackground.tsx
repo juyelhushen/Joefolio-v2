@@ -90,7 +90,11 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
   return shader;
 }
 
-export default function CosmicMeshBackground() {
+type CosmicMeshBackgroundProps = {
+  paused?: boolean;
+};
+
+export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackgroundProps) {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -102,6 +106,12 @@ export default function CosmicMeshBackground() {
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-reduced-motion: reduce)')
         : null;
+
+    if (paused) {
+      canvas.dataset.ready = 'static';
+      if (backgroundRef.current) backgroundRef.current.dataset.mode = 'static';
+      return;
+    }
 
     let gl: WebGLRenderingContext | null = null;
     let program: WebGLProgram | null = null;
@@ -263,7 +273,7 @@ export default function CosmicMeshBackground() {
       context.deleteBuffer(geometry);
       context.deleteProgram(shaderProgram);
     };
-  }, []);
+  }, [paused]);
 
   return (
     <div

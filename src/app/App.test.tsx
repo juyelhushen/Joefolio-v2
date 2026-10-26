@@ -5,6 +5,7 @@ import App from './App';
 afterEach(() => {
   cleanup();
   window.history.replaceState(null, '', '/');
+  window.sessionStorage.removeItem('joefolio-universe-intro-seen');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -54,6 +55,49 @@ it('opens and closes the mobile navigation menu', () => {
   expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).not.toContain(
     'is-open',
   );
+});
+
+it('shows the intro once per tab session and completes on its master timeline', () => {
+  renderApp();
+
+  const intro = screen.getByTestId('universe-intro');
+  expect(intro.getAttribute('aria-hidden')).toBe('true');
+  expect(document.querySelector('.site-shell')?.getAttribute('data-intro-active')).toBe('true');
+
+  fireEvent.animationEnd(intro, { animationName: 'universe-intro-timeline' });
+  expect(screen.queryByTestId('universe-intro')).toBeNull();
+  expect(window.sessionStorage.getItem('joefolio-universe-intro-seen')).toBe('true');
+
+  cleanup();
+  renderApp();
+  expect(screen.queryByTestId('universe-intro')).toBeNull();
+});
+
+it('skips the intro when reduced motion is enabled', () => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  );
+
+  renderApp();
+  expect(screen.queryByTestId('universe-intro')).toBeNull();
+});
+
+it('allows the intro to be replayed in development with the intro query parameter', () => {
+  window.history.replaceState(null, '', '/?intro=1');
+  window.sessionStorage.setItem('joefolio-universe-intro-seen', 'true');
+
+  renderApp();
+  expect(screen.getByTestId('universe-intro')).toBeTruthy();
 });
 
 it('tracks the active section while scrolling down and back up', () => {
@@ -189,7 +233,7 @@ it('keeps the cosmic mesh, starfield, and grain as non-interactive global backgr
 
   expect(mesh).toBeTruthy();
   expect(mesh?.getAttribute('aria-hidden')).toBe('true');
-  expect(mesh?.getAttribute('data-mode')).toBe('fallback');
+  expect(mesh?.getAttribute('data-mode')).toBe('static');
   expect(meshCanvas).toBeTruthy();
   expect(starfield).toBeTruthy();
   expect(grain).toBeTruthy();
