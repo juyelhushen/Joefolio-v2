@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { experience } from '../data/experience';
+import { experience } from '../../data/experience';
+import './ExperienceTimeline.css';
 
 type ExperienceTimelineProps = {
   reduceMotion: boolean;

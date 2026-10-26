@@ -2,7 +2,8 @@ import { useRef, useState, type RefObject } from 'react';
 import { Linkedin, Plane } from 'lucide-react';
 import { motion } from 'motion/react';
 import { siGithub, siLeetcode, type SimpleIcon } from 'simple-icons';
-import ScrollReveal from './ScrollReveal';
+import ScrollReveal from '../../ScrollReveal';
+import './CosmicFooter.css';
 
 type CosmicFooterProps = {
   homeHeadingRef: RefObject<HTMLHeadingElement | null>;

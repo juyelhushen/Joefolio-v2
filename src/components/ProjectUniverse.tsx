@@ -1,4 +1,5 @@
 import { projects } from '../data/projects';
+import './ProjectUniverse.css';
 
 type ProjectUniverseProps = {
   activeProjectId: string;

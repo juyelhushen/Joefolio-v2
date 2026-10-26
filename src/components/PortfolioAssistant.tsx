@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { MessageCircle, Send, Sparkles, X } from 'lucide-react';
 import { AssistantApiError, AssistantCitation, sendAssistantMessage } from '../lib/assistant-api';
+import './PortfolioAssistant.css';
 
 type ChatMessage = {
   id: number;

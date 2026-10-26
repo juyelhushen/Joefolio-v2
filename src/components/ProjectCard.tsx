@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import type { Project } from '../data/projects';
+import './ProjectCard.css';
 
 type ProjectCardProps = {
   project: Project;

@@ -11,10 +11,11 @@ import {
 } from 'react';
 import { Github, Linkedin } from 'lucide-react';
 import { motion } from 'motion/react';
-import CosmicContactForm, { type ContactStatus } from './CosmicContactForm';
-import ScrollReveal from './ScrollReveal';
-import type { ContactMessage } from '../lib/contact-api';
-import { sendContactMessage } from '../lib/contact-api';
+import CosmicContactForm, { type ContactStatus } from '../../components/CosmicContactForm';
+import ScrollReveal from '../../components/ScrollReveal';
+import type { ContactMessage } from '../../lib/contact-api';
+import { sendContactMessage } from '../../lib/contact-api';
+import './CosmicContactSection.css';
 
 type CosmicContactSectionProps = {
   reduceMotion: boolean;
@@ -25,7 +26,7 @@ type EarthSceneProps = {
   reduceMotion: boolean;
 };
 
-const LazyEarthScene = lazy(() => import('./EarthGlobe'));
+const LazyEarthScene = lazy(() => import('../../components/EarthGlobe'));
 
 function EarthDestination({
   lit,

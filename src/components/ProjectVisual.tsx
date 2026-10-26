@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowRight, Check, FileText, Play, Search, Shield, Upload } from 'lucide-react';
 import type { ProjectVisual as ProjectVisualType } from '../data/projects';
+import './ProjectVisual.css';
 
 type ProjectVisualProps = {
   visual: ProjectVisualType;

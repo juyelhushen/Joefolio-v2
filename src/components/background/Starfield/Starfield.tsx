@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import './Starfield.css';
 
 export type Star = {
   x: number;
