@@ -199,6 +199,8 @@
   font-size: 11px;
 }
 .assistant-launcher {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -210,13 +212,109 @@
   color: #eef4ff;
   background: rgba(23, 34, 58, 0.96);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  font-size: 13px;
+  font-size: 11px;
   cursor: pointer;
 }
+.assistant-launcher::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(101, 231, 242, 0.16) 65deg,
+    rgba(101, 231, 242, 0.72) 115deg,
+    rgba(169, 155, 255, 0.64) 175deg,
+    transparent 235deg,
+    rgba(169, 155, 255, 0.16) 300deg,
+    transparent 360deg
+  );
+  content: '';
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: assistant-border-flow 12s linear infinite;
+}
+.assistant-launcher > span {
+  position: relative;
+  z-index: 1;
+}
+.assistant-launcher-icon {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  place-items: center;
+}
+.assistant-launcher-icon::after {
+  position: absolute;
+  inset: -4px;
+  border: 1px solid rgba(101, 231, 242, 0.56);
+  border-radius: 50%;
+  content: '';
+  opacity: 0;
+  transform: scale(0.75);
+  pointer-events: none;
+  animation: assistant-icon-ripple 5.2s ease-out infinite;
+}
+@keyframes assistant-border-flow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes assistant-icon-ripple {
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  86% {
+    opacity: 0.42;
+  }
+  94% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+.assistant-launcher:hover::before,
+.assistant-launcher:focus-visible::before {
+  opacity: 0.9;
+}
+.assistant-launcher:hover .assistant-launcher-icon {
+  color: var(--color-accent-primary);
+  filter: drop-shadow(0 0 5px rgba(101, 231, 242, 0.45));
+}
+.assistant-launcher:hover .assistant-launcher-icon::after,
+.assistant-launcher:focus-visible .assistant-launcher-icon::after {
+  border-color: rgba(101, 231, 242, 0.8);
+}
+.assistant-launcher:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
 .assistant-close:hover,
-.assistant-launcher:hover,
 .assistant-composer button:not(:disabled):hover {
   border-color: rgba(145, 200, 255, 0.56);
+}
+@media (prefers-reduced-motion: reduce) {
+  .assistant-launcher::before,
+  .assistant-launcher-icon::after {
+    animation: none;
+  }
+
+  .assistant-launcher::before {
+    opacity: 0.48;
+  }
+
+  .assistant-launcher-icon::after {
+    opacity: 0;
+  }
 }
 @media (max-width: 740px) {
   .assistant-widget {
