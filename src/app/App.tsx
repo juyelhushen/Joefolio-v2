@@ -14,8 +14,29 @@ import SkillsSection from '../sections/Skills/SkillsSection';
 import Starfield from '../components/background/Starfield/Starfield';
 import { navItems } from '../components/layout/Navbar/navItems';
 import Navbar from '../components/layout/Navbar/Navbar';
+import UniverseIntro from '../components/intro/UniverseIntro';
+
+const introSessionKey = 'joefolio-universe-intro-seen';
+
+function shouldShowUniverseIntro(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return false;
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('intro') === '1')
+    return true;
+
+  try {
+    return window.sessionStorage.getItem(introSessionKey) !== 'true';
+  } catch (error) {
+    console.warn(
+      'Could not read the intro session flag; showing the intro for this page load.',
+      error,
+    );
+    return true;
+  }
+}
 
 export default function App() {
+  const [showUniverseIntro, setShowUniverseIntro] = useState(shouldShowUniverseIntro);
   const initialHashTarget = navItems.find(
     (item) => item.id === (typeof window === 'undefined' ? '' : window.location.hash.slice(1)),
   );
@@ -27,6 +48,18 @@ export default function App() {
   );
   const homeHeadingRef = useRef<HTMLHeadingElement>(null);
   const reduceMotion = useReducedMotion();
+
+  const completeUniverseIntro = useCallback(() => {
+    setShowUniverseIntro(false);
+    try {
+      window.sessionStorage.setItem(introSessionKey, 'true');
+    } catch (error) {
+      console.warn(
+        'Could not save the intro session flag; it may replay on a later page load.',
+        error,
+      );
+    }
+  }, []);
 
   const updateActiveSection = useCallback(() => {
     const header = document.querySelector<HTMLElement>('.site-header');
@@ -105,9 +138,9 @@ export default function App() {
   }, [updateActiveSection]);
 
   return (
-    <div className="site-shell">
-      <CosmicMeshBackground />
-      <Starfield />
+    <div className="site-shell" data-intro-active={showUniverseIntro ? 'true' : undefined}>
+      <CosmicMeshBackground paused={showUniverseIntro} />
+      <Starfield paused={showUniverseIntro} />
       <div className="space-grain" aria-hidden="true" />
       <a className="skip-link" href="#main-content">
         Skip to content
@@ -128,6 +161,7 @@ export default function App() {
       </main>
       <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion ?? false} />
       <PortfolioAssistant />
+      {showUniverseIntro && <UniverseIntro onComplete={completeUniverseIntro} />}
     </div>
   );
 }
