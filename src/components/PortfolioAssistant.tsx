@@ -134,8 +134,8 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
                 <Sparkles size={17} />
               </span>
               <div>
-                <h2>Portfolio Assistant</h2>
-                <p>Explore documented projects and technologies</p>
+                <h2>Joe&apos;s AI System</h2>
+                <p>In development</p>
               </div>
             </div>
             <button
@@ -244,7 +244,9 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
         aria-expanded={open}
         onClick={() => setOpen((isOpen) => !isOpen)}
       >
-        {open ? <X size={19} /> : <MessageCircle size={19} />}
+        <span className="assistant-launcher-icon" aria-hidden="true">
+          {open ? <X size={19} /> : <MessageCircle size={19} />}
+        </span>
         <span>{open ? 'Close' : 'Ask about my work'}</span>
       </button>
     </div>

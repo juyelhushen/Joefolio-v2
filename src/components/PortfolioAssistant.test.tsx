@@ -26,6 +26,14 @@ it('stays unavailable and does not call fetch without a configured URL', () => {
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
+it('keeps the floating launcher label and chat icon', () => {
+  render(<PortfolioAssistant apiBaseUrl="" />);
+
+  const launcher = screen.getByRole('button', { name: 'Open portfolio assistant' });
+  expect(launcher.textContent).toContain('Ask about my work');
+  expect(launcher.querySelector('svg')).toBeTruthy();
+});
+
 it('opens, closes with Escape, and restores focus to the launcher', () => {
   const { launcher } = openAssistant();
 
