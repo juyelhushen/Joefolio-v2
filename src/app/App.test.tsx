@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import App from './App';
 
@@ -29,6 +29,24 @@ function renderApp() {
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   return render(<App />);
 }
+
+it('positions Juyel through backend, full-stack, and practical AI engineering', () => {
+  renderApp();
+
+  const hero = screen.getByRole('region', { name: /Backend systems.*Practical AI/ });
+  expect(
+    screen.getByRole('heading', { level: 1, name: /Backend systems.*Practical AI/ }),
+  ).toBeTruthy();
+  expect(hero.textContent).toContain('full-stack applications');
+  expect(hero.textContent).toContain('document retrieval and agent workflows');
+  expect(within(hero).getByText('Java · Spring Boot')).toBeTruthy();
+  expect(within(hero).getByText('React · TypeScript')).toBeTruthy();
+  expect(within(hero).getByText('LangGraph · RAG')).toBeTruthy();
+  expect(screen.getByRole('link', { name: /Explore Projects/ }).getAttribute('href')).toBe(
+    '#projects',
+  );
+  expect(screen.getByRole('link', { name: /Let’s connect/ }).getAttribute('href')).toBe('#contact');
+});
 
 it('opens and closes the mobile navigation menu', () => {
   renderApp();
@@ -193,7 +211,7 @@ it('keeps the animated JH brand link and prominent Get in Touch destination', ()
   ).toBe('#contact');
 });
 
-it('immediately activates the clicked destination and closes the mobile menu', () => {
+it('immediately activates the clicked destination, closes the mobile menu, and restores focus', async () => {
   renderApp();
 
   fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
@@ -202,6 +220,9 @@ it('immediately activates the clicked destination and closes the mobile menu', (
 
   expect(screen.getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe(
     'false',
+  );
+  await waitFor(() =>
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open menu' })),
   );
   expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe(
     '#projects',
@@ -240,53 +261,33 @@ it('keeps the cosmic mesh, starfield, and grain as non-interactive global backgr
   expect(document.querySelector('#main-content')).toBeTruthy();
 });
 
-it('renders documented projects with links to their repositories', () => {
+it('renders concise project cards with links to their repositories', () => {
   renderApp();
 
-  const projectSection = within(screen.getByRole('region', { name: /Project Universe/ }));
-  expect(projectSection.getByRole('heading', { level: 3, name: 'Sentinel' })).toBeTruthy();
-  expect(projectSection.getByRole('button', { name: /Cut2Short/ })).toBeTruthy();
-  expect(
-    projectSection.getByRole('button', { name: /Enterprise Knowledge Assistant/ }),
-  ).toBeTruthy();
-  expect(projectSection.getByRole('button', { name: /Library Management System/ })).toBeTruthy();
-  expect(projectSection.getByRole('button', { name: /YouTube Clone/ })).toBeTruthy();
+  const projectSection = within(screen.getByRole('region', { name: 'Selected Work.' }));
+  expect(projectSection.getAllByRole('article')).toHaveLength(5);
 
-  const expectedLinks = [
-    'https://github.com/juyelhushen/sentinel',
-    'https://github.com/juyelhushen/Cut2Short-backend',
-    'https://github.com/juyelhushen/cut2short-front',
-    'https://github.com/juyelhushen/enterprise-knowledge-assistant',
-    'https://github.com/juyelhushen/library.management',
-    'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/BooksController.java',
-    'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/OrderController.java',
-    'https://github.com/juyelhushen/youtube-clone',
-    'https://github.com/juyelhushen/youtube-clone/blob/master/backend/src/main/java/com/youtubeclone/service/S3Service.java',
-    'https://github.com/juyelhushen/youtube-clone/blob/master/frontend/ui/package.json',
+  const expectedProjects = [
+    ['Sentinel', 'https://github.com/juyelhushen/sentinel'],
+    ['Cut2Short', 'https://github.com/juyelhushen/Cut2Short-backend'],
+    [
+      'Enterprise Knowledge Assistant',
+      'https://github.com/juyelhushen/enterprise-knowledge-assistant',
+    ],
+    ['Library Management System', 'https://github.com/juyelhushen/library.management'],
+    ['YouTube Clone', 'https://github.com/juyelhushen/youtube-clone'],
   ];
-  const observedLinks = new Set<string>();
 
-  for (const projectName of [
-    'Sentinel',
-    'Cut2Short',
-    'Enterprise Knowledge Assistant',
-    'Library Management System',
-    'YouTube Clone',
-  ]) {
-    fireEvent.click(projectSection.getByRole('button', { name: new RegExp(projectName) }));
-    const projectLinks = projectSection
-      .queryAllByRole('link')
-      .filter((link) => link.classList.contains('project-link'));
-    for (const projectLink of projectLinks) {
-      observedLinks.add(projectLink.getAttribute('href') ?? '');
-      expect(projectLink.getAttribute('rel')).toBe('noopener noreferrer');
-    }
+  for (const [projectName, repositoryUrl] of expectedProjects) {
+    const projectCard = within(projectSection.getByRole('article', { name: projectName }));
+    expect(projectCard.getByRole('heading', { level: 3, name: projectName })).toBeTruthy();
+    const repositoryLink = projectCard.getByRole('link', {
+      name: `${projectName}: view GitHub repository`,
+    });
+    expect(repositoryLink.getAttribute('href')).toBe(repositoryUrl);
+    expect(repositoryLink.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(projectCard.getAllByRole('link')).toHaveLength(1);
   }
-
-  expect([...observedLinks]).toEqual(expectedLinks);
-  fireEvent.click(projectSection.getByRole('button', { name: /Sentinel/ }));
-  expect(projectSection.getByRole('link', { name: 'Sentinel: Repository' })).toBeTruthy();
-  expect(projectSection.queryByRole('link', { name: /Library Management System:/ })).toBeNull();
 });
 
 it('grounds the AI Lab in documented projects and their verified repositories', () => {
@@ -337,16 +338,16 @@ it('preserves section order and renders the Career Odyssey alongside Skills and 
       .querySelector('#skills')
       ?.compareDocumentPosition(document.querySelector('#projects')!),
   ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  expect(screen.getByRole('link', { name: /SCROLL TO EXPLORE/ }).getAttribute('href')).toBe(
-    '#skills',
-  );
   expect(
-    screen.getByRole('heading', { level: 2, name: /Every chapter built something/ }),
+    screen.getByRole('heading', { level: 2, name: /Career, chapter by chapter/ }),
   ).toBeTruthy();
   expect(screen.getByRole('heading', { level: 3, name: 'Software Engineer II' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Select Spring Boot skill' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Select LangGraph skill' })).toBeTruthy();
-  expect(screen.getByRole('group', { name: 'Project archive' })).toBeTruthy();
+  expect(
+    within(screen.getByRole('region', { name: 'Selected Work.' })).getAllByRole('article'),
+  ).toHaveLength(5);
+  expect(screen.getByRole('heading', { level: 2, name: 'Selected Work.' })).toBeTruthy();
 });
 
 it('retains working contact destinations with secure external-link attributes', () => {

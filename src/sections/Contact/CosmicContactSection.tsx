@@ -79,7 +79,9 @@ function EarthDestination({
       <div className="earth-halo" aria-hidden="true" />
       <div
         className="earth-fallback"
-        style={{ '--earth-texture': `url("${fallbackTexture}")` } as CSSProperties}
+        style={
+          sceneVisible ? ({ '--earth-texture': `url("${fallbackTexture}")` } as CSSProperties) : {}
+        }
         aria-hidden="true"
       />
       {sceneVisible && (

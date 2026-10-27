@@ -1,5 +1,5 @@
 import type { Ref } from 'react';
-import { ArrowDownRight, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import './HeroSection.css';
 
@@ -35,18 +35,18 @@ export default function HeroSection({ reduceMotion, headingRef }: HeroSectionPro
         transition={reduceMotion ? { duration: 0 } : { duration: 0.8, ease: 'easeOut' }}
       >
         <div className="eyebrow">
-          <span className="eyebrow-dot" /> SOFTWARE ENGINEER{' '}
-          <span className="eyebrow-separator">/</span> FULL-STACK{' '}
-          <span className="eyebrow-separator">/</span> AI ENGINEERING
+          <span className="eyebrow-dot" /> SOFTWARE ENGINEER
         </div>
         <h1 ref={headingRef} id="home-title" tabIndex={-1}>
-          I build software
+          Backend systems.
           <br />
-          that solves <em>real problems.</em>
+          Full-stack software.
+          <br />
+          <em>Practical AI.</em>
         </h1>
         <p className="hero-intro">
-          From reliable backend systems to thoughtful user experiences and emerging AI-powered
-          products — I turn ideas into useful software.
+          I build backend services and full-stack applications, while exploring AI engineering
+          through document retrieval and agent workflows.
         </p>
         <div className="hero-actions">
           <a className="button button-primary" href="#projects">
@@ -56,42 +56,12 @@ export default function HeroSection({ reduceMotion, headingRef }: HeroSectionPro
             Let’s connect <ArrowUpRight size={16} aria-hidden="true" />
           </a>
         </div>
-        <div className="hero-proof">
-          <div>
-            <span className="proof-index">01</span>
-            <span>
-              FULL-STACK
-              <br />
-              DEVELOPMENT
-            </span>
-          </div>
-          <div>
-            <span className="proof-index">02</span>
-            <span>
-              BACKEND
-              <br />
-              ENGINEERING
-            </span>
-          </div>
-          <div>
-            <span className="proof-index">03</span>
-            <span>
-              AI SYSTEMS
-              <br />
-              EXPLORATION
-            </span>
-          </div>
-        </div>
+        <ul className="hero-proof" aria-label="Selected technologies">
+          <li>Java · Spring Boot</li>
+          <li>React · TypeScript</li>
+          <li>LangGraph · RAG</li>
+        </ul>
       </motion.div>
-      <div className="hero-side-note">
-        <span className="note-line" /> A CURIOSITY-DRIVEN ENGINEER{' '}
-        <span className="note-coordinate">12° 34&apos; / 56° 78&apos;</span>
-      </div>
-      <a className="scroll-cue" href="#skills">
-        <span>SCROLL TO EXPLORE</span>
-        <ArrowDownRight size={19} aria-hidden="true" />
-      </a>
-      <div className="hero-bottom-glow" aria-hidden="true" />
     </section>
   );
 }

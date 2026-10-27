@@ -17,13 +17,10 @@ export default function ExperienceSection({ reduceMotion }: ExperienceSectionPro
         <div>
           <span className="section-kicker">CAREER ODYSSEY / 003</span>
           <h2 id="experience-title">
-            Every chapter <em>built something.</em>
+            Career, <em>chapter by chapter.</em>
           </h2>
         </div>
-        <p>
-          Four career chapters, from a Java Developer Internship through to my current Software
-          Engineer II role.
-        </p>
+        <p>A reverse-chronological timeline of the roles and dates currently documented.</p>
       </ScrollReveal>
       <ScrollReveal className="career-odyssey-reveal">
         <ExperienceTimeline reduceMotion={reduceMotion} />

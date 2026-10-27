@@ -123,3 +123,45 @@ it('keeps character limits, accessible labels, and the honeypot out of keyboard 
   expect(honeypot?.getAttribute('tabindex')).toBe('-1');
   expect(honeypot?.parentElement?.getAttribute('aria-hidden')).toBe('true');
 });
+
+it('defers the Earth texture and scene until the Earth is near the viewport', async () => {
+  const observers = new Map<Element, IntersectionObserverCallback>();
+  class TestIntersectionObserver {
+    constructor(private readonly callback: IntersectionObserverCallback) {}
+    observe(target: Element) {
+      observers.set(target, this.callback);
+    }
+    disconnect() {}
+    unobserve() {}
+    takeRecords(): IntersectionObserverEntry[] {
+      return [];
+    }
+    readonly root = null;
+    readonly rootMargin = '0px';
+    readonly thresholds = [0];
+  }
+  vi.stubGlobal('IntersectionObserver', TestIntersectionObserver);
+
+  const { container } = render(<CosmicContactSection reduceMotion />);
+  expect(screen.getByRole('img', { name: 'Rotating Earth, the message destination' })).toBeTruthy();
+  const target = container.querySelector('.contact-earth-target');
+  const fallback = target?.querySelector<HTMLElement>('.earth-fallback');
+  expect(fallback).toBeTruthy();
+  expect(fallback?.style.getPropertyValue('--earth-texture')).toBe('');
+  expect(screen.queryByTestId('earth-webgl-scene')).toBeNull();
+
+  observers.get(target as Element)?.(
+    [
+      {
+        target: target as Element,
+        isIntersecting: true,
+      } as IntersectionObserverEntry,
+    ],
+    {} as IntersectionObserver,
+  );
+
+  await waitFor(() => {
+    expect(fallback?.getAttribute('style')).toContain('earth-blue-marble.jpg');
+    expect(screen.getByTestId('earth-webgl-scene')).toBeTruthy();
+  });
+});

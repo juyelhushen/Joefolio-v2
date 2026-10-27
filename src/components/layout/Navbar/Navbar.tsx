@@ -58,6 +58,7 @@ export default function Navbar({ activeSection, onNavigate }: NavbarProps) {
 
   const navigate = (id: NavigationId) => {
     onNavigate(id);
+    if (menuOpen) window.setTimeout(() => menuToggleRef.current?.focus(), 0);
     setMenuOpen(false);
   };
 

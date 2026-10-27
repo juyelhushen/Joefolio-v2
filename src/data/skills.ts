@@ -1,5 +1,3 @@
-export type SkillIcon = 'code' | 'layers' | 'data' | 'ai';
-
 export type SkillDomainId = 'backend' | 'frontend' | 'data' | 'ai';
 
 export type SkillProjectEvidence = {
@@ -10,10 +8,7 @@ export type SkillProjectEvidence = {
 export type SkillGroup = {
   id: SkillDomainId;
   name: string;
-  icon: SkillIcon;
-  description: string;
   skills: readonly string[];
-  evidenceProjects: readonly SkillProjectEvidence[];
 };
 
 export type SkillPlanet = {
@@ -34,48 +29,22 @@ export const skillGroups: readonly SkillGroup[] = [
   {
     id: 'backend',
     name: 'Backend & APIs',
-    icon: 'code',
-    description:
-      'API and service-boundary work documented in incident investigation, link management, and document Q&A projects.',
     skills: ['Java', 'Spring Boot', 'Python', 'FastAPI', 'REST APIs', 'AWS', 'Docker'],
-    evidenceProjects: [
-      { projectName: 'Sentinel' },
-      { projectName: 'Cut2Short', linkLabel: 'Backend repository' },
-      { projectName: 'Enterprise Knowledge Assistant' },
-    ],
   },
   {
     id: 'frontend',
     name: 'Frontend Engineering',
-    icon: 'layers',
-    description:
-      'Building responsive interfaces with React, TypeScript, and JavaScript, including the Cut2Short client.',
     skills: ['React', 'TypeScript', 'JavaScript', 'Responsive interfaces'],
-    evidenceProjects: [{ projectName: 'Cut2Short', linkLabel: 'Frontend repository' }],
   },
   {
     id: 'data',
     name: 'Data & Messaging',
-    icon: 'data',
-    description:
-      'Persistence, caching, vector storage, and asynchronous communication documented across the selected projects.',
     skills: ['PostgreSQL', 'SQLite', 'ChromaDB', 'Redis', 'Kafka', 'WebSockets'],
-    evidenceProjects: [
-      { projectName: 'Cut2Short', linkLabel: 'Backend repository' },
-      { projectName: 'Enterprise Knowledge Assistant' },
-    ],
   },
   {
     id: 'ai',
     name: 'AI & Agentic Systems',
-    icon: 'ai',
-    description:
-      'Exploring document-grounded retrieval, agent orchestration, and controlled tool use through practical engineering projects.',
     skills: ['LangGraph', 'RAG', 'Ollama', 'MCP', 'Document retrieval'],
-    evidenceProjects: [
-      { projectName: 'Sentinel' },
-      { projectName: 'Enterprise Knowledge Assistant' },
-    ],
   },
 ];
 
@@ -91,7 +60,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     phaseDegrees: 35,
     direction: 'clockwise',
     description:
-      'The documented Cut2Short backend uses Spring Boot to provide the application API and server-side behavior.',
+      'Spring Boot powers the documented Cut2Short backend API and server-side workflows.',
     evidenceProjects: [{ projectName: 'Cut2Short', linkLabel: 'Backend repository' }],
   },
   {
@@ -104,8 +73,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 31,
     phaseDegrees: 205,
     direction: 'counterclockwise',
-    description:
-      'The Cut2Short client uses React to present link management and related application workflows.',
+    description: 'React powers the Cut2Short client interface for link management.',
     evidenceProjects: [{ projectName: 'Cut2Short', linkLabel: 'Frontend repository' }],
   },
   {
@@ -118,8 +86,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 16,
     phaseDegrees: 240,
     direction: 'clockwise',
-    description:
-      'TypeScript is included in the existing portfolio skills inventory. Project-specific TypeScript evidence is not called out in the current project summaries.',
+    description: 'TypeScript adds static typing to JavaScript application development.',
     evidenceProjects: [],
   },
   {
@@ -132,9 +99,8 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 38,
     phaseDegrees: 78,
     direction: 'clockwise',
-    description:
-      'PostgreSQL is included in the existing skills inventory. The current project summaries do not associate it with a specific repository.',
-    evidenceProjects: [],
+    description: 'PostgreSQL provides relational persistence in the Cut2Short backend.',
+    evidenceProjects: [{ projectName: 'Cut2Short', linkLabel: 'Backend repository' }],
   },
   {
     id: 'sqlite',
@@ -160,8 +126,8 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 43,
     phaseDegrees: 315,
     direction: 'counterclockwise',
-    description: 'Redis caching is documented in the Cut2Short backend project.',
-    evidenceProjects: [{ projectName: 'Cut2Short', linkLabel: 'Backend repository' }],
+    description: 'Redis is included in the skills inventory; no project association is documented.',
+    evidenceProjects: [],
   },
   {
     id: 'kafka',
@@ -173,8 +139,8 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 22,
     phaseDegrees: 190,
     direction: 'counterclockwise',
-    description: 'The Cut2Short backend documents Kafka-based asynchronous notifications.',
-    evidenceProjects: [{ projectName: 'Cut2Short', linkLabel: 'Backend repository' }],
+    description: 'Kafka is included in the skills inventory; no project association is documented.',
+    evidenceProjects: [],
   },
   {
     id: 'python',
@@ -186,8 +152,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 35,
     phaseDegrees: 250,
     direction: 'counterclockwise',
-    description:
-      'Python is the implementation language documented for Sentinel and the Enterprise Knowledge Assistant.',
+    description: 'Python is used in the Sentinel and Enterprise Knowledge Assistant projects.',
     evidenceProjects: [
       { projectName: 'Sentinel' },
       { projectName: 'Enterprise Knowledge Assistant' },
@@ -203,8 +168,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 29,
     phaseDegrees: 310,
     direction: 'counterclockwise',
-    description:
-      'LangGraph coordinates the documented investigation agents in Sentinel and retrieval workflow in the Enterprise Knowledge Assistant.',
+    description: 'LangGraph coordinates investigation and retrieval workflows in two AI projects.',
     evidenceProjects: [
       { projectName: 'Sentinel' },
       { projectName: 'Enterprise Knowledge Assistant' },
@@ -221,7 +185,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     phaseDegrees: 140,
     direction: 'counterclockwise',
     description:
-      'Ollama is the model runtime documented by Sentinel and the Enterprise Knowledge Assistant.',
+      'Ollama provides the model runtime for Sentinel and the Enterprise Knowledge Assistant.',
     evidenceProjects: [
       { projectName: 'Sentinel' },
       { projectName: 'Enterprise Knowledge Assistant' },
@@ -238,7 +202,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     phaseDegrees: 25,
     direction: 'clockwise',
     description:
-      'FastAPI provides the service layer documented in Sentinel and the Enterprise Knowledge Assistant.',
+      'FastAPI provides the service layer for Sentinel and the Enterprise Knowledge Assistant.',
     evidenceProjects: [
       { projectName: 'Sentinel' },
       { projectName: 'Enterprise Knowledge Assistant' },
@@ -254,8 +218,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     durationSeconds: 41,
     phaseDegrees: 95,
     direction: 'counterclockwise',
-    description:
-      'The YouTube Clone backend uses Amazon S3 for uploaded files through a dedicated S3 service.',
+    description: 'The YouTube Clone uses Amazon S3 to store uploaded files.',
     evidenceProjects: [{ projectName: 'YouTube Clone' }],
   },
   {
@@ -269,7 +232,7 @@ export const skillPlanets: readonly SkillPlanet[] = [
     phaseDegrees: 5,
     direction: 'clockwise',
     description:
-      'Docker is part of the skills inventory. No project-specific container configuration is associated with the inspected repositories.',
+      'Docker is included in the skills inventory; no project-specific configuration is documented.',
     evidenceProjects: [],
   },
 ];

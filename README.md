@@ -41,6 +41,9 @@ Production build:
 npm run build
 ```
 
+For versioned releases and the tag-triggered draft-release workflow, see the
+[release guide](./docs/releasing.md).
+
 ## Project content notes
 
 Project descriptions and technology lists are based on the linked public repositories. The showcase does not claim unverified outcomes or personal contributions. Corban is not included because the available legacy portfolio copy does not provide a project repository or a verified technical stack. No résumé asset or verified email address is currently included.

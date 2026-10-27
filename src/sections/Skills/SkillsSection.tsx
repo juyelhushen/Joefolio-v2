@@ -89,6 +89,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
     return (
       project?.links
         ?.filter((link) => !linkLabel || link.label === linkLabel)
+        .slice(0, 1)
         .map((link) => ({
           projectName: project.name,
           label: link.label,
@@ -174,6 +175,19 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
           })}
         </div>
 
+        <section className="skill-category-index" aria-label="Technology categories">
+          {skillGroups.map((group) => (
+            <div className={`skill-category skill-category-${group.id}`} key={group.id}>
+              <h3>{group.name}</h3>
+              <ul>
+                {group.skills.map((skill) => (
+                  <li key={skill}>{skill}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+
         <motion.article
           className={`skill-detail skill-detail-${selectedPlanet.domainId}`}
           id="skill-detail"
@@ -200,36 +214,19 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
             </span>
           </div>
           <h3 id="skill-detail-title">{selectedPlanet.name}</h3>
-          <p className="skill-detail-domain">{selectedDomain?.name}</p>
           <p className="skill-detail-description">{selectedPlanet.description}</p>
-          <div className="skill-detail-block">
-            <h4>Domain toolkit · {selectedDomain?.name}</h4>
-            <ul className="skill-detail-tags">
-              {selectedDomain?.skills.map((skill) => (
-                <li key={skill}>{skill}</li>
+          {evidence.length > 0 && (
+            <ul className="skill-evidence-list" aria-label="Related project repositories">
+              {evidence.map((item) => (
+                <li key={`${item.projectName}-${item.href}`}>
+                  <a href={item.href} target="_blank" rel="noopener noreferrer">
+                    <span>{item.projectName}</span>
+                    <span>{item.label}</span>
+                  </a>
+                </li>
               ))}
             </ul>
-          </div>
-          <div className="skill-detail-block">
-            <h4>Documented project evidence</h4>
-            {evidence.length > 0 ? (
-              <ul className="skill-evidence-list">
-                {evidence.map((item) => (
-                  <li key={`${item.projectName}-${item.href}`}>
-                    <a href={item.href} target="_blank" rel="noopener noreferrer">
-                      <span>{item.projectName}</span>
-                      <span>{item.label}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="skill-evidence-note">
-                This technology is in the existing skills inventory; a specific project association
-                is not documented here.
-              </p>
-            )}
-          </div>
+          )}
         </motion.article>
       </ScrollReveal>
     </section>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="background" x1="66" y1="38" x2="1118" y2="656" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1830"/>
+      <stop offset=".55" stop-color="#070B16"/>
+      <stop offset="1" stop-color="#11102A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(360 0 0 300 936 288)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F74B5" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#4F74B5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="planet" cx="0" cy="0" r="1" gradientTransform="matrix(86 105 -105 86 858 176)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A9B6D1"/>
+      <stop offset=".48" stop-color="#465474"/>
+      <stop offset="1" stop-color="#0A1020"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="774" y1="258" x2="1128" y2="326" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#65E7F2" stop-opacity=".1"/>
+      <stop offset=".52" stop-color="#A99BFF" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#FFB86C" stop-opacity=".74"/>
+    </linearGradient>
+    <pattern id="stars" width="118" height="102" patternUnits="userSpaceOnUse">
+      <circle cx="16" cy="18" r="1.2" fill="#E8F0FF" fill-opacity=".72"/>
+      <circle cx="76" cy="54" r=".8" fill="#9EC5FF" fill-opacity=".55"/>
+      <circle cx="42" cy="87" r=".7" fill="#D9D3FF" fill-opacity=".55"/>
+      <circle cx="108" cy="12" r=".6" fill="#E8F0FF" fill-opacity=".42"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" rx="30" fill="url(#background)"/>
+  <rect width="1200" height="630" rx="30" fill="url(#glow)"/>
+  <rect width="1200" height="630" rx="30" fill="url(#stars)"/>
+  <path d="M732 330C850 267 1005 275 1176 344" stroke="#7994C8" stroke-opacity=".22"/>
+  <path d="M759 365C879 312 1034 321 1187 383" stroke="#A99BFF" stroke-opacity=".2"/>
+  <circle cx="924" cy="277" r="128" fill="url(#planet)"/>
+  <ellipse cx="924" cy="277" rx="208" ry="55" transform="rotate(-17 924 277)" stroke="url(#ring)" stroke-width="8"/>
+  <ellipse cx="924" cy="277" rx="249" ry="72" transform="rotate(-17 924 277)" stroke="#82A5E8" stroke-opacity=".3" stroke-width="2"/>
+  <circle cx="1037" cy="165" r="5" fill="#65E7F2"/>
+  <circle cx="731" cy="423" r="8" fill="#FFB86C" fill-opacity=".8"/>
+  <rect x="78" y="72" width="54" height="54" rx="17" fill="#101A30" stroke="#65E7F2" stroke-opacity=".55"/>
+  <text x="105" y="108" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="-2" text-anchor="middle">JH</text>
+  <circle cx="136" cy="77" r="4" fill="#FFB86C"/>
+  <text x="154" y="105" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="3">JUYEL HUSHEN</text>
+  <text x="78" y="199" fill="#65E7F2" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">SOFTWARE ENGINEER</text>
+  <text x="78" y="282" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">Backend systems.</text>
+  <text x="78" y="355" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">Full-stack software.</text>
+  <text x="78" y="428" fill="#65E7F2" font-family="Arial,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">Practical AI.</text>
+  <text x="82" y="483" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="19">Building backend services and full-stack applications, while exploring AI</text>
+  <text x="82" y="512" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="19">engineering through document retrieval and agent workflows.</text>
+  <path d="M82 554h426" stroke="#BAC5D8" stroke-opacity=".2"/>
+  <text x="82" y="586" fill="#C5D0E3" font-family="Arial,sans-serif" font-size="14" letter-spacing=".4">JAVA · SPRING BOOT</text>
+  <text x="290" y="586" fill="#C5D0E3" font-family="Arial,sans-serif" font-size="14" letter-spacing=".4">REACT · TYPESCRIPT</text>
+  <text x="518" y="586" fill="#C5D0E3" font-family="Arial,sans-serif" font-size="14" letter-spacing=".4">LANGGRAPH · RAG</text>
+</svg>

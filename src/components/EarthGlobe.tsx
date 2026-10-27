@@ -95,6 +95,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
     let frame = 0;
     let texture: Texture | null = null;
     let disposed = false;
+    let inViewport = !('IntersectionObserver' in window);
     let draw = () => renderer.render(scene, camera);
     new TextureLoader().load(
       `${import.meta.env.BASE_URL}images/earth-blue-marble.jpg`,
@@ -125,7 +126,9 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       if (previousFrame) earth.rotation.y += Math.min(time - previousFrame, 60) * 0.000012;
       previousFrame = time;
       draw();
-      frame = window.requestAnimationFrame(animate);
+      if (inViewport && !document.hidden && !motionReduced) {
+        frame = window.requestAnimationFrame(animate);
+      }
     };
     const resizeEarth = () => {
       if (disposed) return;
@@ -140,6 +143,22 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       (new (callback: ResizeObserverCallback) => ResizeObserver) | undefined;
     const resizeObserver = observerConstructor ? new observerConstructor(resizeEarth) : undefined;
     resizeObserver?.observe(container);
+    const intersectionObserver =
+      typeof IntersectionObserver === 'undefined'
+        ? undefined
+        : new IntersectionObserver((entries) => {
+            const entry = entries.find((item) => item.target === container);
+            if (!entry || inViewport === entry.isIntersecting) return;
+            inViewport = entry.isIntersecting;
+            window.cancelAnimationFrame(frame);
+            if (document.hidden || motionReduced || !inViewport) {
+              draw();
+              return;
+            }
+            previousFrame = 0;
+            frame = window.requestAnimationFrame(animate);
+          });
+    intersectionObserver?.observe(container);
     window.addEventListener('resize', resizeEarth);
     resizeEarth();
     const motionQuery =
@@ -147,13 +166,13 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
         ? window.matchMedia('(prefers-reduced-motion: reduce)')
         : null;
     let motionReduced = reduceMotion || Boolean(motionQuery?.matches);
-    if (motionReduced) draw();
+    if (motionReduced || !inViewport) draw();
     else frame = window.requestAnimationFrame(animate);
 
     const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
       motionReduced = event.matches;
       window.cancelAnimationFrame(frame);
-      if (motionReduced || document.hidden) {
+      if (motionReduced || document.hidden || !inViewport) {
         draw();
         return;
       }
@@ -162,7 +181,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
     };
     const onVisibilityChange = () => {
       window.cancelAnimationFrame(frame);
-      if (document.hidden || motionReduced) {
+      if (document.hidden || motionReduced || !inViewport) {
         draw();
         return;
       }
@@ -178,6 +197,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       motionQuery?.removeEventListener('change', onMotionPreferenceChange);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       resizeObserver?.disconnect();
+      intersectionObserver?.disconnect();
       window.removeEventListener('resize', resizeEarth);
       texture?.dispose();
       geometry.dispose();
