@@ -55,25 +55,57 @@ ordinary development or before reviewing the release commit.
 ## What the workflows do
 
 `.github/workflows/ci.yml` handles pull requests targeting `main` and pushes to `main`. Those
-events run the existing quality checks and do not create GitHub Releases. Automatic Vercel
-production deployments from `main` remain controlled by the existing Vercel configuration; these
-workflows do not change that configuration or deploy the site.
+events run formatting, lint, typecheck, tests, and the production build. They do not create GitHub
+Releases or deploy to Vercel. The root `vercel.json` disables Git-triggered deployments for `main`
+while leaving preview deployments for other branches enabled by default.
 
-`.github/workflows/release.yml` is triggered exclusively by pushes of tags matching `v*`. Its
-quality job checks the exact tag format and package version, installs dependencies with `npm ci`,
-then runs formatting, lint, typecheck, tests, and the production build against the tagged commit.
-Invalid `v*` tags fail validation before dependency installation.
+`.github/workflows/release.yml` is triggered exclusively by pushes of tags matching `v*`. It first
+checks the exact tag format and package version. Then it installs dependencies with `npm ci` and
+runs formatting, lint, typecheck, tests, and the production build against the tagged commit.
+Invalid `v*` tags fail before quality checks or deployment. After successful checks, the workflow
+checks out the commit SHA associated with the tag-push event for validation, quality, and
+deployment. After validating the version, it verifies the tag still points to that commit before
+quality checks and again before draft creation. The deployment job pulls the Vercel production
+configuration, builds with the pinned Vercel CLI, and deploys the prebuilt output to production.
+It does not check out or deploy the latest `main` commit. Missing Vercel secrets fail the
+deployment job; a draft release is not created unless deployment succeeds.
 
-Only after every release quality check succeeds does the dependent release-creation job verify the
-tag exists on the remote and use the repository-provided `GITHUB_TOKEN` to create a GitHub Release
-in **draft** state with automatically generated notes. Only that job receives `contents: write`;
-the quality job has read-only contents permission. The workflow never publishes the draft, deploys
-the website, pushes tags, or creates npm packages. If a release for the tag already exists, a rerun
-leaves it unchanged, whether it is still a draft or has already been published.
+After a successful deployment, the release-creation job verifies the tag exists on the remote and
+uses the repository-provided `GITHUB_TOKEN` to create a GitHub Release in **draft** state with
+automatically generated notes. Validation, quality, and deployment jobs have read-only contents
+permission; only release creation receives `contents: write`. The workflow never publishes the
+draft, pushes tags, or creates npm packages. If a release for the tag already exists, a rerun leaves
+it unchanged, whether it is still a draft or has already been published.
 
-Open the draft release on GitHub after the workflow completes. Review the generated notes, title,
-tag, target commit, and source archives; edit the notes if needed, then publish the release
-manually when approved.
+## Configure Vercel deployment secrets
+
+Before using tag-based production deployment, add these repository Actions secrets in GitHub:
+**Settings → Secrets and variables → Actions → New repository secret**. The deployment job uses
+the GitHub `production` environment, so you can instead add them as secrets to that environment.
+If you use environment-scoped secrets, ensure that the `production` environment exists and is
+configured in repository settings.
+
+- `VERCEL_TOKEN`: create a token in your Vercel account settings under **Tokens**. Grant only the
+  access needed to deploy the Joefolio project. Store the token as a GitHub secret; do not commit
+  it, print it, or put it in a `VITE_` variable.
+- `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`: retrieve these identifiers from the linked Vercel
+  project's **Settings → General**. They are also available in the Vercel CLI's local
+  `.vercel/project.json` after linking the correct project (`orgId` and `projectId`). Treat them
+  as configuration values and store them as GitHub Actions secrets so the deployment job receives
+  them consistently.
+
+The workflow checks that all three values are present before invoking Vercel. It uses Vercel CLI
+`65.4.0` explicitly; it does not install an unpinned `latest` CLI. Do not copy secret values into
+logs, this guide, or committed files.
+
+## Monitor and verify a release
+
+After manually pushing a version tag, open the repository's **Actions** tab and inspect the
+corresponding **Release** run. The jobs proceed in order: tag validation, quality checks,
+production deployment, then draft release creation. The deployment log prints the Vercel deployment
+URL when supplied by the CLI. Visit that URL and the configured production domain to verify the
+deployed version. Then open the draft under **Releases**, review the generated notes, tag and target
+commit, and publish it manually only after verification.
 
 ## Troubleshooting
 
@@ -84,11 +116,15 @@ manually when approved.
   commit that update, and create a new tag that exactly matches the package version. Do not change
   the tag to point at a different version without reviewing and committing the version update.
 - **Quality job failed:** inspect the failing formatting, lint, typecheck, test, or build step.
-  Correct the source on a new commit, then use a new version/tag if the failed tag identifies an
-  immutable release candidate.
+  Correct the source on a new commit, deliberately update the package version, then use a new
+  version/tag. The existing tag identifies the earlier commit and should not be moved or reused.
+- **Deployment failed:** inspect the failing Vercel CLI step without exposing credentials. Verify
+  the three GitHub secrets, that the token is valid and authorized for the project, and that the
+  project IDs refer to the intended Vercel project. Fix the issue and release a new version/tag;
+  the draft release will not be created before deployment succeeds.
 - **Draft creation failed:** inspect the release job's tag verification and `gh release create`
   output. Confirm the tag exists on the remote and that repository Actions permissions allow
-  `GITHUB_TOKEN` to write contents. No personal access token or new secret is required.
+  `GITHUB_TOKEN` to write contents. No personal access token or new GitHub secret is required.
 - **A release already exists:** the workflow intentionally does not modify it on reruns. Review or
   publish the existing draft in GitHub rather than trying to recreate it.
 
