@@ -1,9 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowUpRight } from 'lucide-react';
-import ProjectCard from '../../components/ProjectCard';
+import { ArrowUpRight, Github } from 'lucide-react';
 import ProjectVisual from '../../components/ProjectVisual';
-import ProjectUniverse from '../../components/ProjectUniverse';
 import ScrollReveal from '../../components/ScrollReveal';
 import { projects } from '../../data/projects';
 import './ProjectsSection.css';
@@ -13,137 +9,76 @@ type ProjectsSectionProps = {
 };
 
 export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) {
-  const [selectedProjectId, setSelectedProjectId] = useState(projects[0].id);
-  const selectedProject =
-    projects.find((project) => project.id === selectedProjectId) ?? projects[0];
-
   return (
     <section
       className="project-section section-wrap"
       id="projects"
       aria-labelledby="projects-title"
+      data-reduced-motion={reduceMotion}
     >
-      <ScrollReveal className="section-heading mission-heading">
+      <ScrollReveal className="projects-heading">
         <div>
-          <span className="section-kicker">PROJECT UNIVERSE / 007</span>
+          <span className="section-kicker">A FEW THINGS I’VE MADE</span>
           <h2 id="projects-title">
-            The Project <em>Universe.</em>
+            Selected <em>Work.</em>
           </h2>
         </div>
         <p>
-          Five distinct systems, explored through the engineering ideas and evidence behind each.
+          A handful of projects shaped by curiosity, thoughtful engineering, and a love of building.
         </p>
       </ScrollReveal>
 
       <ScrollReveal>
-        <div
-          className="project-universe-stage"
-          data-active-project={selectedProject.id}
-          data-reduced-motion={reduceMotion ? 'true' : 'false'}
-        >
-          <ProjectUniverse activeProjectId={selectedProject.id} reduceMotion={reduceMotion} />
-          <div className="project-universe-caption" aria-hidden="true">
-            <span>CONCEPTUAL ENGINEERING CONSTELLATION</span>
-            <span>INDEPENDENT PROJECTS · SHARED CURIOSITY</span>
-          </div>
-        </div>
-      </ScrollReveal>
-
-      <ScrollReveal>
-        <div className="mission-console">
-          <div className="mission-feature-host" data-reduced-motion={reduceMotion}>
-            <motion.article
-              className={`mission-feature mission-feature-${selectedProject.visual}`}
-              id="mission-feature"
-              key={selectedProject.id}
-              aria-labelledby="mission-feature-title"
-              initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.985 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={reduceMotion ? undefined : { opacity: 0, y: -8, scale: 0.99 }}
-              transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
+        <div className="project-gallery">
+          {projects.map((project, index) => (
+            <article
+              className={`project-gallery-card${index === 0 ? ' project-gallery-card-featured' : ''}`}
+              key={project.id}
+              aria-labelledby={`project-title-${project.id}`}
             >
-              <div className="mission-feature-visual">
-                <div className="mission-feature-meta">
-                  <span>ACTIVE FILE / {selectedProject.number}</span>
-                  <span>{selectedProject.category}</span>
-                </div>
-                <ProjectVisual visual={selectedProject.visual} />
-                <div className="mission-visual-footnote">
-                  <span>ENGINEERING SCHEMATIC</span>
-                  <span>CONCEPTUAL VISUALIZATION</span>
-                </div>
+              <div className={`project-gallery-cover project-gallery-cover-${project.visual}`}>
+                <ProjectVisual visual={project.visual} />
               </div>
 
-              <div className="mission-feature-copy">
-                <div className="mission-feature-index">
-                  <span>PROJECT / {selectedProject.number}</span>
-                  <span className="mission-status">
-                    <i /> ARCHIVE RECORD
-                  </span>
+              <div className="project-gallery-content">
+                <div className="project-gallery-copy">
+                  <h3 id={`project-title-${project.id}`}>{project.name}</h3>
+                  <p>{project.summary}</p>
                 </div>
-                <h3 id="mission-feature-title">{selectedProject.name}</h3>
-                <div className="project-detail">
-                  <span className="project-detail-label">Problem</span>
-                  <p>{selectedProject.problem}</p>
-                </div>
-                <div className="project-detail">
-                  <span className="project-detail-label">Approach</span>
-                  <p className="project-summary">{selectedProject.summary}</p>
-                </div>
-                {selectedProject.engineeringFocus && (
-                  <div className="project-focus">
-                    <span className="project-detail-label">Engineering focus</span>
-                    <p>{selectedProject.engineeringFocus}</p>
-                  </div>
-                )}
 
-                {(selectedProject.technologies?.length ?? 0) > 0 && (
-                  <ul className="tech-tags" aria-label={`${selectedProject.name} technologies`}>
-                    {selectedProject.technologies?.map((technology) => (
-                      <li key={technology}>{technology}</li>
-                    ))}
-                  </ul>
-                )}
+                <ul className="project-gallery-tags" aria-label={`${project.name} technologies`}>
+                  {project.technologies.slice(0, 4).map((technology) => (
+                    <li key={technology}>{technology}</li>
+                  ))}
+                </ul>
 
-                {(selectedProject.links?.length ?? 0) > 0 && (
-                  <footer className="project-footer">
-                    {selectedProject.links?.map((link) => (
-                      <a
-                        className="project-link"
-                        aria-label={`${selectedProject.name}: ${link.label}`}
-                        href={link.href}
-                        key={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {link.label}
-                        <ArrowUpRight size={15} aria-hidden="true" />
-                      </a>
-                    ))}
-                  </footer>
-                )}
+                <div className="project-gallery-actions">
+                  <a
+                    className="project-gallery-link"
+                    href={project.repositoryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${project.name}: view GitHub repository`}
+                  >
+                    <Github size={16} aria-hidden="true" />
+                    <span>GitHub</span>
+                    <ArrowUpRight size={15} aria-hidden="true" />
+                  </a>
+                  {project.demoUrl && (
+                    <a
+                      className="project-gallery-demo"
+                      href={project.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Live demo
+                      <ArrowUpRight size={14} aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
               </div>
-            </motion.article>
-          </div>
-
-          <div className="mission-navigation" role="group" aria-label="Project archive">
-            <div className="mission-navigation-heading">
-              <span>ARCHIVE INDEX</span>
-              <span>{String(projects.length).padStart(2, '0')} PROJECTS</span>
-            </div>
-            <div className="mission-navigation-list">
-              {projects.map((project, index) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={index}
-                  selected={project.id === selectedProject.id}
-                  reduceMotion={reduceMotion}
-                  onSelect={setSelectedProjectId}
-                />
-              ))}
-            </div>
-          </div>
+            </article>
+          ))}
         </div>
       </ScrollReveal>
     </section>

@@ -36,8 +36,8 @@ export default function HeroSection({ reduceMotion, headingRef }: HeroSectionPro
       >
         <div className="eyebrow">
           <span className="eyebrow-dot" /> SOFTWARE ENGINEER{' '}
-          <span className="eyebrow-separator">/</span> FULL-STACK{' '}
-          <span className="eyebrow-separator">/</span> AI ENGINEERING
+          <span className="eyebrow-separator">/</span> BACKEND & FULL-STACK{' '}
+          <span className="eyebrow-separator">/</span> AI ENGINEERING EXPLORATION
         </div>
         <h1 ref={headingRef} id="home-title" tabIndex={-1}>
           I build software
@@ -45,8 +45,8 @@ export default function HeroSection({ reduceMotion, headingRef }: HeroSectionPro
           that solves <em>real problems.</em>
         </h1>
         <p className="hero-intro">
-          From reliable backend systems to thoughtful user experiences and emerging AI-powered
-          products — I turn ideas into useful software.
+          I build backend services and full-stack applications, and explore AI engineering through
+          projects in document retrieval and agent workflows.
         </p>
         <div className="hero-actions">
           <a className="button button-primary" href="#projects">
