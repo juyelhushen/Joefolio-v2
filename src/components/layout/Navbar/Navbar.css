@@ -151,11 +151,13 @@
 }
 .menu-toggle {
   display: none;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--line);
   background: rgba(10, 16, 30, 0.7);
   border-radius: 11px;
   color: #fff;
-  padding: 9px;
+  padding: 0;
 }
 .main-nav-indicator {
   z-index: 1;
@@ -215,7 +217,7 @@
   }
   .header-cta {
     margin-left: auto;
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 9px;
     font-size: 12px;
     gap: 4px;

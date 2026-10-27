@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import App from './App';
 
@@ -30,13 +30,18 @@ function renderApp() {
   return render(<App />);
 }
 
-it('positions Juyel as a backend and full-stack engineer exploring AI engineering', () => {
+it('positions Juyel through backend, full-stack, and practical AI engineering', () => {
   renderApp();
 
-  const hero = document.getElementById('home');
-  expect(hero?.textContent).toContain('BACKEND & FULL-STACK');
-  expect(hero?.textContent).toContain('AI ENGINEERING EXPLORATION');
-  expect(hero?.textContent).toContain('projects in document retrieval and agent workflows');
+  const hero = screen.getByRole('region', { name: /Backend systems.*Practical AI/ });
+  expect(
+    screen.getByRole('heading', { level: 1, name: /Backend systems.*Practical AI/ }),
+  ).toBeTruthy();
+  expect(hero.textContent).toContain('full-stack applications');
+  expect(hero.textContent).toContain('document retrieval and agent workflows');
+  expect(within(hero).getByText('Java · Spring Boot')).toBeTruthy();
+  expect(within(hero).getByText('React · TypeScript')).toBeTruthy();
+  expect(within(hero).getByText('LangGraph · RAG')).toBeTruthy();
   expect(screen.getByRole('link', { name: /Explore Projects/ }).getAttribute('href')).toBe(
     '#projects',
   );
@@ -206,7 +211,7 @@ it('keeps the animated JH brand link and prominent Get in Touch destination', ()
   ).toBe('#contact');
 });
 
-it('immediately activates the clicked destination and closes the mobile menu', () => {
+it('immediately activates the clicked destination, closes the mobile menu, and restores focus', async () => {
   renderApp();
 
   fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
@@ -215,6 +220,9 @@ it('immediately activates the clicked destination and closes the mobile menu', (
 
   expect(screen.getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe(
     'false',
+  );
+  await waitFor(() =>
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open menu' })),
   );
   expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe(
     '#projects',
@@ -330,11 +338,8 @@ it('preserves section order and renders the Career Odyssey alongside Skills and 
       .querySelector('#skills')
       ?.compareDocumentPosition(document.querySelector('#projects')!),
   ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  expect(screen.getByRole('link', { name: /SCROLL TO EXPLORE/ }).getAttribute('href')).toBe(
-    '#skills',
-  );
   expect(
-    screen.getByRole('heading', { level: 2, name: /Every chapter built something/ }),
+    screen.getByRole('heading', { level: 2, name: /Career, chapter by chapter/ }),
   ).toBeTruthy();
   expect(screen.getByRole('heading', { level: 3, name: 'Software Engineer II' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Select Spring Boot skill' })).toBeTruthy();

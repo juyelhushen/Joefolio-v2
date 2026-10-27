@@ -57,6 +57,12 @@ it('renders the four career chapters in reverse chronological order', () => {
     'Test Yantra',
   ]);
   expect(experience.map(({ chapter }) => chapter)).toEqual([4, 3, 2, 1]);
+  expect(experience.map(({ dates }) => dates)).toEqual([
+    'December 2025 – Present',
+    'September 2024 – December 2025',
+    'April 2022 – June 2024',
+    undefined,
+  ]);
   expect(
     within(timeline)
       .getAllByText(/^CHAPTER \//)
@@ -70,6 +76,10 @@ it('omits the unresolved Test Yantra dates and shows the other supplied periods'
   const testYantra = experience.at(-1);
   expect(testYantra?.employer).toBe('Test Yantra');
   expect(testYantra?.dates).toBeUndefined();
+  const testYantraCard = screen
+    .getByRole('heading', { level: 3, name: 'Java Developer Intern' })
+    .closest('.experience-card');
+  expect(testYantraCard?.querySelector('.experience-dates')).toBeNull();
   expect(screen.queryByText(/October 2021|March 2020/)).toBeNull();
   expect(screen.getByText('April 2022 – June 2024')).toBeTruthy();
   expect(screen.getByText('September 2024 – December 2025')).toBeTruthy();

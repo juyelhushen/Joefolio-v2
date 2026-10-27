@@ -119,7 +119,7 @@
   border-radius: 50%;
   background-image:
     radial-gradient(ellipse at 29% 24%, rgba(156, 220, 255, 0.15), transparent 32%),
-    var(--earth-texture);
+    var(--earth-texture, none);
   background-repeat: no-repeat;
   background-size:
     100% 100%,
