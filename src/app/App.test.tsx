@@ -224,6 +224,7 @@ it('immediately activates the clicked destination, closes the mobile menu, and r
   await waitFor(() =>
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open menu' })),
   );
+  fireEvent.scroll(window);
   expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe(
     '#projects',
   );

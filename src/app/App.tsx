@@ -65,12 +65,8 @@ export default function App() {
     const header = document.querySelector<HTMLElement>('.site-header');
     const activationLine =
       (header?.getBoundingClientRect().bottom ?? 0) + 16 + Math.min(140, window.innerHeight * 0.2);
-    const pendingId = pendingNavigationRef.current;
-    if (pendingId) {
-      const pendingSection = document.getElementById(pendingId);
-      if (pendingSection && pendingSection.getBoundingClientRect().top > activationLine) return;
-      pendingNavigationRef.current = null;
-    }
+    // Keep an explicit navigation target active until scrolling settles or the user scrolls again.
+    if (pendingNavigationRef.current) return;
 
     const page = document.documentElement;
     if (
@@ -99,6 +95,15 @@ export default function App() {
     const clearPendingNavigation = () => {
       pendingNavigationRef.current = null;
     };
+    const finishPendingNavigation = () => {
+      if (!pendingNavigationRef.current) return;
+      pendingNavigationRef.current = null;
+      updateActiveSection();
+    };
+    const handleResize = () => {
+      clearPendingNavigation();
+      updateActiveSection();
+    };
     const handleScrollKey = (event: KeyboardEvent) => {
       if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) {
         clearPendingNavigation();
@@ -118,22 +123,24 @@ export default function App() {
     };
 
     window.addEventListener('scroll', updateActiveSection, { passive: true });
-    window.addEventListener('resize', updateActiveSection);
+    window.addEventListener('resize', handleResize);
     window.addEventListener('wheel', clearPendingNavigation, { passive: true });
     window.addEventListener('touchstart', clearPendingNavigation, { passive: true });
     window.addEventListener('keydown', handleScrollKey);
     window.addEventListener('hashchange', syncHistoryNavigation);
     window.addEventListener('popstate', syncHistoryNavigation);
+    document.addEventListener('scrollend', finishPendingNavigation);
     const initialFrame = requestAnimationFrame(updateActiveSection);
     return () => {
       cancelAnimationFrame(initialFrame);
       window.removeEventListener('scroll', updateActiveSection);
-      window.removeEventListener('resize', updateActiveSection);
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('wheel', clearPendingNavigation);
       window.removeEventListener('touchstart', clearPendingNavigation);
       window.removeEventListener('keydown', handleScrollKey);
       window.removeEventListener('hashchange', syncHistoryNavigation);
       window.removeEventListener('popstate', syncHistoryNavigation);
+      document.removeEventListener('scrollend', finishPendingNavigation);
     };
   }, [updateActiveSection]);
 
