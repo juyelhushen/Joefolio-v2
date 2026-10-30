@@ -30,10 +30,10 @@ value empty to keep the assistant in its honest unavailable state; no sample ans
 Vite environment values are public, so never put model/provider credentials or backend secrets in
 this variable.
 
-The contact form's Vercel Function is not available through plain Vite development. Configure the
-server-only variables described in [the contact email setup guide](./docs/contact-email.md), then
-run `npx vercel dev --listen 3000` to test the app and `/api/contact` together. Do not configure a
-real Resend key unless you intend to send a real email.
+The contact form submits directly to the Spring Boot API. Set the public
+`VITE_API_BASE_URL` in `.env.local` for local development; see the
+[contact API guide](./docs/contact-email.md) for the deployed URL, local backend option, and Vercel
+configuration. Never put credentials or private backend settings in `VITE_` variables.
 
 Production build:
 

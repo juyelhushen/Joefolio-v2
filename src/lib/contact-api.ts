@@ -1,3 +1,6 @@
+import { ApiError, normalizeApiError } from './api/api-error';
+import { apiClient } from './api/client';
+
 export type ContactMessage = {
   name: string;
   email: string;
@@ -7,34 +10,30 @@ export type ContactMessage = {
 };
 
 type ContactResponse = {
-  accepted?: boolean;
-  error?: string;
+  message: string;
 };
 
 export async function sendContactMessage(message: ContactMessage): Promise<void> {
-  let response: Response;
   try {
-    response = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(message),
+    const response = await apiClient.post<ContactResponse>('/api/v1/contact', {
+      name: message.name,
+      email: message.email,
+      subject: message.subject,
+      body: message.message,
+      website: message.website,
     });
-  } catch {
-    throw new Error('Could not reach the email service. Your message is still here; please retry.');
-  }
 
-  let result: ContactResponse = {};
-  try {
-    result = (await response.json()) as ContactResponse;
-  } catch {
-    if (response.ok) {
-      throw new Error('The email service returned an invalid response. Please retry.');
+    if (
+      response.status !== 202 ||
+      typeof response.data?.message !== 'string' ||
+      response.data.message.trim().length === 0
+    ) {
+      throw new ApiError(
+        'The contact service returned an unexpected response. Your message is still here; please retry.',
+        response.status,
+      );
     }
-  }
-
-  if (!response.ok || result.accepted !== true) {
-    throw new Error(
-      result.error ?? 'The message could not be sent. Your message is still here; please retry.',
-    );
+  } catch (error) {
+    throw normalizeApiError(error);
   }
 }
