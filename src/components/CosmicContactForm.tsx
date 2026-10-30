@@ -126,7 +126,7 @@ export default function CosmicContactForm({
             {...fieldProps('name')}
             type="text"
             autoComplete="name"
-            maxLength={100}
+            maxLength={80}
             ref={(element) => {
               contactFieldRef.current.name = element;
             }}
@@ -209,12 +209,12 @@ export default function CosmicContactForm({
 
       {status === 'pending' && (
         <p className="contact-live-status" role="status" aria-live="polite">
-          Sealing your message and contacting the email service…
+          Sealing your message and contacting the contact service…
         </p>
       )}
       {status === 'flying' && (
         <p className="contact-live-status" role="status" aria-live="polite">
-          The email service accepted your message. Launching it into orbit…
+          The contact service accepted your message. Launching it into orbit…
         </p>
       )}
       {status === 'success' && (

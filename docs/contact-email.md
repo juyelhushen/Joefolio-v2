@@ -1,55 +1,61 @@
-# Contact email delivery
+# Contact API configuration
 
-The portfolio sends contact messages to `POST /api/contact`, a root-level Vercel Function.
-The browser does not receive the Resend API key. The function only reports acceptance after
-Resend accepts the message; the animated envelope starts after that response.
+The portfolio contact form sends messages from the browser to the Spring Boot API at
+`POST /api/v1/contact`. The shared Axios client in `src/lib/api/client.ts` reads its base URL from
+`VITE_API_BASE_URL`, falling back to `https://joefolio-backend.onrender.com`.
 
-## Server environment variables
+## Environment configuration
 
-Configure these variables in the Vercel project settings for each environment that should send
-email. For local function development, put them in an ignored `.env.local` file at the repository
-root. Do not add secrets or a personal recipient address to `.env.example`, Vite variables, or
-source control.
+Set `VITE_API_BASE_URL` in the Vercel project's **Settings → Environment Variables** for Production
+and any Preview or Development environments where the form should work:
 
-| Variable                  | Purpose                                                                                                                                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `RESEND_API_KEY`          | Server-side Resend API key. Never use a `VITE_` prefix.                                                                                                                                                  |
-| `CONTACT_TO_EMAIL`        | Private inbox that receives portfolio messages.                                                                                                                                                          |
-| `CONTACT_FROM_EMAIL`      | Sender identity authorized for the verified Resend sending domain, for example `Portfolio <contact@your-verified-domain.example>`.                                                                       |
-| `CONTACT_ALLOWED_ORIGINS` | Comma-separated exact origins, without paths or wildcards; include the production site origin and local Vercel development origin. Add a preview origin only when you intend to accept messages from it. |
+```text
+VITE_API_BASE_URL=https://joefolio-backend.onrender.com
+```
 
-The From identity must belong to a domain verified with Resend before production delivery is
-enabled. The visitor's address is placed in `Reply-To`, never used as the sender. Use the Resend
-dashboard to verify the domain and configure DNS; the application cannot verify domain ownership.
+Vite embeds `VITE_` values in browser assets, so this URL is public configuration. Never put
+credentials or private backend settings in a Vite variable. The backend URL must
+allow browser requests from the deployed portfolio origin through its CORS configuration.
 
-## Local development
+For local development, add the following to the ignored `.env.local` file when the Spring Boot
+backend is running locally:
 
-1. Copy `.env.example` to `.env.local`.
-2. Set `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and an authorized `CONTACT_FROM_EMAIL` only when you
-   intend to test actual delivery. Add the exact local origin to `CONTACT_ALLOWED_ORIGINS`.
-3. Link the workspace to a Vercel project and run `npx vercel dev --listen 3000`. Vercel CLI serves
-   the Vite app and executes `api/contact.ts`; plain `npm run dev` does not run Vercel Functions.
-4. Submit a safe test message only after confirming the configured recipient is a test inbox you
-   control. A configured test still sends a real email through Resend.
+```text
+VITE_API_BASE_URL=http://localhost:8082
+```
 
-Automated tests inject a mocked provider at the email-sending boundary and never make a network
-request to Resend. Do not add real keys to test environments.
+The same value can be used as a temporary override when testing against the deployed API:
 
-## Request and response
+```text
+VITE_API_BASE_URL=https://joefolio-backend.onrender.com
+```
 
-`POST /api/contact` accepts JSON with required bounded `name`, `email`, `subject`, and `message`
-strings plus an optional `website` honeypot. The response is `{ "accepted": true }` only after
-Resend accepts the email. Configuration failures return `503`; invalid requests, origins, and
-rate-limited requests return non-success responses. Provider failures return a generic `502`
-without provider details.
+Restart Vite after changing environment variables. A production environment-variable change takes
+effect in the next Vercel build/deployment; do not assume an already-built deployment has picked
+up the new value.
 
-## Abuse controls and limits
+The retired Vercel contact function is no longer used. Any environment settings that existed only
+for that function can be removed manually after verifying the new production contact flow; this
+change does not alter Vercel dashboard settings.
 
-The function checks the request method, JSON content type, a 16 KiB body limit, field lengths and
-email syntax, an exact origin allow-list, and an empty honeypot. It applies a five-message,
-ten-minute per-address throttle using an in-memory map with bounded entries. Vercel may run
-multiple or short-lived instances, so this throttle is best-effort and is not a durable or
-cross-instance rate limit. For higher-volume use, replace the in-memory store with a shared
-rate-limit service and consider additional abuse controls. Provider requests have an eight-second
-abort timeout; a timeout is returned as a generic send failure. Vercel's `x-forwarded-for` value is
-hashed before it is used as the in-memory key; raw addresses and message contents are not logged.
+## Request contract
+
+The form keeps the UI model's `message` property, and the contact service maps it to the backend's
+`body` property. It posts JSON with `name`, `email`, `subject`, `body`, and the empty `website`
+honeypot field. The backend accepts a message only with HTTP `202 Accepted` and a non-empty
+`message` response. The form does not animate or clear its fields before that contract succeeds.
+
+The frontend validates the required fields and limits the name to 80 characters. Existing subject
+and message limits remain 120 and 4,000 characters, respectively, within the backend's larger
+limits. The backend's honeypot and five-requests-per-client-IP-per-ten-minutes rate limit remain
+authoritative. HTTP 429 responses are shown as a useful wait-and-retry message.
+
+Network and server errors are normalized to user-safe messages. Internal server details and
+provider errors are not displayed. Failed submissions retain the user's entered values; retrying
+is explicit, and the client does not automatically retry POST requests.
+
+## Local checks
+
+`npm run dev` submits to the configured API URL directly from the browser. Ensure the backend CORS
+policy allows the local Vite origin (normally `http://localhost:5173`). Automated tests use the
+shared Axios client with a mocked adapter and never send a real contact request.
