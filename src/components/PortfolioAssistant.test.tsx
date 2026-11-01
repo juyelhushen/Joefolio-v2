@@ -1,11 +1,34 @@
+import { AxiosError, AxiosHeaders, CanceledError, type AxiosAdapter } from 'axios';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
+import { apiClient } from '../lib/api/client';
 import PortfolioAssistant from './PortfolioAssistant';
+
+const originalAdapter = apiClient.defaults.adapter;
 
 afterEach(() => {
   cleanup();
+  apiClient.defaults.adapter = originalAdapter;
   vi.unstubAllGlobals();
 });
+
+function respondWith(data: unknown, status = 200) {
+  const adapter = vi.fn<AxiosAdapter>(async (config) => {
+    const response = { config, data, status, statusText: '', headers: new AxiosHeaders() };
+    if (status >= 400) {
+      throw new AxiosError(
+        'Request failed',
+        AxiosError.ERR_BAD_RESPONSE,
+        config,
+        undefined,
+        response,
+      );
+    }
+    return response;
+  });
+  apiClient.defaults.adapter = adapter;
+  return adapter;
+}
 
 function openAssistant(apiBaseUrl = '') {
   render(<PortfolioAssistant apiBaseUrl={apiBaseUrl} />);
@@ -14,16 +37,15 @@ function openAssistant(apiBaseUrl = '') {
   return { launcher, panel: screen.getByRole('region', { name: 'Portfolio assistant' }) };
 }
 
-it('stays unavailable and does not call fetch without a configured URL', () => {
-  const fetchMock = vi.fn();
-  vi.stubGlobal('fetch', fetchMock);
+it('stays unavailable and does not call the API without a configured URL', () => {
+  const adapter = respondWith({});
   const { panel } = openAssistant();
 
   expect(panel.textContent).toContain('A backend service must be configured');
   expect(
     screen.getByRole('textbox', { name: 'Ask about Juyel’s portfolio' }).hasAttribute('disabled'),
   ).toBe(true);
-  expect(fetchMock).not.toHaveBeenCalled();
+  expect(adapter).not.toHaveBeenCalled();
 });
 
 it('keeps the floating launcher label and chat icon', () => {
@@ -52,22 +74,16 @@ it('opens, closes with Escape, and restores focus to the launcher', () => {
 });
 
 it('sends a valid message and displays the response and safe citation link', async () => {
-  const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-    new Response(
-      JSON.stringify({
-        conversationId: 'conversation-1',
-        answer: 'The assistant documents PDF retrieval.',
-        citations: [
-          {
-            title: 'Knowledge Assistant repository',
-            url: 'https://github.com/juyelhushen/enterprise-knowledge-assistant',
-          },
-        ],
-      }),
-      { status: 200 },
-    ),
-  );
-  vi.stubGlobal('fetch', fetchMock);
+  const adapter = respondWith({
+    conversationId: 'conversation-1',
+    answer: 'The assistant documents PDF retrieval.',
+    citations: [
+      {
+        title: 'Knowledge Assistant repository',
+        url: 'https://github.com/juyelhushen/enterprise-knowledge-assistant',
+      },
+    ],
+  });
   openAssistant('https://assistant.example.test');
 
   const input = screen.getByRole('textbox', { name: 'Ask about Juyel’s portfolio' });
@@ -80,27 +96,17 @@ it('sends a valid message and displays the response and safe citation link', asy
     'https://github.com/juyelhushen/enterprise-knowledge-assistant',
   );
   expect(citation.getAttribute('rel')).toBe('noopener noreferrer');
-  const [requestUrl, requestOptions] = fetchMock.mock.calls[0];
-  expect(requestUrl instanceof URL ? requestUrl.href : requestUrl).toBe(
-    'https://assistant.example.test/api/chat',
-  );
-  expect(requestOptions?.method).toBe('POST');
-  expect(requestOptions?.body).toBe(JSON.stringify({ message: 'Which projects use RAG?' }));
+  const config = adapter.mock.calls[0][0];
+  expect(apiClient.getUri(config)).toBe('https://assistant.example.test/api/chat');
+  expect(config.method).toBe('post');
+  expect(JSON.parse(config.data)).toEqual({ message: 'Which projects use RAG?' });
 });
 
 it('renders response text without interpreting HTML', async () => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          conversationId: 'conversation-1',
-          answer: '<img src=x onerror=alert(1)>',
-        }),
-        { status: 200 },
-      ),
-    ),
-  );
+  respondWith({
+    conversationId: 'conversation-1',
+    answer: '<img src=x onerror=alert(1)>',
+  });
   openAssistant('https://assistant.example.test');
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
@@ -110,8 +116,9 @@ it('renders response text without interpreting HTML', async () => {
 });
 
 it('reports network and HTTP failures without showing an assistant answer', async () => {
-  const fetchMock = vi.fn<typeof fetch>().mockRejectedValueOnce(new TypeError('offline'));
-  vi.stubGlobal('fetch', fetchMock);
+  apiClient.defaults.adapter = async () => {
+    throw new AxiosError('offline', AxiosError.ERR_NETWORK);
+  };
   openAssistant('https://assistant.example.test');
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
@@ -120,7 +127,7 @@ it('reports network and HTTP failures without showing an assistant answer', asyn
   expect(document.querySelector('.assistant-message-assistant')).toBeNull();
 
   cleanup();
-  fetchMock.mockResolvedValueOnce(new Response('failure', { status: 503 }));
+  respondWith('failure', 503);
   openAssistant('https://assistant.example.test');
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Another question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
@@ -128,43 +135,47 @@ it('reports network and HTTP failures without showing an assistant answer', asyn
 });
 
 it('prevents duplicate submissions while the request is pending', async () => {
-  let resolveRequest: ((response: Response) => void) | undefined;
-  const fetchMock = vi.fn<typeof fetch>(
-    () =>
+  let resolveRequest: (() => void) | undefined;
+  const adapter = vi.fn<AxiosAdapter>(
+    (config) =>
       new Promise((resolve) => {
-        resolveRequest = resolve;
+        resolveRequest = () =>
+          resolve({
+            config,
+            status: 200,
+            statusText: '',
+            headers: new AxiosHeaders(),
+            data: { conversationId: 'conversation-1', answer: 'A real response.' },
+          });
       }),
   );
-  vi.stubGlobal('fetch', fetchMock);
+  apiClient.defaults.adapter = adapter;
   openAssistant('https://assistant.example.test');
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
   expect(screen.getByRole('status').textContent).toContain('Waiting');
-  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(adapter).toHaveBeenCalledTimes(1);
   expect(screen.getByRole('button', { name: 'Send message' }).hasAttribute('disabled')).toBe(true);
 
-  resolveRequest?.(
-    new Response(JSON.stringify({ conversationId: 'conversation-1', answer: 'A real response.' }), {
-      status: 200,
-    }),
-  );
+  resolveRequest?.();
   await waitFor(() => expect(screen.getByText('A real response.')).toBeTruthy());
 });
 
 it('aborts a pending request when the widget unmounts', () => {
-  let requestSignal: AbortSignal | null | undefined;
-  const fetchMock = vi.fn<typeof fetch>((_input, init) => {
-    requestSignal = init?.signal;
-    return new Promise(() => {});
+  const adapter = vi.fn<AxiosAdapter>((config) => {
+    return new Promise((_, reject) => {
+      config.signal?.addEventListener?.('abort', () => reject(new CanceledError('cancelled')));
+    });
   });
-  vi.stubGlobal('fetch', fetchMock);
+  apiClient.defaults.adapter = adapter;
   const view = render(<PortfolioAssistant apiBaseUrl="https://assistant.example.test" />);
   fireEvent.click(screen.getByRole('button', { name: 'Open portfolio assistant' }));
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
-  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(adapter).toHaveBeenCalledTimes(1);
+  const requestSignal = adapter.mock.calls[0][0].signal;
   view.unmount();
   expect(requestSignal?.aborted).toBe(true);
 });

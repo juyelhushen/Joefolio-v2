@@ -43,9 +43,9 @@ function installResponseAdapter(status: number, data: unknown) {
   return requests;
 }
 
-function installNetworkFailureAdapter() {
+function installNetworkFailureAdapter(code = AxiosError.ERR_NETWORK) {
   apiClient.defaults.adapter = (async () => {
-    throw new AxiosError('Network Error', AxiosError.ERR_NETWORK);
+    throw new AxiosError('Network Error', code);
   }) satisfies AxiosAdapter;
 }
 
@@ -172,6 +172,18 @@ it('preserves entered values and offers retry after a network failure', async ()
   );
   expect(document.querySelector('.contact-envelope-flight')).toBeNull();
   expect(screen.queryByText(/Message launched successfully/)).toBeNull();
+});
+
+it('shows a retry message and preserves form data after a request timeout', async () => {
+  installNetworkFailureAdapter(AxiosError.ECONNABORTED);
+  render(<CosmicContactSection reduceMotion={false} />);
+  fillForm();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
+  expect(await screen.findByText(/contact service took too long to respond/i)).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Retry message' })).toBeTruthy();
+  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
+  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
 });
 
 it('blocks duplicate sends while the Axios request is pending', async () => {
