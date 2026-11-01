@@ -3,8 +3,6 @@ import ProjectVisual from './ProjectVisual';
 import ScrollReveal, { ScrollRevealItem } from '../../../components/common/ScrollReveal';
 import { projects } from '../data/projects';
 import './ProjectsSection.css';
-import { motion } from 'motion/react';
-import { createRevealVariants } from '../../../components/common/reveal-variants';
 
 type ProjectsSectionProps = {
   reduceMotion: boolean;
@@ -30,14 +28,16 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
         </p>
       </ScrollReveal>
 
-      <ScrollReveal className="project-gallery" variant="stagger-container">
+      <div className="project-gallery">
         {projects.map((project, index) => (
-          <motion.article
+          <ScrollReveal
+            as="article"
             className={`project-gallery-card${index === 0 ? ' project-gallery-card-featured' : ''}`}
             key={project.id}
             aria-labelledby={`project-title-${project.id}`}
             data-cursor-target="card"
-            variants={createRevealVariants('fade-up', 0.55, 0, reduceMotion)}
+            duration={0.65}
+            delay={(index % 3) * 0.11}
           >
             <ScrollRevealItem
               variant="scale-up"
@@ -84,9 +84,9 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
                 )}
               </div>
             </ScrollRevealItem>
-          </motion.article>
+          </ScrollReveal>
         ))}
-      </ScrollReveal>
+      </div>
     </section>
   );
 }

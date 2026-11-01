@@ -12,6 +12,40 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+  vi.useRealTimers();
+});
+
+it('switches scanner modes only with targets and pauses rotations after pointer motion stops', () => {
+  vi.useFakeTimers();
+  configureMedia();
+  const { container, unmount } = render(
+    <>
+      <CosmicMagnifyingCursor />
+      <div data-cursor-target="card">Card</div>
+      <div data-cursor-target="image">Image</div>
+      <button className="skill-orbit-planet">Planet</button>
+      <a href="#projects">Inspect link</a>
+    </>,
+  );
+  const scanner = container.querySelector('.cosmic-cursor');
+  expect(container.querySelectorAll('.cosmic-cursor-ghost')).toHaveLength(2);
+  expect(container.querySelector('.scanner-beam')).toBeTruthy();
+  for (const [text, mode] of [
+    ['Card', 'inspect'],
+    ['Image', 'image'],
+    ['Planet', 'planet'],
+    ['Inspect link', 'interactive'],
+  ]) {
+    pointer(screen.getByText(text), 'pointermove');
+    expect(scanner?.getAttribute('data-mode')).toBe(mode);
+    expect(scanner?.getAttribute('data-moving')).toBe('true');
+  }
+  act(() => vi.advanceTimersByTime(180));
+  expect(scanner?.getAttribute('data-moving')).toBe('false');
+  pointer(container, 'pointermove');
+  expect(scanner?.getAttribute('data-mode')).toBe('default');
+  unmount();
+  expect(vi.getTimerCount()).toBeLessThanOrEqual(1);
 });
 
 function configureMedia(fine = true, reduced = false) {

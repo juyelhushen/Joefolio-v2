@@ -51,7 +51,7 @@ it('uses one observer for a stagger container and all its items', () => {
   expect(disconnect).toHaveBeenCalled();
 });
 
-it('falls back to visible content and disconnects a stalled observer', () => {
+it('keeps offscreen content hidden even after a long idle period', () => {
   vi.useFakeTimers();
   const disconnect = vi.fn();
   vi.stubGlobal(
@@ -62,9 +62,9 @@ it('falls back to visible content and disconnects a stalled observer', () => {
     },
   );
   const { container } = render(<ScrollReveal>Never trapped</ScrollReveal>);
-  act(() => vi.advanceTimersByTime(2200));
-  expect(container.firstElementChild?.getAttribute('data-revealed')).toBe('true');
-  expect(disconnect).toHaveBeenCalled();
+  act(() => vi.advanceTimersByTime(30_000));
+  expect(container.firstElementChild?.getAttribute('data-revealed')).toBe('false');
+  expect(disconnect).not.toHaveBeenCalled();
 });
 
 it('repeats only when explicitly configured and cleans up its observer', () => {

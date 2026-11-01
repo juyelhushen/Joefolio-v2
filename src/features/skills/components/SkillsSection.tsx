@@ -6,6 +6,7 @@ import './SkillsSection.css';
 import { projects } from '../../projects/data/projects';
 import { skillGroups, skillPlanets } from '../data/skills';
 import { getCounterRotationStyle, getOrbitStyle, getTechnologyIcon } from '../skill-presentation';
+import { createRevealVariants } from '../../../components/common/reveal-variants';
 
 type SkillsSectionProps = {
   reduceMotion: boolean;
@@ -43,8 +44,9 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
         <p>Explore the tools, disciplines, and systems behind my engineering work.</p>
       </ScrollReveal>
 
-      <ScrollReveal className="skills-solar-system" variant="stagger-container">
-        <div
+      <div className="skills-solar-system">
+        <ScrollReveal
+          variant="scale-up"
           className="skills-orbit-scene"
           role="group"
           aria-label="Orbiting technology skills"
@@ -64,7 +66,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
             <small>ENGINEERING CORE</small>
           </div>
 
-          {skillPlanets.map((planet) => {
+          {skillPlanets.map((planet, index) => {
             const icon = getTechnologyIcon(planet.icon);
             const selected = selectedPlanet.id === planet.id;
             const style = getOrbitStyle(planet, reduceMotion);
@@ -85,10 +87,16 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                   aria-pressed={selected}
                   aria-controls="skill-detail"
                   onClick={() => setSelectedPlanetId(planet.id)}
-                  variants={{
-                    hidden: { opacity: reduceMotion ? 1 : 0 },
-                    visible: { opacity: 1, transition: { duration: reduceMotion ? 0 : 0.55 } },
-                  }}
+                  initial={
+                    reduceMotion || typeof IntersectionObserver === 'undefined'
+                      ? false
+                      : { opacity: 0 }
+                  }
+                  whileInView={
+                    typeof IntersectionObserver === 'undefined' ? undefined : { opacity: 1 }
+                  }
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.6, delay: (index % 5) * 0.1 }}
                 >
                   <span className="skill-planet-counter" style={counterStyle} aria-hidden="true">
                     {icon === null ? (
@@ -110,30 +118,37 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
               </div>
             );
           })}
-        </div>
+        </ScrollReveal>
 
-        <section className="skill-category-index" aria-label="Technology categories">
+        <ScrollReveal
+          className="skill-category-index"
+          aria-label="Technology categories"
+          variant="stagger-container"
+        >
           {skillGroups.map((group) => (
-            <div className={`skill-category skill-category-${group.id}`} key={group.id}>
+            <motion.div
+              className={`skill-category skill-category-${group.id}`}
+              key={group.id}
+              variants={createRevealVariants('fade-up', 0.6, 0, reduceMotion)}
+            >
               <h3>{group.name}</h3>
               <ul>
                 {group.skills.map((skill) => (
                   <li key={skill}>{skill}</li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           ))}
-        </section>
+        </ScrollReveal>
 
-        <motion.article
+        <ScrollReveal
+          as="article"
           className={`skill-detail skill-detail-${selectedPlanet.domainId}`}
           id="skill-detail"
           aria-labelledby="skill-detail-title"
           aria-live="polite"
           key={selectedPlanet.id}
-          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
+          duration={0.6}
         >
           <div className="skill-detail-heading">
             <span className="skill-detail-icon" aria-hidden="true">
@@ -164,8 +179,8 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
               ))}
             </ul>
           )}
-        </motion.article>
-      </ScrollReveal>
+        </ScrollReveal>
+      </div>
     </section>
   );
 }
