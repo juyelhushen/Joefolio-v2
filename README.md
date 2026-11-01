@@ -34,6 +34,25 @@ The contact form submits to the deployed Spring Boot API from both local and pro
 Set `VITE_API_BASE_URL=https://joefolio-backend.onrender.com` in `.env.local` and Vercel's build
 environment. See the [contact API guide](./docs/contact-email.md) for details.
 
+Opening the portfolio also initiates one silent `GET /actuator/health` warm-up through the shared
+Axios client. It runs without blocking rendering, allows up to 90 seconds for a Render cold start,
+and does not poll or retry automatically. The backend must allow this health endpoint and its
+`Cache-Control` request header from the frontend's origin.
+
+## Frontend architecture and development
+
+Feature-owned components, services, hooks and data live under `src/features`. Shared UI remains
+under `src/components`, and all API services use the single client under `src/lib/api`.
+See the [architecture guide](./docs/architecture.md) for module boundaries, migration decisions,
+styling responsibilities, test conventions and remaining technical debt.
+
+```bash
+npm run format:check
+npm run lint
+npm run typecheck
+npm run test
+```
+
 Production build:
 
 ```bash

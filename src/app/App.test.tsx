@@ -2,6 +2,10 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, expect, it, vi } from 'vitest';
 import App from './App';
 
+vi.mock('../lib/api/backend-health', () => ({
+  wakeBackend: vi.fn().mockResolvedValue('UP'),
+}));
+
 afterEach(() => {
   cleanup();
   window.history.replaceState(null, '', '/');

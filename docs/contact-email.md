@@ -7,6 +7,10 @@ and removes trailing slashes. It uses JSON headers, a 30-second timeout, and no 
 credentials. Services share this instance; the optional assistant uses its own per-request base
 URL without changing the contact client's defaults.
 
+The [contact service](../src/features/contact/services/contact-api.ts) owns the payload mapping
+and response validation. The [transmission hook](../src/features/contact/hooks/useContactTransmission.ts)
+owns pending/flight/success/error state, while the form retains field validation and entered values.
+
 ## Environment configuration
 
 Use the same public value in the ignored `.env.local` file and Vercel's Production/Preview build
@@ -33,6 +37,19 @@ https://juyel.vercel.app,http://localhost:5173,http://127.0.0.1:5173
 
 Allow POST requests and the `Content-Type` header in preflight responses. Add other preview or
 production origins explicitly when needed. This frontend change does not alter backend settings.
+
+Application startup also sends `GET /actuator/health` to the same host to initiate Render's cold
+start. Allow GET and the `Cache-Control` header as well as the shared client's `Content-Type`
+header for that endpoint's preflight. The endpoint must be accessible without credentials and
+return HTTP 200 with `{ "status": "UP" }` when healthy. Startup failures are silent to visitors;
+contact submissions still run independently and keep their existing timeout and error handling.
+
+Health preflight verification on November 1, 2026 returned HTTP 200 for each of
+`http://localhost:5173`, `http://127.0.0.1:5173`, and `https://juyel.vercel.app`, but omitted
+`Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, and `Access-Control-Allow-Headers`.
+That is not a successful browser CORS preflight. Ensure the backend CORS/security configuration
+covers `/actuator/health`, not just `/api/**`; an allowed-origin environment variable alone may
+not enable CORS on Actuator endpoints. No backend configuration was changed in this frontend task.
 
 The retired Vercel contact function is no longer used. Any environment settings that existed only
 for that function can be removed manually after verifying the new production contact flow; this

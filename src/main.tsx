@@ -4,7 +4,8 @@ import '@fontsource-variable/inter/opsz.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import '@fontsource-variable/space-grotesk/wght.css';
 import App from './app/App';
-import './style.css';
+import './styles/global.css';
+import './styles/utilities.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

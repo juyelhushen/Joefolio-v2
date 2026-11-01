@@ -30,5 +30,37 @@ export default defineConfig(
       'react-hooks/rules-of-hooks': 'error',
     },
   },
+  {
+    files: ['src/components/**/*.{ts,tsx}', 'src/hooks/**/*.{ts,tsx}', 'src/lib/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/features/**'],
+              message: 'Shared components, hooks, and infrastructure must not depend on features.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/lib/api/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/features/**', '**/components/**', '**/app/**', '**/sections/**'],
+              message: 'API infrastructure must remain independent of application UI.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   eslintConfigPrettier,
 );

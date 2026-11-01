@@ -2,6 +2,11 @@
 
 The portfolio frontend is prepared to call a separately deployed service. No assistant backend is included or configured by default.
 
+The [assistant service](../src/features/assistant/services/assistant-api.ts) consumes the shared
+Axios client with a per-request host override. The
+[conversation hook](../src/features/assistant/hooks/useAssistantConversation.ts) owns request and
+conversation state; the component owns the panel's accessible focus and keyboard behavior.
+
 ## Endpoint
 
 Set `VITE_AI_ASSISTANT_API_URL` to the backend's absolute HTTP(S) base URL, without a trailing slash, for example `http://localhost:8000`. The frontend appends `POST /api/chat`. Configure CORS on the backend to allow the portfolio origin. Do not put provider credentials or other secrets in Vite variables; values prefixed with `VITE_` are public in the browser bundle.
