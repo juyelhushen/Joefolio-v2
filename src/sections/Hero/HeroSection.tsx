@@ -2,6 +2,7 @@ import type { Ref } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import './HeroSection.css';
+import { createRevealVariants } from '../../components/common/reveal-variants';
 
 type HeroSectionProps = {
   reduceMotion: boolean;
@@ -30,37 +31,55 @@ export default function HeroSection({ reduceMotion, headingRef }: HeroSectionPro
       <Planet />
       <motion.div
         className="hero-copy"
-        initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={reduceMotion ? { duration: 0 } : { duration: 0.8, ease: 'easeOut' }}
+        initial={reduceMotion ? false : 'hidden'}
+        animate="visible"
+        variants={createRevealVariants('stagger-container', 0.55, 0, reduceMotion)}
       >
-        <div className="eyebrow">
+        <motion.div
+          className="eyebrow"
+          variants={createRevealVariants('fade-up', 0.55, 0, reduceMotion)}
+        >
           <span className="eyebrow-dot" /> SOFTWARE ENGINEER
-        </div>
-        <h1 ref={headingRef} id="home-title" tabIndex={-1}>
+        </motion.div>
+        <motion.h1
+          ref={headingRef}
+          id="home-title"
+          tabIndex={-1}
+          variants={createRevealVariants('fade-up', 0.55, 0, reduceMotion)}
+        >
           Backend systems.
           <br />
           Full-stack software.
           <br />
           <em>Practical AI.</em>
-        </h1>
-        <p className="hero-intro">
+        </motion.h1>
+        <motion.p
+          className="hero-intro"
+          variants={createRevealVariants('fade-up', 0.55, 0, reduceMotion)}
+        >
           I build backend services and full-stack applications, while exploring AI engineering
           through document retrieval and agent workflows.
-        </p>
-        <div className="hero-actions">
+        </motion.p>
+        <motion.div
+          className="hero-actions"
+          variants={createRevealVariants('fade-up', 0.55, 0, reduceMotion)}
+        >
           <a className="button button-primary" href="#projects">
             Explore Projects <ArrowRight size={17} aria-hidden="true" />
           </a>
           <a className="button button-quiet" href="#contact">
             Let’s connect <ArrowUpRight size={16} aria-hidden="true" />
           </a>
-        </div>
-        <ul className="hero-proof" aria-label="Selected technologies">
+        </motion.div>
+        <motion.ul
+          className="hero-proof"
+          aria-label="Selected technologies"
+          variants={createRevealVariants('fade-up', 0.55, 0, reduceMotion)}
+        >
           <li>Java · Spring Boot</li>
           <li>React · TypeScript</li>
           <li>LangGraph · RAG</li>
-        </ul>
+        </motion.ul>
       </motion.div>
     </section>
   );

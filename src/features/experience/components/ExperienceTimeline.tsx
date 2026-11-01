@@ -89,10 +89,14 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
               className={`experience-entry${selected ? ' is-selected' : ''}${entry.current ? ' is-current' : ''}`}
               data-chapter={entry.chapter}
               key={entry.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 20 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={reduceMotion ? { duration: 0 } : { duration: 0.42, delay: index * 0.12 }}
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : { duration: 0.55, delay: index * 0.08, ease: [0.22, 0.68, 0.2, 1] }
+              }
             >
               <article className="experience-card" id={`career-card-${entry.id}`}>
                 <div className="experience-card-heading">

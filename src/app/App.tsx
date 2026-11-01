@@ -18,6 +18,7 @@ import UniverseIntro from '../components/intro/UniverseIntro';
 import { useUniverseIntro } from './hooks/useUniverseIntro';
 import { useActiveSection } from './hooks/useActiveSection';
 import { useBackendHealth } from './hooks/useBackendHealth';
+import CosmicMagnifyingCursor from '../components/cursor/CosmicMagnifyingCursor';
 
 export default function App() {
   useBackendHealth();
@@ -50,6 +51,7 @@ export default function App() {
       </main>
       <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion ?? false} />
       <PortfolioAssistant />
+      <CosmicMagnifyingCursor />
       {showUniverseIntro && <UniverseIntro onComplete={completeUniverseIntro} />}
     </div>
   );

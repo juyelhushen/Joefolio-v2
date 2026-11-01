@@ -156,6 +156,40 @@ component-style rewrites.
 
 ## Development and testing
 
+### Scroll reveals and pointer lens
+
+The shared `ScrollReveal` remains the sole general-purpose reveal observer. It supports
+`fade-up`, `fade-down`, `fade-left`, `fade-right`, `scale-up`, `blur-reveal`, and
+`stagger-container`. Duration defaults to 550ms, travel to 24px, and child stagger to 80ms.
+`ScrollRevealItem` inherits parent Motion labels without adding observers. Hero uses the same
+variant definitions with its existing mount animation; timeline path drawing and Contact's
+transmission animation remain separate specialized effects.
+
+Reveals are one-shot by default; `once={false}` opts into re-entry. Reduced motion and missing
+IntersectionObserver support show content immediately. The existing 2.2-second visibility
+fallback also disconnects a stalled observer, ensuring content is not trapped invisible. This
+fallback intentionally favors readable content over waiting indefinitely for viewport entry.
+
+`CosmicMagnifyingCursor` is a decorative overlay enabled only for fine hover-capable pointers
+without reduced motion. It keeps the native cursor and focus rings, has `pointer-events: none`
+and `aria-hidden`, and uses Motion values/springs rather than pointer-driven React state.
+The lens and small radial spotlight do not sample or enlarge arbitrary underlying pixels.
+Actual magnification applies to targeted elements: project cards 1.02, project visuals 1.06,
+and ordinary links/buttons or unselected skill planets 1.04. Existing selected-planet emphasis
+is retained.
+
+The small magnetic offset affects the lens, not target hitboxes. Target bounds are measured only
+on entry; there are no per-move layout measurements or added frame/polling loops. Scrolling,
+pointer exit/cancellation, dragging, text-field interaction, and window blur reset the lens.
+Media, pointer and scroll listeners and spring activity clean up on disable/unmount. Project
+hover elevation uses the independent CSS `translate` property so it composes with reveal
+transforms and hover magnification.
+
+Browser checks cover 1440, 1280, 768 and 390px layouts, reduced motion, native controls, skill
+selection and mocked contact acceptance/flight. Fine/coarse pointer gating and cleanup are
+covered with deterministic mocked media queries in unit tests; physical touch/GPU-device
+verification remains recommended.
+
 ```bash
 npm run format
 npm run format:check

@@ -1,13 +1,26 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type ComponentProps } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
+import { createRevealVariants, type ScrollRevealVariant } from './reveal-variants';
+
+export type { ScrollRevealVariant } from './reveal-variants';
 
 type ScrollRevealProps = {
   children: ReactNode;
   className?: string;
   delay?: number;
+  duration?: number;
+  variant?: ScrollRevealVariant;
+  once?: boolean;
 };
 
-export default function ScrollReveal({ children, className, delay = 0 }: ScrollRevealProps) {
+export default function ScrollReveal({
+  children,
+  className,
+  delay = 0,
+  duration = 0.55,
+  variant = 'fade-up',
+  once = true,
+}: ScrollRevealProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const [visible, setVisible] = useState(false);
@@ -27,14 +40,19 @@ export default function ScrollReveal({ children, className, delay = 0 }: ScrollR
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting)) {
             setVisible(true);
-            observer?.disconnect();
+            if (once) observer?.disconnect();
             window.clearTimeout(fallbackTimer);
+          } else if (!once) {
+            setVisible(false);
           }
         },
         { rootMargin: '0px 0px -10% 0px', threshold: 0.01 },
       );
       observer.observe(element);
-      fallbackTimer = window.setTimeout(() => setVisible(true), 2200);
+      fallbackTimer = window.setTimeout(() => {
+        setVisible(true);
+        observer?.disconnect();
+      }, 2200);
     } catch (error) {
       console.warn('Scroll reveal is unavailable; showing content without animation.', error);
       observer?.disconnect();
@@ -46,21 +64,36 @@ export default function ScrollReveal({ children, className, delay = 0 }: ScrollR
       observer?.disconnect();
       window.clearTimeout(fallbackTimer);
     };
-  }, [observerAvailable, reduceMotion]);
+  }, [observerAvailable, reduceMotion, once]);
 
   return (
     <motion.div
       className={className}
       ref={elementRef}
       initial={false}
-      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
-      transition={
-        reduceMotion ? { duration: 0 } : { duration: 0.48, delay, ease: [0.22, 0.68, 0.2, 1] }
-      }
+      animate={isVisible ? 'visible' : 'hidden'}
+      variants={createRevealVariants(variant, duration, delay, Boolean(reduceMotion))}
       data-scroll-reveal=""
       data-revealed={isVisible ? 'true' : 'false'}
+      data-reveal-variant={variant}
     >
       {children}
     </motion.div>
   );
 }
+
+type RevealItemProps = ComponentProps<typeof motion.div> & {
+  variant?: Exclude<ScrollRevealVariant, 'stagger-container'>;
+};
+
+// Inherits the parent reveal labels; stagger children need no individual observers.
+export const ScrollRevealItem = ({ variant = 'fade-up', ...props }: RevealItemProps) => {
+  const reducedMotion = useReducedMotion();
+  return (
+    <motion.div
+      {...props}
+      variants={createRevealVariants(variant, 0.55, 0, Boolean(reducedMotion))}
+      data-stagger-item=""
+    />
+  );
+};

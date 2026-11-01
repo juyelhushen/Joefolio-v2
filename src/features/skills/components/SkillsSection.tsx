@@ -43,7 +43,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
         <p>Explore the tools, disciplines, and systems behind my engineering work.</p>
       </ScrollReveal>
 
-      <ScrollReveal className="skills-solar-system">
+      <ScrollReveal className="skills-solar-system" variant="stagger-container">
         <div
           className="skills-orbit-scene"
           role="group"
@@ -77,7 +77,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                 style={style}
                 data-orbit-duration={planet.durationSeconds}
               >
-                <button
+                <motion.button
                   className={`skill-orbit-planet${selected ? ' is-selected' : ''}`}
                   type="button"
                   style={{ color: planet.color }}
@@ -85,6 +85,10 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                   aria-pressed={selected}
                   aria-controls="skill-detail"
                   onClick={() => setSelectedPlanetId(planet.id)}
+                  variants={{
+                    hidden: { opacity: reduceMotion ? 1 : 0 },
+                    visible: { opacity: 1, transition: { duration: reduceMotion ? 0 : 0.55 } },
+                  }}
                 >
                   <span className="skill-planet-counter" style={counterStyle} aria-hidden="true">
                     {icon === null ? (
@@ -102,7 +106,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                     )}
                     <span className="skill-planet-label">{planet.name}</span>
                   </span>
-                </button>
+                </motion.button>
               </div>
             );
           })}

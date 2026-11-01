@@ -14,6 +14,7 @@ React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 - Portfolio assistant interface with an optional, typed `/api/chat` integration boundary
 - Keyboard-accessible mobile navigation and a skip-to-content link
 - Reduced-motion support for the starfield, Earth scene, and message-flight interaction
+- Reusable scroll reveals with staggered content and a fine-pointer cosmic lens with localized hover magnification
 - Local visual concept asset at `public/images/cosmic-portfolio-concept.png`
 
 ## Run locally

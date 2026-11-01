@@ -4,11 +4,15 @@ import { projects } from '../../projects/data/projects';
 import LegacyPortfolioOrbit from './LegacyPortfolioOrbit';
 import ScrollReveal from '../../../components/common/ScrollReveal';
 import './AiLabSection.css';
+import { motion } from 'motion/react';
+import { createRevealVariants } from '../../../components/common/reveal-variants';
+import { useReducedMotion } from 'motion/react';
 
 export default function AiLabSection() {
+  const reduceMotion = useReducedMotion();
   return (
     <section className="ai-lab section-wrap" id="ai-lab" aria-labelledby="ai-lab-title">
-      <ScrollReveal className="ai-lab-heading">
+      <ScrollReveal className="ai-lab-heading" variant="blur-reveal">
         <span className="section-kicker">EXPERIMENT BAY / 005</span>
         <h2 id="ai-lab-title">
           Engineering with
@@ -21,13 +25,17 @@ export default function AiLabSection() {
         </p>
       </ScrollReveal>
       <LegacyPortfolioOrbit />
-      <ScrollReveal className="ai-lab-cases">
+      <ScrollReveal className="ai-lab-cases" variant="stagger-container">
         {caseStudies.map((study) => {
           const project = projects.find((item) => item.name === study.name);
           const Icon = study.icon;
 
           return (
-            <article className="ai-lab-case" key={study.name}>
+            <motion.article
+              className="ai-lab-case"
+              key={study.name}
+              variants={createRevealVariants('fade-up', 0.55, 0, Boolean(reduceMotion))}
+            >
               <div className="ai-lab-case-icon" aria-hidden="true">
                 <Icon size={17} />
               </div>
@@ -52,7 +60,7 @@ export default function AiLabSection() {
                   </a>
                 ))}
               </div>
-            </article>
+            </motion.article>
           );
         })}
       </ScrollReveal>
