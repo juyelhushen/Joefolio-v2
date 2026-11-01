@@ -160,28 +160,42 @@ component-style rewrites.
 
 The shared `ScrollReveal` remains the sole general-purpose reveal observer. It supports
 `fade-up`, `fade-down`, `fade-left`, `fade-right`, `scale-up`, `blur-reveal`, and
-`stagger-container`. Duration defaults to 550ms, travel to 24px, and child stagger to 80ms.
+`stagger-container`. Section duration defaults to 750ms, vertical travel to 40px, horizontal travel
+to 38px, scale to 0.97, and child stagger to 110ms. Individual project and case-study cards have
+their own observer and 650ms entrance, avoiding gallery-wide premature reveals.
 `ScrollRevealItem` inherits parent Motion labels without adding observers. Hero uses the same
 variant definitions with its existing mount animation; timeline path drawing and Contact's
 transmission animation remain separate specialized effects.
 
 Reveals are one-shot by default; `once={false}` opts into re-entry. Reduced motion and missing
-IntersectionObserver support show content immediately. The existing 2.2-second visibility
-fallback also disconnects a stalled observer, ensuring content is not trapped invisible. This
-fallback intentionally favors readable content over waiting indefinitely for viewport entry.
+IntersectionObserver support show content immediately, as does observer initialization failure.
+There is no reveal timer: offscreen elements remain in their initial state until real viewport
+entry. Keyboard focus also reveals a container so native anchor/focus interactions remain usable.
+Skill planets use opacity-only native viewport entrances to preserve orbital transforms; timeline
+markers inherit the corresponding card's viewport labels. Categories and skill detail have their
+own reveal boundaries rather than animating during page load.
+
+`CosmicScrollProgress` adds a two-pixel cyan/violet progress beam driven by Motion `useScroll`
+and `useSpring` (direct progress for reduced motion), with no scroll-driven React state.
 
 `CosmicMagnifyingCursor` is a decorative overlay enabled only for fine hover-capable pointers
 without reduced motion. It keeps the native cursor and focus rings, has `pointer-events: none`
 and `aria-hidden`, and uses Motion values/springs rather than pointer-driven React state.
 The lens and small radial spotlight do not sample or enlarge arbitrary underlying pixels.
-Actual magnification applies to targeted elements: project cards 1.02, project visuals 1.06,
-and ordinary links/buttons or unselected skill planets 1.04. Existing selected-planet emphasis
+Actual magnification applies to targeted elements: project cards 1.035, project visuals 1.10,
+ordinary links/buttons 1.04, and unselected skill planets 1.05. Existing selected-planet emphasis
 is retained.
+
+The Artifact Scanner combines an outer orbit, segmented ring, satellites, glass lens, four
+targeting brackets, star/crosshair reticle, inspection beam, spotlight and two independently
+sprung ghost rings. Target changes select `default`, `interactive`, `inspect`, `image` or `planet`
+data modes without pointer-frame React rendering. Rings pause 180ms after the last movement,
+and the one-shot idle timer is canceled on hide/unmount. Scanner labels are decorative only.
 
 The small magnetic offset affects the lens, not target hitboxes. Target bounds are measured only
 on entry; there are no per-move layout measurements or added frame/polling loops. Scrolling,
 pointer exit/cancellation, dragging, text-field interaction, and window blur reset the lens.
-Media, pointer and scroll listeners and spring activity clean up on disable/unmount. Project
+Media, pointer and scroll listeners and all three spring pairs clean up on disable/unmount. Project
 hover elevation uses the independent CSS `translate` property so it composes with reveal
 transforms and hover magnification.
 

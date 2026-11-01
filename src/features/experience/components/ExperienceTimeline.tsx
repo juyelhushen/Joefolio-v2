@@ -89,13 +89,19 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
               className={`experience-entry${selected ? ' is-selected' : ''}${entry.current ? ' is-current' : ''}`}
               data-chapter={entry.chapter}
               key={entry.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              initial={
+                reduceMotion || typeof IntersectionObserver === 'undefined' ? false : 'hidden'
+              }
+              whileInView={typeof IntersectionObserver === 'undefined' ? undefined : 'visible'}
+              variants={{
+                hidden: { opacity: 0, y: 40, scale: 0.98 },
+                visible: { opacity: 1, y: 0, scale: 1 },
+              }}
               viewport={{ once: true, amount: 0.2 }}
               transition={
                 reduceMotion
                   ? { duration: 0 }
-                  : { duration: 0.55, delay: index * 0.08, ease: [0.22, 0.68, 0.2, 1] }
+                  : { duration: 0.65, delay: (index % 2) * 0.1, ease: [0.22, 0.68, 0.2, 1] }
               }
             >
               <article className="experience-card" id={`career-card-${entry.id}`}>
@@ -118,9 +124,10 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
                 aria-pressed={selected}
                 aria-controls={`career-card-${entry.id}`}
                 onClick={() => setSelectedExperience(entry.id)}
-                initial={reduceMotion ? false : { opacity: 0, scale: 0.7 }}
-                whileInView={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
-                viewport={{ once: true, amount: 0.5 }}
+                variants={{
+                  hidden: { opacity: reduceMotion ? 1 : 0, scale: reduceMotion ? 1 : 0.7 },
+                  visible: { opacity: 1, scale: 1 },
+                }}
                 transition={
                   reduceMotion
                     ? { duration: 0 }

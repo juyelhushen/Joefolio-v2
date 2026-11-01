@@ -11,15 +11,25 @@ type ScrollRevealProps = {
   duration?: number;
   variant?: ScrollRevealVariant;
   once?: boolean;
+  as?: 'div' | 'article';
+  'aria-labelledby'?: string;
+  'data-cursor-target'?: string;
+  role?: ComponentProps<'div'>['role'];
+  'aria-label'?: string;
+  'data-reduced-motion'?: string;
+  id?: string;
+  'aria-live'?: ComponentProps<'div'>['aria-live'];
 };
 
 export default function ScrollReveal({
   children,
   className,
   delay = 0,
-  duration = 0.55,
+  duration = 0.75,
   variant = 'fade-up',
   once = true,
+  as = 'div',
+  ...attributes
 }: ScrollRevealProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
@@ -34,14 +44,12 @@ export default function ScrollReveal({
     if (!element) return;
 
     let observer: IntersectionObserver | undefined;
-    let fallbackTimer = 0;
     try {
       observer = new IntersectionObserver(
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting)) {
             setVisible(true);
             if (once) observer?.disconnect();
-            window.clearTimeout(fallbackTimer);
           } else if (!once) {
             setVisible(false);
           }
@@ -49,36 +57,33 @@ export default function ScrollReveal({
         { rootMargin: '0px 0px -10% 0px', threshold: 0.01 },
       );
       observer.observe(element);
-      fallbackTimer = window.setTimeout(() => {
-        setVisible(true);
-        observer?.disconnect();
-      }, 2200);
     } catch (error) {
       console.warn('Scroll reveal is unavailable; showing content without animation.', error);
       observer?.disconnect();
-      fallbackTimer = window.setTimeout(() => setVisible(true), 0);
-      return () => window.clearTimeout(fallbackTimer);
+      setVisible(true);
     }
 
     return () => {
       observer?.disconnect();
-      window.clearTimeout(fallbackTimer);
     };
   }, [observerAvailable, reduceMotion, once]);
 
+  const RevealElement = as === 'article' ? motion.article : motion.div;
   return (
-    <motion.div
+    <RevealElement
+      {...attributes}
       className={className}
       ref={elementRef}
-      initial={false}
+      initial={isVisible ? false : 'hidden'}
       animate={isVisible ? 'visible' : 'hidden'}
       variants={createRevealVariants(variant, duration, delay, Boolean(reduceMotion))}
+      onFocusCapture={() => setVisible(true)}
       data-scroll-reveal=""
       data-revealed={isVisible ? 'true' : 'false'}
       data-reveal-variant={variant}
     >
       {children}
-    </motion.div>
+    </RevealElement>
   );
 }
 

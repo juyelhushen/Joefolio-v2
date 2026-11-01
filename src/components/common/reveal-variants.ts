@@ -11,15 +11,15 @@ export type ScrollRevealVariant =
 
 export const createRevealVariants = (
   variant: ScrollRevealVariant,
-  duration = 0.55,
+  duration = 0.75,
   delay = 0,
   reducedMotion = false,
 ): Variants => {
   const hidden = {
     opacity: variant === 'stagger-container' ? 1 : 0,
-    x: variant === 'fade-left' ? -24 : variant === 'fade-right' ? 24 : 0,
-    y: variant === 'fade-up' ? 24 : variant === 'fade-down' ? -24 : 0,
-    scale: variant === 'scale-up' ? 0.97 : 1,
+    x: variant === 'fade-left' ? -38 : variant === 'fade-right' ? 38 : 0,
+    y: variant === 'fade-up' ? 40 : variant === 'fade-down' ? -40 : 0,
+    scale: variant === 'stagger-container' ? 1 : 0.97,
     ...(variant === 'blur-reveal' ? { filter: 'blur(4px)' } : {}),
   };
   const visible = {
@@ -37,7 +37,7 @@ export const createRevealVariants = (
         duration: reducedMotion ? 0 : duration,
         delay: reducedMotion ? 0 : delay,
         ease: [0.22, 0.68, 0.2, 1],
-        ...(variant === 'stagger-container' ? { staggerChildren: reducedMotion ? 0 : 0.08 } : {}),
+        ...(variant === 'stagger-container' ? { staggerChildren: reducedMotion ? 0 : 0.11 } : {}),
       },
     },
   };

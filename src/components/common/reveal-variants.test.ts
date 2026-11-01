@@ -2,10 +2,10 @@ import { expect, it } from 'vitest';
 import { createRevealVariants, type ScrollRevealVariant } from './reveal-variants';
 
 it.each([
-  ['fade-up', 'y', 24],
-  ['fade-down', 'y', -24],
-  ['fade-left', 'x', -24],
-  ['fade-right', 'x', 24],
+  ['fade-up', 'y', 40],
+  ['fade-down', 'y', -40],
+  ['fade-left', 'x', -38],
+  ['fade-right', 'x', 38],
   ['scale-up', 'scale', 0.97],
   ['blur-reveal', 'filter', 'blur(4px)'],
 ] as const)('configures %s without changing layout geometry', (variant, property, value) => {
@@ -13,9 +13,9 @@ it.each([
   expect(createRevealVariants(variant).visible).toMatchObject({ opacity: 1, x: 0, y: 0, scale: 1 });
 });
 
-it('uses an 80ms stagger with configurable timing', () => {
+it('uses a 110ms stagger with configurable timing', () => {
   expect(createRevealVariants('stagger-container', 0.7, 0.1).visible).toMatchObject({
-    transition: { duration: 0.7, delay: 0.1, staggerChildren: 0.08 },
+    transition: { duration: 0.7, delay: 0.1, staggerChildren: 0.11 },
   });
 });
 
