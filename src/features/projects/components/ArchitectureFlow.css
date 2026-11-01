@@ -1,0 +1,54 @@
+.architecture-lane h4 {
+  font-size: var(--type-small);
+  color: var(--project-accent);
+  margin: 0 0 16px;
+}
+.architecture-lane + .architecture-lane {
+  margin-top: 24px;
+}
+.architecture-lane ol {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 16px;
+}
+.architecture-lane li {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+.architecture-lane li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 24px;
+  width: 17px;
+  border-top: 1px solid var(--project-accent);
+}
+.architecture-lane li span {
+  color: var(--project-accent);
+  font: 12px/1.5 var(--font-mono);
+}
+.architecture-lane li p {
+  margin: 8px 0 0;
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 740px) {
+  .architecture-lane ol {
+    flex-direction: column;
+  }
+  .architecture-lane li:not(:last-child)::after {
+    left: 24px;
+    top: 100%;
+    height: 17px;
+    width: 0;
+    border-top: 0;
+    border-left: 1px solid var(--project-accent);
+  }
+}

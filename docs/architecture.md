@@ -92,6 +92,25 @@ barrels or empty provider/configuration layers.
 
 ## Component and state responsibilities
 
+### Project case studies
+
+Each project card has a case-study action alongside its existing repository/demo links.
+`ProjectCaseStudy` uses a native modal dialog with Escape/backdrop dismissal, focus return,
+background scroll locking and a short reduced-motion-aware fade/scale transition.
+`ArchitectureFlow` renders labelled lanes as ordered steps with CSS connectors: horizontal
+above 740px and vertical in the full-screen mobile sheet. All content comes from the typed
+project dataset; optional role, outcome, metrics, lessons and screenshot fields render only
+when supplied. No claims or placeholder values are inserted.
+
+Case-study hashes use `#projects/<project.id>`. Opening pushes a history entry without scrolling;
+closing replaces the hash with `#projects`. Back/Forward and initial hash loading synchronize the
+dialog. The application navigation hook interprets the section portion of the hash and keeps
+Projects active while a case study is open. No router is introduced.
+
+The existing scanner portals into the active dialog through the generic `cosmic-overlay-host`
+DOM event so it remains decorative above the native top layer; shared cursor code never imports
+Projects. Closing restores the overlay to the document body.
+
 - `App` composes the page. `useUniverseIntro` owns per-tab intro policy, and `useActiveSection`
   owns scroll/hash/history tracking. Pending explicit navigation remains authoritative until
   scrolling settles or user scrolling resumes. Scheduled history measurements are now canceled

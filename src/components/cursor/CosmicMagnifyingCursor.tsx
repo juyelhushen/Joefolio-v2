@@ -1,12 +1,30 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'motion/react';
 import './CosmicMagnifyingCursor.css';
+import { createPortal } from 'react-dom';
 
 const POINTER_QUERY = '(hover: hover) and (pointer: fine)';
 const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const TARGET_SELECTOR = '[data-cursor-target], a[href], button:not(:disabled)';
 
 export default function CosmicMagnifyingCursor() {
+  const [overlayHost, setOverlayHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    let active = true;
+    const changeHost = (event: Event) => {
+      if (event instanceof CustomEvent) {
+        setOverlayHost(event.detail instanceof HTMLElement ? event.detail : null);
+      }
+    };
+    document.addEventListener('cosmic-overlay-host', changeHost);
+    queueMicrotask(() => {
+      if (active) setOverlayHost(document.querySelector<HTMLDialogElement>('dialog[open]'));
+    });
+    return () => {
+      active = false;
+      document.removeEventListener('cosmic-overlay-host', changeHost);
+    };
+  }, []);
   const [enabled, setEnabled] = useState(
     () =>
       typeof window.matchMedia === 'function' &&
@@ -158,7 +176,7 @@ export default function CosmicMagnifyingCursor() {
   }, [enabled, opacity, x, y, springX, springY, trailX, trailY, ghostX, ghostY]);
 
   if (!enabled) return null;
-  return (
+  return createPortal(
     <>
       <motion.div
         className="cosmic-cursor-ghost"
@@ -212,6 +230,7 @@ export default function CosmicMagnifyingCursor() {
           <span className="scanner-label scanner-zoom">+ ZOOM</span>
         </div>
       </motion.div>
-    </>
+    </>,
+    overlayHost ?? document.body,
   );
 }
