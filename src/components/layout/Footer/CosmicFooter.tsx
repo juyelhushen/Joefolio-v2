@@ -2,7 +2,8 @@ import { useRef, useState, type RefObject } from 'react';
 import { Linkedin, Plane } from 'lucide-react';
 import { motion } from 'motion/react';
 import { siGithub, siLeetcode, type SimpleIcon } from 'simple-icons';
-import ScrollReveal from '../../ScrollReveal';
+import ScrollReveal from '../../common/ScrollReveal';
+import { PROFILE_LINKS } from '../../../lib/profile';
 import './CosmicFooter.css';
 
 type CosmicFooterProps = {
@@ -21,11 +22,11 @@ const currentYear = new Date().getFullYear();
 const socialLinks = [
   {
     label: 'LinkedIn',
-    href: 'https://linkedin.com/in/juyel-hushen-770674170',
+    href: PROFILE_LINKS.linkedin,
     icon: 'linkedin',
   },
-  { label: 'GitHub', href: 'https://github.com/juyelhushen', icon: siGithub },
-  { label: 'LeetCode', href: 'https://leetcode.com/u/Juyel/', icon: siLeetcode },
+  { label: 'GitHub', href: PROFILE_LINKS.github, icon: siGithub },
+  { label: 'LeetCode', href: PROFILE_LINKS.leetcode, icon: siLeetcode },
 ] as const;
 
 function BrandIcon({ icon }: { icon: SimpleIcon }) {

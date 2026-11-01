@@ -1,0 +1,34 @@
+import { expect, it } from 'vitest';
+import { createRevealVariants, type ScrollRevealVariant } from './reveal-variants';
+
+it.each([
+  ['fade-up', 'y', 24],
+  ['fade-down', 'y', -24],
+  ['fade-left', 'x', -24],
+  ['fade-right', 'x', 24],
+  ['scale-up', 'scale', 0.97],
+  ['blur-reveal', 'filter', 'blur(4px)'],
+] as const)('configures %s without changing layout geometry', (variant, property, value) => {
+  expect(createRevealVariants(variant).hidden).toMatchObject({ opacity: 0, [property]: value });
+  expect(createRevealVariants(variant).visible).toMatchObject({ opacity: 1, x: 0, y: 0, scale: 1 });
+});
+
+it('uses an 80ms stagger with configurable timing', () => {
+  expect(createRevealVariants('stagger-container', 0.7, 0.1).visible).toMatchObject({
+    transition: { duration: 0.7, delay: 0.1, staggerChildren: 0.08 },
+  });
+});
+
+it.each([
+  'fade-up',
+  'fade-down',
+  'fade-left',
+  'fade-right',
+  'scale-up',
+  'blur-reveal',
+  'stagger-container',
+] satisfies ScrollRevealVariant[])('shows %s immediately for reduced motion', (variant) => {
+  const variants = createRevealVariants(variant, 0.55, 0.1, true);
+  expect(variants.hidden).toMatchObject({ opacity: 1, x: 0, y: 0, scale: 1 });
+  expect(variants.visible).toMatchObject({ transition: { duration: 0, delay: 0 } });
+});

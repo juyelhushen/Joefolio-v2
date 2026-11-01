@@ -7,5 +7,6 @@ export default defineConfig({
     environment: 'jsdom',
     clearMocks: true,
     restoreMocks: true,
+    maxWorkers: 2,
   },
 });

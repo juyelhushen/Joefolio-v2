@@ -1,0 +1,74 @@
+.cosmic-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.cosmic-cursor-lens {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(139, 237, 247, 0.62);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(101, 231, 242, 0.08), rgba(169, 155, 255, 0.06));
+  box-shadow:
+    inset 0 0 12px rgba(169, 155, 255, 0.12),
+    0 0 16px rgba(101, 231, 242, 0.1);
+}
+.cosmic-cursor-lens::after {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(169, 155, 255, 0.22);
+  border-radius: inherit;
+  content: '';
+}
+.cosmic-cursor-lens span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  transform: translate(-50%, -50%);
+}
+.cosmic-cursor-spotlight {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(101, 231, 242, 0.07), transparent 70%);
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .project-gallery-card,
+  .project-gallery-cover .mission-visual,
+  .skill-orbit-planet,
+  a,
+  button {
+    transition-property: transform, translate, background, border-color, box-shadow, color, scale;
+    transition-duration: 220ms;
+    transition-timing-function: var(--ease-standard);
+  }
+  .project-gallery-card.is-cursor-target,
+  .project-gallery-card:has(.is-cursor-target) {
+    scale: 1.02;
+  }
+  .project-gallery-cover.is-cursor-target .mission-visual {
+    scale: 1.06;
+  }
+  .skill-orbit-planet.is-cursor-target:not(.is-selected),
+  a.is-cursor-target,
+  button.is-cursor-target:not(.skill-orbit-planet) {
+    scale: 1.04;
+  }
+}
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cosmic-cursor {
+    display: none;
+  }
+}
