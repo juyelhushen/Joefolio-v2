@@ -3,7 +3,9 @@ import { navItems } from '../../components/layout/Navbar/navItems';
 
 export const useActiveSection = () => {
   const initialHashTarget = navItems.find(
-    (item) => item.id === (typeof window === 'undefined' ? '' : window.location.hash.slice(1)),
+    (item) =>
+      item.id ===
+      (typeof window === 'undefined' ? '' : window.location.hash.slice(1).split('/')[0]),
   );
   const [activeSection, setActiveSection] = useState<(typeof navItems)[number]['id']>(
     initialHashTarget?.id ?? 'home',
@@ -12,6 +14,10 @@ export const useActiveSection = () => {
     initialHashTarget?.id ?? null,
   );
   const updateActiveSection = useCallback(() => {
+    if (window.location.hash.startsWith('#projects/')) {
+      setActiveSection('projects');
+      return;
+    }
     const header = document.querySelector<HTMLElement>('.site-header');
     const activationLine =
       (header?.getBoundingClientRect().bottom ?? 0) + 16 + Math.min(140, window.innerHeight * 0.2);
@@ -66,7 +72,7 @@ export const useActiveSection = () => {
         window.location.hash === `#${pendingNavigationRef.current}`
       )
         return;
-      const hashId = window.location.hash.slice(1);
+      const hashId = window.location.hash.slice(1).split('/')[0];
       const hashTarget = navItems.find((item) => item.id === hashId);
       pendingNavigationRef.current = hashTarget?.id ?? null;
       if (hashTarget) setActiveSection(hashTarget.id);

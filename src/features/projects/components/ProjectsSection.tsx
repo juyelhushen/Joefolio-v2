@@ -3,12 +3,33 @@ import ProjectVisual from './ProjectVisual';
 import ScrollReveal, { ScrollRevealItem } from '../../../components/common/ScrollReveal';
 import { projects } from '../data/projects';
 import './ProjectsSection.css';
+import { useEffect, useState } from 'react';
+import { AnimatePresence } from 'motion/react';
+import ProjectCaseStudy from './ProjectCaseStudy';
+
+const projectFromHash = () =>
+  projects.find((project) => window.location.hash === `#projects/${project.id}`) ?? null;
 
 type ProjectsSectionProps = {
   reduceMotion: boolean;
 };
 
 export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) {
+  const [selectedProject, setSelectedProject] = useState(projectFromHash);
+  const [accent, setAccent] = useState('var(--color-accent-primary)');
+  useEffect(() => {
+    const sync = () => setSelectedProject(projectFromHash());
+    window.addEventListener('hashchange', sync);
+    window.addEventListener('popstate', sync);
+    return () => {
+      window.removeEventListener('hashchange', sync);
+      window.removeEventListener('popstate', sync);
+    };
+  }, []);
+  const closeCaseStudy = () => {
+    history.replaceState(history.state, '', `${location.pathname}${location.search}#projects`);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
   return (
     <section
       className="project-section section-wrap"
@@ -60,6 +81,24 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
               </ul>
 
               <div className="project-gallery-actions">
+                <button
+                  className="project-case-study-button"
+                  type="button"
+                  aria-label={`${project.name}: view case study`}
+                  onClick={(event) => {
+                    setAccent(
+                      getComputedStyle(
+                        event.currentTarget.closest('article') ?? event.currentTarget,
+                      )
+                        .getPropertyValue('--project-accent')
+                        .trim() || 'var(--color-accent-primary)',
+                    );
+                    history.pushState(history.state, '', `#projects/${project.id}`);
+                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                  }}
+                >
+                  View case study
+                </button>
                 <a
                   className="project-gallery-link"
                   href={project.repositoryUrl}
@@ -87,6 +126,17 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
           </ScrollReveal>
         ))}
       </div>
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectCaseStudy
+            key={selectedProject.id}
+            project={selectedProject}
+            accent={accent}
+            reduceMotion={reduceMotion}
+            onClose={closeCaseStudy}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

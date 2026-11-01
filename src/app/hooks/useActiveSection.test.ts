@@ -1,6 +1,18 @@
-import { cleanup, renderHook } from '@testing-library/react';
+import { cleanup, renderHook, act } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { useActiveSection } from './useActiveSection';
+
+it('keeps Projects active for case-study hashes on load and history changes', () => {
+  history.replaceState(null, '', '#projects/sentinel');
+  const { result } = renderHook(() => useActiveSection());
+  expect(result.current.activeSection).toBe('projects');
+  act(() => {
+    window.dispatchEvent(new Event('scroll'));
+    history.replaceState(null, '', '#projects/cut2short');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+  expect(result.current.activeSection).toBe('projects');
+});
 
 afterEach(() => {
   cleanup();

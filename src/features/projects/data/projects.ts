@@ -23,6 +23,11 @@ export type Project = Readonly<{
   problem: string;
   summary: string;
   engineeringFocus?: string;
+  role?: string;
+  outcome?: string;
+  metrics?: readonly Readonly<{ label: string; value: string }>[];
+  lessons?: readonly string[];
+  image?: Readonly<{ src: string; alt: string }>;
   technologies: readonly string[];
   visual: ProjectVisual;
   repositoryUrl: string;

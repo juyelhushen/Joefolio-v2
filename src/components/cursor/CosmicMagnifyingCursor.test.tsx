@@ -18,7 +18,7 @@ afterEach(() => {
 it('switches scanner modes only with targets and pauses rotations after pointer motion stops', () => {
   vi.useFakeTimers();
   configureMedia();
-  const { container, unmount } = render(
+  const { baseElement: container, unmount } = render(
     <>
       <CosmicMagnifyingCursor />
       <div data-cursor-target="card">Card</div>
@@ -90,7 +90,7 @@ it.each([
 it('tracks pointer values without intercepting clicks, and clears targets on exit/blur/drag', () => {
   configureMedia();
   const click = vi.fn();
-  const { container } = render(
+  const { baseElement: container } = render(
     <>
       <CosmicMagnifyingCursor />
       <button onClick={click}>Explore</button>
