@@ -30,10 +30,9 @@ value empty to keep the assistant in its honest unavailable state; no sample ans
 Vite environment values are public, so never put model/provider credentials or backend secrets in
 this variable.
 
-The contact form submits directly to the Spring Boot API. Set the public
-`VITE_API_BASE_URL` in `.env.local` for local development; see the
-[contact API guide](./docs/contact-email.md) for the deployed URL, local backend option, and Vercel
-configuration. Never put credentials or private backend settings in `VITE_` variables.
+The contact form submits to the deployed Spring Boot API from both local and production builds.
+Set `VITE_API_BASE_URL=https://joefolio-backend.onrender.com` in `.env.local` and Vercel's build
+environment. See the [contact API guide](./docs/contact-email.md) for details.
 
 Production build:
 

@@ -1,38 +1,38 @@
 # Contact API configuration
 
-The portfolio contact form sends messages from the browser to the Spring Boot API at
-`POST /api/v1/contact`. The shared Axios client in `src/lib/api/client.ts` reads its base URL from
-`VITE_API_BASE_URL`, falling back to `https://joefolio-backend.onrender.com`.
+The portfolio contact form sends messages from the browser to
+`https://joefolio-backend.onrender.com/api/v1/contact`. The shared Axios instance in
+`src/lib/api/client.ts` reads `VITE_API_BASE_URL`, defaults to the deployed Render URL when absent,
+and removes trailing slashes. It uses JSON headers, a 30-second timeout, and no cross-origin
+credentials. Services share this instance; the optional assistant uses its own per-request base
+URL without changing the contact client's defaults.
 
 ## Environment configuration
 
-Set `VITE_API_BASE_URL` in the Vercel project's **Settings → Environment Variables** for Production
-and any Preview or Development environments where the form should work:
+Use the same public value in the ignored `.env.local` file and Vercel's Production/Preview build
+environment:
 
 ```text
 VITE_API_BASE_URL=https://joefolio-backend.onrender.com
 ```
 
-Vite embeds `VITE_` values in browser assets, so this URL is public configuration. Never put
-credentials or private backend settings in a Vite variable. The backend URL must
-allow browser requests from the deployed portfolio origin through its CORS configuration.
+Do not point this configuration at a local Spring Boot server or add a Vite proxy. Restart Vite
+after editing local environment configuration; Vercel environment changes require a new build.
+Leave `VITE_AI_ASSISTANT_API_URL` empty until the separately configured assistant implements its
+documented contract.
 
-For local development, add the following to the ignored `.env.local` file when the Spring Boot
-backend is running locally:
+The deployed backend must allow browser requests from both the production portfolio origin and the
+local Vite origin through its CORS configuration. Vite variables are public browser configuration;
+never put credentials or private backend settings in them.
 
-```text
-VITE_API_BASE_URL=http://localhost:8082
-```
-
-The same value can be used as a temporary override when testing against the deployed API:
+Configure `CORS_ALLOWED_ORIGINS` on Render to include the actual browser origins:
 
 ```text
-VITE_API_BASE_URL=https://joefolio-backend.onrender.com
+https://juyel.vercel.app,http://localhost:5173,http://127.0.0.1:5173
 ```
 
-Restart Vite after changing environment variables. A production environment-variable change takes
-effect in the next Vercel build/deployment; do not assume an already-built deployment has picked
-up the new value.
+Allow POST requests and the `Content-Type` header in preflight responses. Add other preview or
+production origins explicitly when needed. This frontend change does not alter backend settings.
 
 The retired Vercel contact function is no longer used. Any environment settings that existed only
 for that function can be removed manually after verifying the new production contact flow; this

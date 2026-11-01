@@ -1,3 +1,6 @@
+import axios from 'axios';
+import { apiClient } from './api/client';
+
 export type AssistantCitation = {
   title: string;
   url?: string;
@@ -136,43 +139,35 @@ export async function sendAssistantMessage(
     throw new AssistantApiError('configuration', 'The assistant service URL is invalid.');
   }
 
-  let response: Response;
+  let payload: unknown;
   try {
-    response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const response = await apiClient.post<unknown>(
+      '/api/chat',
+      {
         message: normalizedMessage,
         ...(conversationId ? { conversationId } : {}),
-      } satisfies AssistantChatRequest),
-      signal,
-    });
-  } catch {
-    if (signal?.aborted) {
+      } satisfies AssistantChatRequest,
+      { signal, baseURL: apiBaseUrl.trim().replace(/\/+$/, '') },
+    );
+    payload = response.data;
+  } catch (error) {
+    if (signal?.aborted || axios.isCancel(error)) {
       throw new AssistantApiError('aborted', 'The request was cancelled.');
     }
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw new AssistantApiError(
+        'http',
+        `The assistant service returned an error (${error.response.status}). Please try again later.`,
+        error.response.status,
+      );
+    }
+
     throw new AssistantApiError(
       'network',
       'Could not reach the assistant service. Please try again.',
     );
   }
 
-  if (!response.ok) {
-    throw new AssistantApiError(
-      'http',
-      `The assistant service returned an error (${response.status}). Please try again later.`,
-      response.status,
-    );
-  }
-
-  let payload: unknown;
-  try {
-    payload = await response.json();
-  } catch {
-    throw new AssistantApiError(
-      'malformed-response',
-      'The assistant returned an invalid response.',
-    );
-  }
   return parseResponse(payload);
 }
