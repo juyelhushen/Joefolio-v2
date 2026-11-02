@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './Starfield.css';
+import { useEffectsPreference } from '../../../hooks/useEffectsPreference';
+import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
 
 export type Star = {
   x: number;
@@ -21,6 +23,20 @@ type Meteor = {
   angle: number;
   alpha: number;
 };
+
+type NavigatorWithConnection = Navigator & {
+  connection?: {
+    saveData?: boolean;
+    addEventListener?: (type: 'change', listener: EventListener) => void;
+    removeEventListener?: (type: 'change', listener: EventListener) => void;
+  };
+};
+
+function getMobileLitePreference(): boolean {
+  const narrowViewport =
+    typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 740px)').matches;
+  return narrowViewport || Boolean((navigator as NavigatorWithConnection).connection?.saveData);
+}
 
 function seededValue(index: number, salt: number): number {
   const value = Math.sin((index + 1) * 127.1 + (salt + 1) * 311.7) * 43758.5453;
@@ -67,25 +83,48 @@ type StarfieldProps = {
 
 export default function Starfield({ paused = false }: StarfieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { reducedEffects } = useEffectsPreference();
+  const [mobileLite, setMobileLite] = useState(getMobileLitePreference);
+
+  useEffect(() => {
+    const mobileQuery =
+      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 740px)') : null;
+    const connection = (navigator as NavigatorWithConnection).connection;
+    const updateMobileLite = () =>
+      setMobileLite(Boolean(mobileQuery?.matches || connection?.saveData));
+
+    mobileQuery?.addEventListener('change', updateMobileLite);
+    connection?.addEventListener?.('change', updateMobileLite);
+    return () => {
+      mobileQuery?.removeEventListener('change', updateMobileLite);
+      connection?.removeEventListener?.('change', updateMobileLite);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d', { alpha: true });
-    if (!canvas || !ctx) return;
+    if (!canvas) return;
+    if (mobileLite) {
+      canvas.dataset.static = 'true';
+      canvas.dataset.ready = 'static';
+      return;
+    }
 
-    const motionQuery =
-      typeof window.matchMedia === 'function'
-        ? window.matchMedia('(prefers-reduced-motion: reduce)')
-        : null;
+    delete canvas.dataset.static;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
+
     const mobileQuery =
-      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 700px)') : null;
-    let reduceMotion = Boolean(motionQuery?.matches);
+      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 740px)') : null;
     let mobile = Boolean(mobileQuery?.matches);
+    const isStaticFrame = () => reducedEffects || mobile || paused;
     let width = 0;
     let height = 0;
     let raf = 0;
     let lastMeteorAt = 0;
     let lastFrameAt = 0;
+    let animationStarted = false;
+    let cancelScheduledStart: (() => void) | undefined;
     const stars: Star[] = [];
     const meteors: Meteor[] = [];
     const starCount = 210;
@@ -93,7 +132,7 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     const resize = () => {
       const nextWidth = document.documentElement.clientWidth || window.innerWidth;
       const nextHeight = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.7);
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.7);
       if (width && height) {
         const scaleX = nextWidth / width;
         const scaleY = nextHeight / height;
@@ -116,7 +155,7 @@ export default function Starfield({ paused = false }: StarfieldProps) {
       const visibleCount = mobile ? 95 : starCount;
       for (let index = 0; index < visibleCount; index += 1) {
         const star = stars[index];
-        const twinkle = reduceMotion
+        const twinkle = isStaticFrame()
           ? 0.82
           : 0.76 + Math.sin(now * 0.001 * star.twinkleSpeed + star.phase) * 0.2;
         const brightness = star.alpha * twinkle;
@@ -173,28 +212,42 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     const handleFrame = (now: number) => {
       const deltaSeconds = Math.min(Math.max((now - lastFrameAt) / 1000, 0), 0.08);
       lastFrameAt = now;
-      if (!reduceMotion && !paused) {
+      if (!isStaticFrame()) {
         advanceStars(stars, deltaSeconds, width, height);
         spawnMeteor(now);
         updateMeteors(deltaSeconds);
       }
       drawStars(now);
-      if (!reduceMotion && !paused) drawMeteors();
+      if (!isStaticFrame()) drawMeteors();
     };
 
     const start = () => {
+      cancelScheduledStart?.();
+      cancelScheduledStart = undefined;
       window.cancelAnimationFrame(raf);
       lastFrameAt = performance.now();
-      if (!reduceMotion && !paused && !document.hidden) {
+      if (!isStaticFrame() && !document.hidden) {
+        animationStarted = true;
         raf = window.requestAnimationFrame(tick);
       } else {
         handleFrame(lastFrameAt);
       }
     };
 
+    const scheduleStart = () => {
+      if (animationStarted || isStaticFrame() || document.hidden) return;
+      cancelScheduledStart = scheduleAfterIdle(
+        () => {
+          animationStarted = true;
+          start();
+        },
+        { timeout: 1200, fallbackDelay: 100 },
+      );
+    };
+
     const tick = (now: number) => {
       handleFrame(now);
-      if (!reduceMotion && !paused && !document.hidden) raf = window.requestAnimationFrame(tick);
+      if (!isStaticFrame() && !document.hidden) raf = window.requestAnimationFrame(tick);
     };
 
     resize();
@@ -203,33 +256,30 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     handleFrame(lastMeteorAt);
 
     const onResize = () => {
-      mobile = mobileQuery?.matches ?? window.innerWidth <= 700;
+      mobile = mobileQuery?.matches ?? window.innerWidth <= 740;
       resize();
-      if (reduceMotion || paused) handleFrame(performance.now());
+      if (isStaticFrame()) start();
+      else scheduleStart();
     };
 
-    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
-      reduceMotion = event.matches;
-      meteors.length = 0;
-      start();
+    const onVisibilityChange = () => {
+      if (animationStarted) start();
+      else scheduleStart();
     };
-
-    const onVisibilityChange = () => start();
 
     window.addEventListener('resize', onResize);
-    motionQuery?.addEventListener('change', onMotionPreferenceChange);
     mobileQuery?.addEventListener('change', onResize);
     document.addEventListener('visibilitychange', onVisibilityChange);
-    if (!reduceMotion) start();
+    scheduleStart();
 
     return () => {
+      cancelScheduledStart?.();
       window.cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
-      motionQuery?.removeEventListener('change', onMotionPreferenceChange);
       mobileQuery?.removeEventListener('change', onResize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [paused]);
+  }, [mobileLite, paused, reducedEffects]);
 
   return <canvas ref={canvasRef} className="starfield" aria-hidden="true" />;
 }

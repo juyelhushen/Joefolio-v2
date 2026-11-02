@@ -1,5 +1,5 @@
 import { Github, Linkedin } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import CosmicContactForm from './CosmicContactForm';
 import EarthDestination from './EarthDestination';
 import ScrollReveal from '../../../components/common/ScrollReveal';
@@ -7,10 +7,20 @@ import './CosmicContactSection.css';
 
 import { useContactTransmission } from '../hooks/useContactTransmission';
 import { PROFILE_LINKS } from '../../../lib/profile';
+import type { BackendHealthStatus } from '../../../lib/api/backend-health';
+import EmailContact from '../../../components/common/EmailContact';
+import { useAnimationVisibility } from '../../../hooks/useAnimationVisibility';
 
-type CosmicContactSectionProps = { reduceMotion: boolean };
+type CosmicContactSectionProps = {
+  reduceMotion: boolean;
+  backendStatus?: 'CHECKING' | BackendHealthStatus;
+};
 
-export default function CosmicContactSection({ reduceMotion }: CosmicContactSectionProps) {
+export default function CosmicContactSection({
+  reduceMotion,
+  backendStatus = 'CHECKING',
+}: CosmicContactSectionProps) {
+  const { ref: visibilityRef, visible } = useAnimationVisibility<HTMLElement>();
   const {
     status,
     error,
@@ -33,12 +43,25 @@ export default function CosmicContactSection({ reduceMotion }: CosmicContactSect
     : undefined;
 
   return (
-    <section className="contact-section section-wrap" id="contact" aria-labelledby="contact-title">
-      <ScrollReveal className="contact-heading-reveal">
-        <span className="section-kicker">OPEN CHANNEL / 006</span>
+    <section
+      ref={visibilityRef}
+      className="contact-section section-wrap"
+      id="contact"
+      aria-labelledby="contact-title"
+      data-animation-visible={visible}
+    >
+      <ScrollReveal className="contact-heading-reveal" headingReveal>
+        <span className="section-kicker">06 / CONTACT</span>
         <h2 id="contact-title">
-          Send a Message <br />
-          <em>into Orbit.</em>
+          <span className="heading-line-mask">
+            <span className="heading-line">Send a Message</span>
+          </span>{' '}
+          <br />
+          <span className="heading-line-mask">
+            <span className="heading-line">
+              <em>into Orbit.</em>
+            </span>
+          </span>
         </h2>
         <p className="contact-intro">
           Share a little about what you have in mind. Your note will travel directly to my inbox.
@@ -56,6 +79,16 @@ export default function CosmicContactSection({ reduceMotion }: CosmicContactSect
             {flightPath && <path d={flightPath} />}
           </svg>
           <div className="contact-form-column">
+            {backendStatus === 'UNAVAILABLE' && (
+              <div
+                className="contact-service-note"
+                role="status"
+                aria-label="Contact service availability"
+              >
+                <p>The form may take a moment or be offline. You can email me directly instead.</p>
+                <EmailContact />
+              </div>
+            )}
             <CosmicContactForm
               key={formResetVersion}
               status={status}
@@ -63,6 +96,10 @@ export default function CosmicContactSection({ reduceMotion }: CosmicContactSect
               submitButtonRef={launchButtonRef}
               onSubmitMessage={(message) => void submitMessage(message)}
             />
+            <div className="contact-direct-email">
+              <p>Prefer email?</p>
+              <EmailContact allowCopy />
+            </div>
             <nav className="contact-social-links" aria-label="Other ways to connect">
               <a href={PROFILE_LINKS.linkedin} target="_blank" rel="noopener noreferrer">
                 <Linkedin size={15} aria-hidden="true" /> LinkedIn
@@ -81,7 +118,7 @@ export default function CosmicContactSection({ reduceMotion }: CosmicContactSect
           </div>
 
           {status === 'flying' && flightPath && (
-            <motion.div
+            <m.div
               key={flightPath}
               className="contact-envelope-flight"
               style={flightStyle}
@@ -97,7 +134,7 @@ export default function CosmicContactSection({ reduceMotion }: CosmicContactSect
                 <path d="M4 36 20 22m32 14L36 22" />
                 <path className="envelope-seal" d="m28 17 5 5-5 5-5-5z" />
               </svg>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </ScrollReveal>

@@ -160,24 +160,10 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
     intersectionObserver?.observe(container);
     window.addEventListener('resize', resizeEarth);
     resizeEarth();
-    const motionQuery =
-      typeof window.matchMedia === 'function'
-        ? window.matchMedia('(prefers-reduced-motion: reduce)')
-        : null;
-    let motionReduced = reduceMotion || Boolean(motionQuery?.matches);
+    const motionReduced = reduceMotion;
     if (motionReduced || !inViewport) draw();
     else frame = window.requestAnimationFrame(animate);
 
-    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
-      motionReduced = event.matches;
-      window.cancelAnimationFrame(frame);
-      if (motionReduced || document.hidden || !inViewport) {
-        draw();
-        return;
-      }
-      previousFrame = 0;
-      frame = window.requestAnimationFrame(animate);
-    };
     const onVisibilityChange = () => {
       window.cancelAnimationFrame(frame);
       if (document.hidden || motionReduced || !inViewport) {
@@ -187,13 +173,11 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       previousFrame = 0;
       frame = window.requestAnimationFrame(animate);
     };
-    motionQuery?.addEventListener('change', onMotionPreferenceChange);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       disposed = true;
       window.cancelAnimationFrame(frame);
-      motionQuery?.removeEventListener('change', onMotionPreferenceChange);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       resizeObserver?.disconnect();
       intersectionObserver?.disconnect();

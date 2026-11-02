@@ -2,6 +2,7 @@ import type { Variants } from 'motion/react';
 
 export type ScrollRevealVariant =
   | 'fade-up'
+  | 'rise'
   | 'fade-down'
   | 'fade-left'
   | 'fade-right'
@@ -16,9 +17,9 @@ export const createRevealVariants = (
   reducedMotion = false,
 ): Variants => {
   const hidden = {
-    opacity: variant === 'stagger-container' ? 1 : 0,
+    opacity: variant === 'stagger-container' || variant === 'rise' ? 1 : 0,
     x: variant === 'fade-left' ? -38 : variant === 'fade-right' ? 38 : 0,
-    y: variant === 'fade-up' ? 40 : variant === 'fade-down' ? -40 : 0,
+    y: variant === 'fade-up' || variant === 'rise' ? 40 : variant === 'fade-down' ? -40 : 0,
     scale: variant === 'stagger-container' ? 1 : 0.97,
     ...(variant === 'blur-reveal' ? { filter: 'blur(4px)' } : {}),
   };

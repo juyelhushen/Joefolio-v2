@@ -58,7 +58,7 @@
 .assistant-disclaimer {
   margin: 3px 0 0;
   color: var(--color-text-muted);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 .assistant-close,
@@ -105,7 +105,7 @@
 .assistant-message p {
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
   white-space: pre-wrap;
 }
@@ -116,7 +116,7 @@
   margin: 10px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 12px;
+  font-size: 14px;
 }
 .assistant-citations a {
   color: #a9c8f2;
@@ -126,7 +126,7 @@
 .assistant-loading,
 .assistant-error {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .assistant-loading {
@@ -150,7 +150,8 @@
   border-radius: 999px;
   color: var(--color-text-secondary);
   background: rgba(255, 255, 255, 0.035);
-  font-size: 11px;
+  min-height: 44px;
+  font-size: 14px;
   line-height: 1.4;
   text-align: left;
   cursor: pointer;
@@ -196,7 +197,7 @@
   flex: 0 0 auto;
   margin: 0;
   padding: 0 16px 12px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .assistant-launcher {
   position: relative;
@@ -212,7 +213,8 @@
   color: #eef4ff;
   background: rgba(23, 34, 58, 0.96);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  font-size: 11px;
+  min-height: 46px;
+  font-size: 14px;
   cursor: pointer;
 }
 .assistant-launcher::before {
@@ -302,19 +304,11 @@
 .assistant-composer button:not(:disabled):hover {
   border-color: rgba(145, 200, 255, 0.56);
 }
-@media (prefers-reduced-motion: reduce) {
-  .assistant-launcher::before,
-  .assistant-launcher-icon::after {
-    animation: none;
-  }
-
-  .assistant-launcher::before {
-    opacity: 0.48;
-  }
-
-  .assistant-launcher-icon::after {
-    opacity: 0;
-  }
+:root[data-effects-reduced='true'] .assistant-launcher::before {
+  opacity: 0.48;
+}
+:root[data-effects-reduced='true'] .assistant-launcher-icon::after {
+  opacity: 0;
 }
 @media (max-width: 740px) {
   .assistant-widget {

@@ -55,6 +55,27 @@
   outline: 2px solid #e8f3ff;
   outline-offset: 4px;
 }
+
+.contact-direct-email,
+.contact-service-note {
+  margin: 20px 0;
+  text-align: left;
+  color: var(--color-text-secondary);
+  font-size: var(--type-small);
+  line-height: 1.7;
+}
+
+.contact-direct-email > p,
+.contact-service-note > p {
+  margin: 0;
+}
+
+.contact-service-note {
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-elevated);
+}
 .contact-social-links {
   display: flex;
   align-items: center;
@@ -66,7 +87,8 @@
   align-items: center;
   gap: 7px;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  min-height: 48px;
+  font-size: 14px;
   transition: color var(--motion-fast) var(--ease-standard);
 }
 .contact-social-links a:hover {
@@ -161,7 +183,7 @@
   justify-content: center;
   gap: 9px;
   color: #9db7d8;
-  font-size: 8px;
+  font-size: var(--type-label);
   font-weight: 600;
   letter-spacing: 1.6px;
   white-space: nowrap;
@@ -284,13 +306,6 @@
     filter: drop-shadow(0 20px 38px rgba(0, 17, 50, 0.55));
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .contact-orbit,
-  .earth-fallback,
-  .contact-earth-target[data-lit='true'] {
-    animation: none;
-  }
-}
 @media (max-width: 1000px) {
   .contact-layout {
     gap: 25px;
@@ -311,7 +326,7 @@
     letter-spacing: -2px;
   }
   .contact-section > p {
-    font-size: 12px;
+    font-size: 14px;
     padding: 0 8px;
   }
   .contact-actions {
@@ -347,7 +362,9 @@
     justify-content: center;
   }
   .earth-destination-label {
-    font-size: 7px;
+    font-size: var(--type-label);
+    white-space: normal;
+    text-align: center;
     letter-spacing: 1.2px;
   }
 }

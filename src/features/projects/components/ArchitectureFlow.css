@@ -52,3 +52,76 @@
     border-left: 1px solid var(--project-accent);
   }
 }
+.architecture-replay {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  font-size: var(--type-readable);
+  cursor: pointer;
+}
+.architecture-replay:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.architecture-node-glow {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--project-accent);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 1;
+}
+.architecture-packet {
+  display: none;
+}
+.architecture-flow[data-animated='true'] .architecture-node-glow {
+  opacity: 0;
+}
+.architecture-flow[data-animated='true'][data-started='true'] .architecture-node-glow {
+  animation: architecture-light 250ms var(--step-delay) both;
+}
+.architecture-flow[data-animated='true'][data-started='true'] .architecture-packet {
+  display: block;
+  position: absolute;
+  left: 100%;
+  top: 21px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--project-accent);
+  pointer-events: none;
+  animation: architecture-packet 250ms var(--step-delay) both;
+}
+.architecture-flow[data-running='false'] .architecture-node-glow,
+.architecture-flow[data-running='false'] .architecture-packet {
+  animation-play-state: paused !important;
+}
+@keyframes architecture-light {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes architecture-packet {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}

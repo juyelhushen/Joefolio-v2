@@ -13,11 +13,15 @@ export default function ExperienceSection({ reduceMotion }: ExperienceSectionPro
       id="experience"
       aria-labelledby="experience-title"
     >
-      <ScrollReveal className="section-heading career-heading">
+      <ScrollReveal className="section-heading career-heading" headingReveal>
         <div>
-          <span className="section-kicker">CAREER ODYSSEY / 003</span>
+          <span className="section-kicker">02 / EXPERIENCE</span>
           <h2 id="experience-title">
-            Career, <em>chapter by chapter.</em>
+            <span className="heading-line-mask">
+              <span className="heading-line">
+                Career, <em>chapter by chapter.</em>
+              </span>
+            </span>
           </h2>
         </div>
         <p>A reverse-chronological timeline of the roles and dates currently documented.</p>

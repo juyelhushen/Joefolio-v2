@@ -1,8 +1,10 @@
 import { AxiosError, AxiosHeaders, type AxiosAdapter, type AxiosResponse } from 'axios';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
+import { domAnimation, LazyMotion } from 'motion/react';
 import { apiClient } from '../../../lib/api/client';
 import CosmicContactSection from './CosmicContactSection';
+import { PUBLIC_EMAIL } from '../../../lib/profile';
 
 vi.mock('./EarthGlobe', () => ({
   default: () => <div data-testid="earth-webgl-scene" />,
@@ -61,6 +63,29 @@ function fillForm() {
     target: { value: 'I would like to talk about a project.' },
   });
 }
+
+it.each(['CHECKING', 'UP', 'UNAVAILABLE'] as const)(
+  'shows the backend note only when unavailable, keeping the form enabled: %s',
+  (backendStatus) => {
+    render(<CosmicContactSection reduceMotion backendStatus={backendStatus} />);
+    const note = screen.queryByText(/The form may take a moment or be offline/);
+    if (backendStatus === 'UNAVAILABLE') {
+      expect(note).toBeTruthy();
+      expect(
+        within(screen.getByRole('status', { name: 'Contact service availability' }))
+          .getByRole('link', { name: PUBLIC_EMAIL })
+          .getAttribute('href'),
+      ).toBe(`mailto:${PUBLIC_EMAIL}`);
+    } else {
+      expect(note).toBeNull();
+    }
+    expect(screen.getByRole('button', { name: 'Launch message' }).hasAttribute('disabled')).toBe(
+      false,
+    );
+    expect(screen.getByLabelText(/^Name/).hasAttribute('disabled')).toBe(false);
+    expect(screen.getByRole('button', { name: 'Copy email' })).toBeTruthy();
+  },
+);
 
 it('validates required fields and native email syntax accessibly before sending', () => {
   const requests = installResponseAdapter(202, { message: 'Your message has been sent.' });
@@ -165,6 +190,11 @@ it('preserves entered values and offers retry after a network failure', async ()
 
   fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
   expect(await screen.findByRole('alert')).toBeTruthy();
+  expect(
+    within(screen.getByRole('alert'))
+      .getByRole('link', { name: PUBLIC_EMAIL })
+      .getAttribute('href'),
+  ).toBe(`mailto:${PUBLIC_EMAIL}`);
   expect(screen.getByRole('button', { name: 'Retry message' })).toBeTruthy();
   expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
   expect((screen.getByLabelText(/^Message/) as HTMLTextAreaElement).value).toContain(
@@ -229,7 +259,11 @@ it('keeps character limits, accessible labels, and the honeypot out of keyboard 
 
 it('starts envelope flight only after acceptance and resets after the animation', async () => {
   installResponseAdapter(202, { message: 'Your message has been sent.' });
-  const { container } = render(<CosmicContactSection reduceMotion={false} />);
+  const { container } = render(
+    <LazyMotion features={domAnimation}>
+      <CosmicContactSection reduceMotion={false} />
+    </LazyMotion>,
+  );
   fillForm();
 
   const rect = {

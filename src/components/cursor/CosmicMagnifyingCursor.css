@@ -107,7 +107,7 @@
   left: 50%;
   transform: translateX(-50%);
   color: var(--cyan);
-  font: 8px/1 var(--font-mono);
+  font: 12px/1 var(--font-mono);
   letter-spacing: 0.15em;
   opacity: 0;
   white-space: nowrap;
@@ -169,7 +169,7 @@
     transform: rotate(360deg);
   }
 }
-@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+@media (hover: none), (pointer: coarse) {
   .cosmic-cursor,
   .cosmic-cursor-ghost {
     display: none;

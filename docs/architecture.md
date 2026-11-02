@@ -54,6 +54,7 @@ src/
       components/
       hooks/             useAssistantConversation
       services/          Independent assistant API contract
+    command-palette/     Lazy native dialog, authoritative-data commands and pure matching
     contact/
       components/        Section, form, deferred Earth destination and scene
       hooks/             useContactTransmission
@@ -61,12 +62,14 @@ src/
       flight-path.ts     Pure stage-relative Bézier geometry
       types.ts           Contact form model and transmission status
     experience/          Components and typed data
+    impact/              Verified impact statistics and the optional animated strip
+    playground/          Generic local event-pipeline reducer and lazy interactive UI
     projects/            Components and authoritative typed project data
     skills/              Components, typed data and presentation calculations
-  hooks/                 Generic useReducedMotion
+  hooks/                 Shared effects preference and viewport animation hooks
   lib/
     api/                 Shared Axios client and error normalization
-    profile.ts           Shared verified social destinations
+    profile.ts           Shared public profile, email, résumé and hero proof constants
   sections/Hero/         Simple page presentation retained in place
   styles/
     tokens.css
@@ -92,13 +95,71 @@ barrels or empty provider/configuration layers.
 
 ## Component and state responsibilities
 
+### Command palette and below-fold polish
+
+`App` owns a `React.lazy` command-palette boundary, opener reference and preference/navigation
+callbacks. Navbar receives generic open/prefetch callbacks, so shared UI never imports features.
+Search hover/focus prefetches its chunk; startup does not. Ctrl/Cmd+K ignores input, textarea,
+select and contenteditable targets. The native dialog owns scroll locking, opener focus return,
+Escape/backdrop dismissal and a combobox/listbox with grouped, scored word/subsequence matches.
+Arrow/Home/End order matches the rendered groups; Enter activates commands. Results and clipboard
+feedback use a polite live region, with manual-copy instructions on clipboard failure.
+
+`palette-items.ts` derives items from `navItems`, the Projects dataset, `PROFILE_LINKS` and résumé
+constants; the existing build-time résumé flag gates downloads. Section commands invoke the
+existing navigation handler and native hash. Project commands push `#projects/<id>` and dispatch
+hashchange. Unmounted lazy sections listen for hashchange/popstate until loaded, so a command can
+open a case study without first scrolling its gallery into view. About is now viewport-lazy too.
+Vite explicitly groups the public Motion React barrel to stabilize shared chunk allocation as
+lazy consumers change; it does not eagerly collect the entire Motion package.
+
+Below-fold heading masks are whole-line wrappers around plain text and existing line breaks,
+styled in `utilities.css`. `headingReveal` on the existing ScrollReveal uses its single observer
+for reveal and offscreen pause, retaining it after the one-shot reveal. A tab-visibility listener
+pauses CSS keyframes. Mobile widths up to 740px, reduced effects/OS reduced motion, data saving
+and missing observers show the heading immediately. The hero and `#home-title` are untouched.
+
+Footer `LocalTime` is inside the existing lazy footer chunk, not a startup import. The shared
+`useInteractiveActivity` gates its initial update and one-minute interval; hidden/offscreen
+states and unmount clear both timers. A reserved-width/height wrapper avoids first-paint shifts.
+`Intl.DateTimeFormat` uses `Asia/Kolkata`, and a semantic `time` carries the ISO timestamp.
+
+The share-card SVG is the source of the 1200×630 PNG. Rasterize using an installed headless
+browser (no runtime dependency), then inspect at 600px width. Keep the profile name, role and
+positioning line inside safe margins and the favicon's vector monogram legible at 16px/32px.
+Search, masks and clock introduce no providers, canvas, WebGL or dependencies. Keep the entry
+chunk within a few hundred bytes of baseline and compare five mobile Lighthouse runs using
+median and min-max; shared-host noise is not evidence of a certified improvement.
+
+### Profile proof and direct contact
+
+`src/lib/profile.ts` owns `PROFILE_LINKS`, `PUBLIC_EMAIL`, `RESUME_PATH`, `RESUME_FILENAME`
+and `HERO_PROOF_LINE`. Hero renders the employment proof with its existing mount-reveal variants.
+The shared `ResumeDownload` reads Vite's typed `__HAS_RESUME__` build-time flag, computed with
+`fs.existsSync` against `public/resume.pdf`; it omits the link when the asset is absent. Tests
+can stub the global flag for both branches. Adding or replacing the real PDF requires a rebuild.
+
+The shared `EmailContact` renders the mailto address, with optional clipboard controls in Contact.
+Denied or unavailable clipboard access selects the address, announces failure politely and
+provides manual-copy instructions. Copy feedback resets after two seconds, with timer cleanup
+on unmount; it introduces no motion. Footer reuses the same address component without copy controls.
+`App` passes startup health to Contact as a prop. Only `UNAVAILABLE` displays an email fallback
+above the still-enabled form; `CHECKING` and `UP` display no health note. Submission errors include
+the same mailto link inside the error region without altering validation, values or flight state.
+
 ### Project case studies
 
 Each project card has a case-study action alongside its existing repository/demo links.
 `ProjectCaseStudy` uses a native modal dialog with Escape/backdrop dismissal, focus return,
 background scroll locking and a short reduced-motion-aware fade/scale transition.
-`ArchitectureFlow` renders labelled lanes as ordered steps with CSS connectors: horizontal
-above 740px and vertical in the full-screen mobile sheet. All content comes from the typed
+The dialog and `ArchitectureFlow` each have a `React.lazy` boundary. The flow renders labelled
+lanes as ordered steps with CSS connectors: horizontal above 740px and vertical in the full-screen
+mobile sheet. Visible desktop flows light nodes at 250ms intervals, with decorative packets moving
+between them, once per opening. Replay remounts only the ordered lanes, preserving button focus.
+CSS custom properties/keyframes animate only transforms and opacity. Effects pause when the flow
+leaves the viewport, the tab is hidden, or the dialog exits. Reduced effects, the OS motion
+preference, data saving, widths up to 740px, and missing IntersectionObserver show the final static
+state without Replay. All content comes from the typed
 project dataset; optional role, outcome, metrics, lessons and screenshot fields render only
 when supplied. No claims or placeholder values are inserted.
 
@@ -111,16 +172,77 @@ The existing scanner portals into the active dialog through the generic `cosmic-
 DOM event so it remains decorative above the native top layer; shared cursor code never imports
 Projects. Closing restores the overlay to the document body.
 
-- `App` composes the page. `useUniverseIntro` owns per-tab intro policy, and `useActiveSection`
-  owns scroll/hash/history tracking. Pending explicit navigation remains authoritative until
-  scrolling settles or user scrolling resumes. Scheduled history measurements are now canceled
-  on replacement and unmount.
+### Event pipeline playground
+
+The end of the Projects gallery reserves space for a viewport-loaded `React.lazy` playground;
+neither the playground nor architecture animation is evaluated during initial hero rendering.
+`src/features/playground/pipeline.ts` owns the pure readonly reducer. It has no network, clock,
+DOM, employer or client dependencies. Events progress from API (202 Accepted) to Topic, Consumer
+and Delivery. Failed delivery enters three backoff stages lasting one, two and four 650ms ticks,
+then stays in the dead-letter topic. Redrain resets attempts and returns those events to Topic.
+Accepted/Delivered counters are cumulative; Retrying/In dead-letter describe current queues.
+The cap of twelve includes retained dead letters, bounding memory until they are redrained;
+completed events are removed and only the eight most recent activity messages are retained.
+Disabled reducers ignore simulation actions, preserving progress across viewport/tab pauses.
+
+`useInteractiveActivity` supplies intersection/tab visibility and the mobile/static policy.
+The effective effects preference is passed from Projects, avoiding an entry-to-lazy-chunk
+dependency cycle. The UI schedules a single timeout only while visible, tab-active and processing
+events, plus a debounced 250ms polite announcement. Both timers are canceled offscreen and on
+unmount; static/mobile mode retains simulation progress with no travel animation. Missing
+IntersectionObserver exposes usable static controls without attempting animation. Controls use
+44px minimum targets and readable 14px text. No canvas, WebGL, dependencies, providers, new
+navigation item or section number are introduced.
+
+Performance guardrails for these additions are a mobile five-run median Performance of at least
+90 and TBT no more than 300ms, with median/range reporting against a fresh baseline. Keep new code
+and CSS behind lazy boundaries, reserve the playground slot, animate only transforms/opacity on
+screen, and check entry bytes as well as requested chunks. Shared-host variability must be reported
+explicitly rather than attributed to effects that were never loaded.
+
+### Experience highlights and impact
+
+Experience entries may include readonly `summary`, `highlights` and `stack` fields. The timeline
+renders each optional part only when supplied (showing at most four highlights); these fields are
+currently unused in the production experience data. The current role retains its viewport reveal
+and marker behavior, with stronger accent treatment and a text label.
+
+`src/features/impact/data/impact.ts` exports readonly `impactStats`, intentionally empty until
+verified statistics are supplied. `ImpactStrip` returns no markup when the array is empty. With
+one to four entries it reveals once, then animates numeric MotionValues; reduced motion, unavailable
+IntersectionObserver or observer initialization failure show final values directly. Animated
+digits are hidden from assistive technology while final values and labels remain accessible.
+
+- `App` composes the page. `useUniverseIntro` owns per-tab intro policy; its presentation is lazy
+  and skipped at widths up to 740px or when data saving/reduced effects is active. The hero remains
+  visible beneath the optional desktop overlay. `useActiveSection` owns scroll/hash/history
+  tracking. Pending explicit navigation remains authoritative until scrolling settles or user
+  scrolling resumes. Scheduled history measurements are canceled on replacement and unmount.
 - `PortfolioAssistant` owns panel presentation, focus trapping/restoration, Escape handling, and
   transcript scrolling. `useAssistantConversation` owns drafts, turns, follow-ups, pending/error
   state, duplicate prevention, and request cancellation on unmount.
 - `CosmicContactSection` composes the form, envelope and Earth destination.
   `useContactTransmission` owns request/flight state, geometry measurement, observer cleanup, and
   successful reset. `CosmicContactForm` retains field validation and entered values on failure.
+- `useEffectsPreference` combines the OS motion preference, `navigator.connection.saveData`, and
+  the persisted explicit choice. The footer and mobile navigation share the same toggle; the
+  application mirrors the effective setting to `data-effects-reduced` on `<html>`. Explicit
+  choices override device defaults. At widths up to 740px, with data saving enabled, or when
+  effects are reduced, the mesh stays on its CSS gradient and does not initialize WebGL; the
+  starfield uses a small CSS-only static pattern without creating a canvas or animation loop.
+  The cursor, scroll beam, intro and continuous CSS flourishes are also disabled when effects
+  are reduced.
+- `scheduleAfterIdle` uses `requestIdleCallback` with a bounded timeout and a timer fallback.
+  On eligible desktop configurations, starfield animation and WebGL mesh setup wait until idle;
+  CSS gradients provide the initial background. Backend health warm-up and the assistant are also
+  deferred so they cannot compete with initial rendering. The animated starfield and mesh pause
+  when the document is hidden or the mesh leaves the viewport, and all idle callbacks are canceled
+  on cleanup.
+- `useAnimationVisibility` pauses section-owned infinite CSS motion outside the viewport.
+  About, Experience, Skills, Projects, AI Lab, Contact and Footer are loaded with `React.lazy` near the
+  viewport and reserve section-specific placeholder heights. An initial or in-page section hash
+  activates the lazy section and scrolls to the rendered anchor after its chunk resolves; native
+  anchors and `useActiveSection` scroll tracking remain in use.
 - `EarthDestination` preserves the 180px near-viewport preload and lazy scene import. Earth
   renderer resource disposal, visibility pausing, DPR limits and reduced motion remain intact.
 - Skill orbit/counter-rotation calculations are pure and independently tested. A closed icon
@@ -151,8 +273,10 @@ health requests. It requires HTTP 200 and body status `UP`; transport failures a
 responses resolve to `UNAVAILABLE`. The request overrides only its own timeout to 90 seconds,
 uses `Cache-Control: no-cache, no-store`, and does not retry, poll or block rendering.
 `useBackendHealth` exposes `CHECKING`, `UP` and `UNAVAILABLE` to application consumers with
-unmount-safe updates. The root starts it silently; no UI status banner is added. A reload starts
-a new operation, but an unavailable result is not automatically retried within the same page.
+unmount-safe updates. It schedules its one warm-up after idle time without blocking UI and passes
+the result to Contact; only `UNAVAILABLE` adds a local email fallback, not a global status banner.
+A reload starts a new operation, but an unavailable result is not automatically retried within
+the same page.
 
 Assistant still uses its own optional `VITE_AI_ASSISTANT_API_URL` as a per-request base URL and
 posts `/api/chat`. Empty configuration remains unavailable. Response/citation validation,
@@ -195,10 +319,10 @@ markers inherit the corresponding card's viewport labels. Categories and skill d
 own reveal boundaries rather than animating during page load.
 
 `CosmicScrollProgress` adds a two-pixel cyan/violet progress beam driven by Motion `useScroll`
-and `useSpring` (direct progress for reduced motion), with no scroll-driven React state.
+and `useSpring`, with no scroll-driven React state. It is omitted when effects are reduced.
 
 `CosmicMagnifyingCursor` is a decorative overlay enabled only for fine hover-capable pointers
-without reduced motion. It keeps the native cursor and focus rings, has `pointer-events: none`
+without reduced effects. It keeps the native cursor and focus rings, has `pointer-events: none`
 and `aria-hidden`, and uses Motion values/springs rather than pointer-driven React state.
 The lens and small radial spotlight do not sample or enlarge arbitrary underlying pixels.
 Actual magnification applies to targeted elements: project cards 1.035, project visuals 1.10,
@@ -245,8 +369,9 @@ tests cover response/transport validation, startup deduplication and lifecycle s
 
 ## Remaining technical debt and recommended next work
 
-- Vite still warns about the approximately 521kB entry and 535kB deferred Earth chunks. Profile
-  actual load/runtime behavior before changing bundle boundaries or rendering architecture.
+- Vite still reports the approximately 307kB initial JavaScript entry and 534kB deferred Earth
+  chunk (the former is about 100kB gzip). Continue to profile runtime tasks before changing the
+  remaining bundle boundaries or rendering architecture.
 - Global styles retain legacy token aliases; individual feature CSS still contains bespoke scene
   values. Consolidate only demonstrated reusable values, with visual regression coverage.
 - The common error normalizer retains contact-oriented fallback wording for compatibility.

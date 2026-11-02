@@ -174,7 +174,7 @@
   border-radius: 999px;
   color: var(--color-text-primary);
   background: rgba(7, 10, 21, 0.94);
-  font-size: 10px;
+  font-size: var(--type-label);
   line-height: 1.3;
   opacity: 0;
   pointer-events: none;
@@ -241,7 +241,7 @@
   position: relative;
   color: #fff0d3;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--type-label);
   letter-spacing: 1.1px;
 }
 .skill-category-index {
@@ -272,7 +272,7 @@
 .skill-category h3 {
   margin: 0 0 9px;
   color: var(--category-color);
-  font: 600 11px/1.35 var(--font-mono);
+  font: 600 14px/1.35 var(--font-mono);
 }
 .skill-category ul {
   display: flex;
@@ -287,7 +287,7 @@
   border: 1px solid rgba(173, 192, 228, 0.12);
   border-radius: 999px;
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 14px;
   line-height: 1.4;
 }
 .skill-detail {
@@ -339,7 +339,7 @@
 .skill-detail-kicker {
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-label);
   letter-spacing: 0.08em;
 }
 .skill-detail h3 {
@@ -366,6 +366,7 @@
 }
 .skill-evidence-list a {
   display: flex;
+  min-height: 44px;
   justify-content: space-between;
   gap: 12px;
   padding: 9px 10px;
@@ -373,7 +374,7 @@
   border-radius: 9px;
   color: var(--color-text-secondary);
   background: rgba(255, 255, 255, 0.025);
-  font-size: 11px;
+  font-size: 14px;
   transition:
     color var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard);
@@ -482,7 +483,7 @@
   .skill-planet-label {
     top: calc(100% + 5px);
     padding: 4px 6px;
-    font-size: 9px;
+    font-size: var(--type-label);
   }
   .solar-core {
     width: 82px;
@@ -492,7 +493,7 @@
     font-size: 19px;
   }
   .solar-core small {
-    font-size: 8px;
+    font-size: var(--type-label);
     letter-spacing: 0.8px;
   }
   .skill-detail {
@@ -511,16 +512,14 @@
     gap: 3px 8px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .skill-orbit-frame,
-  .skill-planet-counter,
-  .solar-core-corona {
-    animation: none !important;
-  }
-  .skill-orbit-frame {
-    transform: translate(-50%, -50%) rotate(var(--skill-orbit-phase)) !important;
-  }
-  .skill-planet-counter {
-    transform: rotate(var(--skill-counter-phase)) !important;
-  }
+:root[data-effects-reduced='true'] .skill-orbit-frame,
+:root[data-effects-reduced='true'] .skill-planet-counter,
+:root[data-effects-reduced='true'] .solar-core-corona {
+  animation: none !important;
+}
+:root[data-effects-reduced='true'] .skill-orbit-frame {
+  transform: translate(-50%, -50%) rotate(var(--skill-orbit-phase)) !important;
+}
+:root[data-effects-reduced='true'] .skill-planet-counter {
+  transform: rotate(var(--skill-counter-phase)) !important;
 }

@@ -1,0 +1,52 @@
+.email-contact {
+  min-width: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--type-small);
+  line-height: 1.7;
+}
+
+.email-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.email-contact a {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  color: var(--color-accent-primary);
+  overflow-wrap: anywhere;
+}
+
+.email-contact button {
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.email-contact button:hover {
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-primary);
+}
+
+.email-contact a:focus-visible,
+.email-contact button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.email-copy-status {
+  display: block;
+  min-height: 1.7em;
+}
+
+.email-copy-help {
+  margin: 4px 0 0;
+}

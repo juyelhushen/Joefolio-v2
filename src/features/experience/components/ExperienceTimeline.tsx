@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
+import { useAnimationVisibility } from '../../../hooks/useAnimationVisibility';
 import { experience } from '../data/experience';
 import './ExperienceTimeline.css';
 
@@ -52,7 +53,7 @@ function CareerRoute({
           stroke={`url(#career-route-gradient-${mobile ? 'mobile' : 'desktop'})`}
         />
       ) : (
-        <motion.path
+        <m.path
           id={routeId}
           className="career-route-line"
           d={route}
@@ -73,19 +74,25 @@ function CareerRoute({
 }
 
 export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineProps) {
+  const { ref, visible } = useAnimationVisibility<HTMLDivElement>();
   const [selectedExperience, setSelectedExperience] = useState(
     experience.find((entry) => entry.current)?.id ?? experience[0].id,
   );
 
   return (
-    <div className="career-odyssey" data-reduced-motion={reduceMotion ? 'true' : 'false'}>
+    <div
+      ref={ref}
+      className="career-odyssey"
+      data-reduced-motion={reduceMotion ? 'true' : 'false'}
+      data-animation-visible={visible}
+    >
       <CareerRoute reduceMotion={reduceMotion} />
       <CareerRoute reduceMotion={reduceMotion} mobile />
       <ol className="experience-timeline" aria-label="Career milestones">
         {experience.map((entry, index) => {
           const selected = selectedExperience === entry.id;
           return (
-            <motion.li
+            <m.li
               className={`experience-entry${selected ? ' is-selected' : ''}${entry.current ? ' is-current' : ''}`}
               data-chapter={entry.chapter}
               key={entry.id}
@@ -113,11 +120,29 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
                   </div>
                   <div className="experience-card-meta">
                     {entry.dates && <span className="experience-dates">{entry.dates}</span>}
-                    {entry.current && <span className="experience-current">CURRENT ROLE</span>}
+                    {entry.current && <span className="experience-current">Current</span>}
                   </div>
                 </div>
+                {entry.summary && <p className="experience-summary">{entry.summary}</p>}
+                {!!entry.highlights?.length && (
+                  <ul className="experience-highlights">
+                    {entry.highlights.slice(0, 4).map((highlight) => (
+                      <li key={highlight}>{highlight}</li>
+                    ))}
+                  </ul>
+                )}
+                {!!entry.stack?.length && (
+                  <ul
+                    className="experience-stack"
+                    aria-label={`${entry.employer} technology stack`}
+                  >
+                    {entry.stack.map((technology) => (
+                      <li key={technology}>{technology}</li>
+                    ))}
+                  </ul>
+                )}
               </article>
-              <motion.button
+              <m.button
                 className="experience-marker"
                 type="button"
                 aria-label={`Highlight ${entry.employer}: ${entry.role}`}
@@ -135,8 +160,8 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
                 }
               >
                 <span className="experience-marker-core" aria-hidden="true" />
-              </motion.button>
-            </motion.li>
+              </m.button>
+            </m.li>
           );
         })}
       </ol>

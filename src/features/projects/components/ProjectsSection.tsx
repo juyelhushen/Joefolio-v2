@@ -3,9 +3,38 @@ import ProjectVisual from './ProjectVisual';
 import ScrollReveal, { ScrollRevealItem } from '../../../components/common/ScrollReveal';
 import { projects } from '../data/projects';
 import './ProjectsSection.css';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
-import ProjectCaseStudy from './ProjectCaseStudy';
+
+const ProjectCaseStudy = lazy(() => import('./ProjectCaseStudy'));
+const EventPipelinePlayground = lazy(
+  () => import('../../playground/components/EventPipelinePlayground'),
+);
+
+function PlaygroundSlot({ reduceMotion }: { reduceMotion: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(() => typeof IntersectionObserver === 'undefined');
+  useEffect(() => {
+    if (loaded || !ref.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setLoaded(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [loaded]);
+  return (
+    <div ref={ref} className="pipeline-lazy-slot">
+      {loaded && (
+        <Suspense fallback={null}>
+          <EventPipelinePlayground reduceMotion={reduceMotion} />
+        </Suspense>
+      )}
+    </div>
+  );
+}
 
 const projectFromHash = () =>
   projects.find((project) => window.location.hash === `#projects/${project.id}`) ?? null;
@@ -37,11 +66,15 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
       aria-labelledby="projects-title"
       data-reduced-motion={reduceMotion}
     >
-      <ScrollReveal className="projects-heading">
+      <ScrollReveal className="projects-heading" headingReveal>
         <div>
-          <span className="section-kicker">A FEW THINGS I’VE MADE</span>
+          <span className="section-kicker">04 / PROJECTS</span>
           <h2 id="projects-title">
-            Selected <em>Work.</em>
+            <span className="heading-line-mask">
+              <span className="heading-line">
+                Selected <em>Work.</em>
+              </span>
+            </span>
           </h2>
         </div>
         <p>
@@ -126,15 +159,18 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
           </ScrollReveal>
         ))}
       </div>
+      <PlaygroundSlot reduceMotion={reduceMotion} />
       <AnimatePresence>
         {selectedProject && (
-          <ProjectCaseStudy
-            key={selectedProject.id}
-            project={selectedProject}
-            accent={accent}
-            reduceMotion={reduceMotion}
-            onClose={closeCaseStudy}
-          />
+          <Suspense key={selectedProject.id} fallback={null}>
+            <ProjectCaseStudy
+              key={selectedProject.id}
+              project={selectedProject}
+              accent={accent}
+              reduceMotion={reduceMotion}
+              onClose={closeCaseStudy}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
     </section>

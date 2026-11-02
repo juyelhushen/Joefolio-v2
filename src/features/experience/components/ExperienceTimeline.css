@@ -91,8 +91,8 @@
   position: relative;
   z-index: 2;
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   grid-column: 2;
   grid-row: 1;
   justify-self: center;
@@ -164,7 +164,7 @@
 }
 .experience-entry.is-current .experience-card {
   min-height: 124px;
-  border-color: color-mix(in srgb, var(--career-accent), transparent 58%);
+  border-color: color-mix(in srgb, var(--career-accent), transparent 36%);
   background:
     radial-gradient(
       ellipse at 100% 0%,
@@ -194,7 +194,7 @@
 .experience-employer {
   margin: 0 0 7px;
   color: var(--career-accent);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.25px;
 }
@@ -203,7 +203,7 @@
   margin-bottom: 12px;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-label);
   font-weight: 600;
   letter-spacing: 1.35px;
 }
@@ -221,7 +221,7 @@
 }
 .experience-dates {
   color: var(--color-text-secondary);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.55;
   text-align: right;
 }
@@ -231,7 +231,7 @@
   gap: 6px;
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-readable);
   font-weight: 600;
   letter-spacing: 1.05px;
   white-space: nowrap;
@@ -243,6 +243,41 @@
   background: var(--career-accent);
   box-shadow: 0 0 10px color-mix(in srgb, var(--career-accent), transparent 18%);
   content: '';
+}
+.experience-summary {
+  margin: 15px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.experience-highlights {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding-left: 20px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.experience-highlights li::marker {
+  color: var(--career-accent);
+}
+.experience-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.experience-stack li {
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--career-accent), transparent 72%);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--career-accent), transparent 94%);
+  font-size: 14px;
+  line-height: 1.4;
 }
 @keyframes career-float {
   0%,
@@ -270,7 +305,7 @@
   }
   .experience-dates {
     text-align: left;
-    font-size: 11px;
+    font-size: 14px;
   }
 }
 @media (max-width: 740px) {
@@ -289,8 +324,6 @@
     gap: 15px;
   }
   .experience-marker {
-    width: 30px;
-    height: 30px;
     grid-column: 1;
   }
   .experience-entry {
@@ -314,6 +347,9 @@
     grid-column: 2;
     padding: 17px;
   }
+  .experience-highlights {
+    padding-left: 18px;
+  }
   .experience-card-heading {
     flex-direction: column;
     gap: 8px;
@@ -322,15 +358,10 @@
     justify-items: start;
   }
   .experience-dates {
-    font-size: 9px;
+    font-size: 14px;
     text-align: left;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .career-route-signal {
-    display: none;
-  }
-  .experience-entry {
-    animation: none !important;
-  }
+:root[data-effects-reduced='true'] .career-route-signal {
+  display: none;
 }

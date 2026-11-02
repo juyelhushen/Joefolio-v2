@@ -1,10 +1,11 @@
-import { useEffect, useRef, type CSSProperties } from 'react';
-import { motion } from 'motion/react';
+import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react';
+import { m } from 'motion/react';
 import { X } from 'lucide-react';
 import type { Project } from '../data/projects';
-import ArchitectureFlow from './ArchitectureFlow';
 import ProjectVisual from './ProjectVisual';
 import './ProjectCaseStudy.css';
+
+const ArchitectureFlow = lazy(() => import('./ArchitectureFlow'));
 
 type Props = {
   project: Project;
@@ -46,7 +47,7 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
   }, [project.id]);
 
   return (
-    <motion.dialog
+    <m.dialog
       ref={dialogRef}
       className="project-case-study"
       aria-labelledby={`case-study-title-${project.id}`}
@@ -99,7 +100,9 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
           )}
           <section>
             <h3>How it works</h3>
-            <ArchitectureFlow architecture={project.architecture} />
+            <Suspense fallback={<div className="architecture-loading" aria-busy="true" />}>
+              <ArchitectureFlow architecture={project.architecture} reduceMotion={reduceMotion} />
+            </Suspense>
           </section>
           <section>
             <h3>Stack</h3>
@@ -170,6 +173,6 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
           </section>
         </div>
       </div>
-    </motion.dialog>
+    </m.dialog>
   );
 }

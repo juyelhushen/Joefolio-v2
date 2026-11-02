@@ -1,11 +1,15 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import ScrollReveal, { ScrollRevealItem } from './ScrollReveal';
-import { useReducedMotion } from 'motion/react';
+import { useEffectsPreference } from '../../hooks/useEffectsPreference';
 
-vi.mock('motion/react', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('motion/react')>();
-  return { ...actual, useReducedMotion: vi.fn(() => false) };
+vi.mock('../../hooks/useEffectsPreference', () => {
+  return {
+    useEffectsPreference: vi.fn(() => ({
+      reducedEffects: false,
+      setReducedEffects: vi.fn(),
+    })),
+  };
 });
 
 afterEach(() => {
@@ -16,7 +20,10 @@ afterEach(() => {
 });
 
 it('shows reduced-motion content immediately with no observer', () => {
-  vi.mocked(useReducedMotion).mockReturnValueOnce(true);
+  vi.mocked(useEffectsPreference).mockReturnValueOnce({
+    reducedEffects: true,
+    setReducedEffects: vi.fn(),
+  });
   const observer = vi.fn();
   vi.stubGlobal('IntersectionObserver', observer);
   const { container } = render(<ScrollReveal variant="blur-reveal">Static content</ScrollReveal>);
@@ -165,4 +172,44 @@ it('shows content immediately when IntersectionObserver is unavailable', () => {
 
   expect(getByText('Content without an observer')).toBeTruthy();
   expect(container.firstElementChild?.getAttribute('data-revealed')).toBe('true');
+});
+
+it('reuses one observer for heading masks and pauses them offscreen without replaying on return', () => {
+  let report: (entries: { isIntersecting: boolean }[]) => void = () => {};
+  const observe = vi.fn();
+  const disconnect = vi.fn();
+  vi.stubGlobal(
+    'IntersectionObserver',
+    class {
+      constructor(callback: typeof report) {
+        report = callback;
+      }
+      observe = observe;
+      disconnect = disconnect;
+    },
+  );
+  const { container } = render(
+    <ScrollReveal headingReveal>
+      <h2>
+        <span className="heading-line-mask">
+          <span className="heading-line">Readable whole line</span>
+        </span>
+      </h2>
+    </ScrollReveal>,
+  );
+  const reveal = container.firstElementChild;
+  expect(observe).toHaveBeenCalledOnce();
+  act(() => report([{ isIntersecting: true }]));
+  expect(reveal?.getAttribute('data-revealed')).toBe('true');
+  expect(reveal?.getAttribute('data-heading-visible')).toBe('true');
+  expect(disconnect).not.toHaveBeenCalled();
+  act(() => report([{ isIntersecting: false }]));
+  expect(reveal?.getAttribute('data-heading-visible')).toBe('false');
+  expect(reveal?.getAttribute('data-revealed')).toBe('true');
+  const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
+  expect(reveal?.getAttribute('data-heading-paused')).toBe('true');
+  hidden.mockReturnValue(false);
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
+  expect(reveal?.getAttribute('data-heading-paused')).toBe('false');
 });

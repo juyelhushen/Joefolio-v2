@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, act } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest';
 import { useSpring } from 'motion/react';
 import CosmicMagnifyingCursor from './CosmicMagnifyingCursor';
+import { setReducedEffects } from '../../hooks/useEffectsPreference';
 
 vi.mock('motion/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('motion/react')>();
@@ -10,6 +11,8 @@ vi.mock('motion/react', async (importOriginal) => {
 
 afterEach(() => {
   cleanup();
+  setReducedEffects(false);
+  localStorage.removeItem('joefolio-reduce-effects');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   vi.useRealTimers();
@@ -152,14 +155,7 @@ it('removes pointer/media listeners and target styling on unmount or preference 
   const springs = vi.mocked(useSpring).mock.results;
   const stopX = vi.spyOn(springs[0].value, 'stop');
   const stopY = vi.spyOn(springs[1].value, 'stop');
-  const media = queries.get('(prefers-reduced-motion: reduce)');
-  expect(media).toBeDefined();
-  act(() => {
-    if (media) {
-      media.matches = true;
-      media.addEventListener.mock.calls[0][1]();
-    }
-  });
+  act(() => setReducedEffects(true));
   expect(document.querySelector('.cosmic-cursor')).toBeNull();
   expect(link.classList.contains('is-cursor-target')).toBe(false);
   unmount();

@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './CosmicMeshBackground.css';
+import { useEffectsPreference } from '../../../hooks/useEffectsPreference';
+import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
 
 const vertexShaderSource = `
   attribute vec2 a_position;
@@ -94,24 +96,82 @@ type CosmicMeshBackgroundProps = {
   paused?: boolean;
 };
 
+type NavigatorWithConnection = Navigator & {
+  connection?: {
+    saveData?: boolean;
+    addEventListener?: (type: 'change', listener: EventListener) => void;
+    removeEventListener?: (type: 'change', listener: EventListener) => void;
+  };
+};
+
+function isMobileViewport(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 740px)').matches;
+}
+
+function isDataSaving(): boolean {
+  return Boolean((navigator as NavigatorWithConnection).connection?.saveData);
+}
+
 export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackgroundProps) {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { reducedEffects } = useEffectsPreference();
+  const [mobileLite, setMobileLite] = useState(() => isMobileViewport() || isDataSaving());
+  const [readyGeneration, setReadyGeneration] = useState(0);
+  const generationRef = useRef(0);
+
+  useEffect(() => {
+    const mobileQuery =
+      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 740px)') : null;
+    const connection = (navigator as NavigatorWithConnection).connection;
+    const updateMobileLite = () =>
+      setMobileLite(Boolean(mobileQuery?.matches || connection?.saveData));
+
+    mobileQuery?.addEventListener('change', updateMobileLite);
+    connection?.addEventListener?.('change', updateMobileLite);
+    return () => {
+      mobileQuery?.removeEventListener('change', updateMobileLite);
+      connection?.removeEventListener?.('change', updateMobileLite);
+    };
+  }, []);
+
+  useEffect(() => {
+    const generation = ++generationRef.current;
+    const background = backgroundRef.current;
+    if (paused || reducedEffects || mobileLite) {
+      if (background) {
+        background.dataset.mode = 'static';
+        if (canvasRef.current) canvasRef.current.dataset.ready = 'static';
+      }
+      return;
+    }
+
+    let active = true;
+    const cancelScheduledInitialization = scheduleAfterIdle(
+      () => {
+        if (active) setReadyGeneration(generation);
+      },
+      {
+        timeout: 1400,
+        fallbackDelay: 180,
+      },
+    );
+    return () => {
+      active = false;
+      cancelScheduledInitialization();
+    };
+  }, [mobileLite, paused, reducedEffects]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const motionQuery =
-      typeof window.matchMedia === 'function'
-        ? window.matchMedia('(prefers-reduced-motion: reduce)')
-        : null;
-
-    if (paused) {
+    if (paused || reducedEffects || mobileLite) {
       canvas.dataset.ready = 'static';
       if (backgroundRef.current) backgroundRef.current.dataset.mode = 'static';
       return;
     }
+    if (readyGeneration !== generationRef.current) return;
 
     let gl: WebGLRenderingContext | null = null;
     let program: WebGLProgram | null = null;
@@ -119,7 +179,7 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
     let frame = 0;
     let elapsed = 0;
     let previousFrame = 0;
-    let reducedMotion = Boolean(motionQuery?.matches);
+    const reducedMotion = reducedEffects;
     let disposed = false;
     let contextLost = false;
     let vertexShader: WebGLShader | null = null;
@@ -220,19 +280,11 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
     const start = () => {
       window.cancelAnimationFrame(frame);
       previousFrame = 0;
-      if (!reducedMotion && !document.hidden && !contextLost) {
+      if (!reducedMotion && !document.hidden && !contextLost && inViewport) {
         frame = window.requestAnimationFrame(animate);
       }
     };
 
-    const onMotionChange = (event: MediaQueryListEvent) => {
-      reducedMotion = event.matches;
-      canvas.dataset.ready = reducedMotion ? 'static' : 'true';
-      if (backgroundRef.current) {
-        backgroundRef.current.dataset.mode = reducedMotion ? 'static' : 'active';
-      }
-      start();
-    };
     const onVisibilityChange = () => start();
     const onContextLost = (event: Event) => {
       event.preventDefault();
@@ -248,10 +300,20 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
 
     const resizeObserver =
       typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
+    let inViewport = true;
+    const intersectionObserver =
+      typeof IntersectionObserver === 'undefined'
+        ? null
+        : new IntersectionObserver((entries) => {
+            const entry = entries.find((item) => item.target === canvas);
+            if (!entry || inViewport === entry.isIntersecting) return;
+            inViewport = entry.isIntersecting;
+            start();
+          });
     resizeObserver?.observe(canvas);
+    intersectionObserver?.observe(canvas);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', onVisibilityChange);
-    motionQuery?.addEventListener('change', onMotionChange);
     canvas.addEventListener('webglcontextlost', onContextLost);
     canvas.addEventListener('webglcontextrestored', onContextRestored);
     resize();
@@ -267,13 +329,13 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       resizeObserver?.disconnect();
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
-      motionQuery?.removeEventListener('change', onMotionChange);
+      intersectionObserver?.disconnect();
       canvas.removeEventListener('webglcontextlost', onContextLost);
       canvas.removeEventListener('webglcontextrestored', onContextRestored);
       context.deleteBuffer(geometry);
       context.deleteProgram(shaderProgram);
     };
-  }, [paused]);
+  }, [mobileLite, paused, reducedEffects, readyGeneration]);
 
   return (
     <div

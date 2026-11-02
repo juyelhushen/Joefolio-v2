@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Cloud } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import ScrollReveal from '../../../components/common/ScrollReveal';
 import './SkillsSection.css';
 import { projects } from '../../projects/data/projects';
 import { skillGroups, skillPlanets } from '../data/skills';
 import { getCounterRotationStyle, getOrbitStyle, getTechnologyIcon } from '../skill-presentation';
 import { createRevealVariants } from '../../../components/common/reveal-variants';
+import { useAnimationVisibility } from '../../../hooks/useAnimationVisibility';
 
 type SkillsSectionProps = {
   reduceMotion: boolean;
@@ -17,6 +18,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
   const selectedPlanet =
     skillPlanets.find((planet) => planet.id === selectedPlanetId) ?? skillPlanets[0];
   const selectedDomain = skillGroups.find((group) => group.id === selectedPlanet.domainId);
+  const { ref, visible } = useAnimationVisibility<HTMLElement>();
   const selectedIcon = getTechnologyIcon(selectedPlanet.icon);
   const evidence = selectedPlanet.evidenceProjects.flatMap(({ projectName, linkLabel }) => {
     const project = projects.find((item) => item.name === projectName);
@@ -33,12 +35,22 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
   });
 
   return (
-    <section className="skills-section section-wrap" id="skills" aria-labelledby="skills-title">
-      <ScrollReveal className="section-heading skills-heading">
+    <section
+      ref={ref}
+      className="skills-section section-wrap"
+      id="skills"
+      aria-labelledby="skills-title"
+      data-animation-visible={visible}
+    >
+      <ScrollReveal className="section-heading skills-heading" headingReveal>
         <div>
-          <span className="section-kicker">ENGINEERING SOLAR SYSTEM / 006</span>
+          <span className="section-kicker">03 / SKILLS</span>
           <h2 id="skills-title">
-            The Skill <em>Solar System.</em>
+            <span className="heading-line-mask">
+              <span className="heading-line">
+                The Skill <em>Solar System.</em>
+              </span>
+            </span>
           </h2>
         </div>
         <p>Explore the tools, disciplines, and systems behind my engineering work.</p>
@@ -79,7 +91,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                 style={style}
                 data-orbit-duration={planet.durationSeconds}
               >
-                <motion.button
+                <m.button
                   className={`skill-orbit-planet${selected ? ' is-selected' : ''}`}
                   type="button"
                   style={{ color: planet.color }}
@@ -114,7 +126,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                     )}
                     <span className="skill-planet-label">{planet.name}</span>
                   </span>
-                </motion.button>
+                </m.button>
               </div>
             );
           })}
@@ -126,7 +138,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
           variant="stagger-container"
         >
           {skillGroups.map((group) => (
-            <motion.div
+            <m.div
               className={`skill-category skill-category-${group.id}`}
               key={group.id}
               variants={createRevealVariants('fade-up', 0.6, 0, reduceMotion)}
@@ -137,7 +149,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                   <li key={skill}>{skill}</li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
           ))}
         </ScrollReveal>
 

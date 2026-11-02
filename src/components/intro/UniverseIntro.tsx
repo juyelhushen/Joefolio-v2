@@ -36,6 +36,7 @@ function createWarpStars(): WarpStar[] {
 
 export default function UniverseIntro({ onComplete }: UniverseIntroProps) {
   const introRef = useRef<HTMLDivElement>(null);
+  const skipButtonRef = useRef<HTMLButtonElement>(null);
   const completedRef = useRef(false);
   const warpStars = useMemo(createWarpStars, []);
 
@@ -46,14 +47,8 @@ export default function UniverseIntro({ onComplete }: UniverseIntroProps) {
   }, [onComplete]);
 
   useEffect(() => {
-    const fallbackId = window.setTimeout(completeOnce, 4500);
-    const motionQuery =
-      typeof window.matchMedia === 'function'
-        ? window.matchMedia('(prefers-reduced-motion: reduce)')
-        : null;
-    const onMotionChange = (event: MediaQueryListEvent) => {
-      if (event.matches) completeOnce();
-    };
+    skipButtonRef.current?.focus();
+    const fallbackId = window.setTimeout(completeOnce, 2800);
     const onVisibilityChange = () => {
       if (document.hidden) completeOnce();
     };
@@ -61,25 +56,31 @@ export default function UniverseIntro({ onComplete }: UniverseIntroProps) {
       if (event.target === event.currentTarget) completeOnce();
     };
 
-    motionQuery?.addEventListener('change', onMotionChange);
     document.addEventListener('visibilitychange', onVisibilityChange);
     const intro = introRef.current;
     intro?.addEventListener('animationend', onAnimationEnd);
     intro?.addEventListener('animationcancel', onAnimationEnd);
 
-    if (motionQuery?.matches || document.hidden) completeOnce();
+    if (document.hidden) completeOnce();
 
     return () => {
       window.clearTimeout(fallbackId);
-      motionQuery?.removeEventListener('change', onMotionChange);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       intro?.removeEventListener('animationend', onAnimationEnd);
       intro?.removeEventListener('animationcancel', onAnimationEnd);
     };
   }, [completeOnce]);
 
+  const skipIntro = () => {
+    completeOnce();
+    document.getElementById('home-title')?.focus({ preventScroll: true });
+  };
+
   return (
-    <div ref={introRef} className="universe-intro" aria-hidden="true" data-testid="universe-intro">
+    <div ref={introRef} className="universe-intro" data-testid="universe-intro">
+      <button ref={skipButtonRef} className="universe-intro-skip" type="button" onClick={skipIntro}>
+        Skip intro
+      </button>
       <div className="universe-intro-nebula" />
       <div className="universe-intro-stars" />
       <div className="universe-intro-orbit" data-intro-orbit>

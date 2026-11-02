@@ -1,10 +1,19 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useEffectsPreference } from '../../hooks/useEffectsPreference';
 
 const INTRO_SESSION_KEY = 'joefolio-universe-intro-seen';
 
-function shouldShowUniverseIntro(): boolean {
+type NavigatorWithConnection = Navigator & {
+  connection?: {
+    saveData?: boolean;
+  };
+};
+
+function shouldShowUniverseIntro(reducedEffects: boolean): boolean {
   if (typeof window === 'undefined') return false;
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return false;
+  if (reducedEffects) return false;
+  if (window.innerWidth <= 740) return false;
+  if ((navigator as NavigatorWithConnection).connection?.saveData) return false;
   if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('intro') === '1')
     return true;
 
@@ -20,9 +29,18 @@ function shouldShowUniverseIntro(): boolean {
 }
 
 export const useUniverseIntro = () => {
-  const [showUniverseIntro, setShowUniverseIntro] = useState(shouldShowUniverseIntro);
+  const { reducedEffects } = useEffectsPreference();
+  const [completed, setCompleted] = useState(false);
+  const shouldShowRef = useRef<boolean | null>(null);
+  const dismissedByPreferenceRef = useRef(false);
+  if (shouldShowRef.current === null)
+    shouldShowRef.current = shouldShowUniverseIntro(reducedEffects);
+  if (reducedEffects) dismissedByPreferenceRef.current = true;
+  const showUniverseIntro =
+    shouldShowRef.current && !completed && !dismissedByPreferenceRef.current;
+
   const completeUniverseIntro = useCallback(() => {
-    setShowUniverseIntro(false);
+    setCompleted(true);
     try {
       window.sessionStorage.setItem(INTRO_SESSION_KEY, 'true');
     } catch (error) {

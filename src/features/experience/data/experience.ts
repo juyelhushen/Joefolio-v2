@@ -7,6 +7,9 @@ export type Experience = Readonly<{
   role: string;
   dates?: string;
   current?: boolean;
+  summary?: string;
+  highlights?: readonly string[];
+  stack?: readonly string[];
 }>;
 
 export const experience: readonly Experience[] = [

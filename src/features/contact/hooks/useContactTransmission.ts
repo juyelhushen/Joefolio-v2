@@ -2,8 +2,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createFlightPath } from '../flight-path';
 import { sendContactMessage } from '../services/contact-api';
 import type { ContactMessage, ContactStatus } from '../types';
+import { useEffectsPreference } from '../../../hooks/useEffectsPreference';
 
 export const useContactTransmission = (reduceMotion: boolean) => {
+  const { reducedEffects } = useEffectsPreference();
   const [status, setStatus] = useState<ContactStatus>('idle');
   const [error, setError] = useState('');
   const [earthLit, setEarthLit] = useState(false);
@@ -36,14 +38,10 @@ export const useContactTransmission = (reduceMotion: boolean) => {
   }, []);
 
   useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const onMotionPreferenceChange = () => {
-      if (motionQuery.matches && status === 'flying') completeFlight();
-    };
-    motionQuery.addEventListener('change', onMotionPreferenceChange);
-    return () => motionQuery.removeEventListener('change', onMotionPreferenceChange);
-  }, [completeFlight, status]);
+    if (!reducedEffects || status !== 'flying') return;
+    const frame = window.requestAnimationFrame(completeFlight);
+    return () => window.cancelAnimationFrame(frame);
+  }, [completeFlight, reducedEffects, status]);
 
   useLayoutEffect(() => {
     measureFlightPath();
@@ -68,12 +66,7 @@ export const useContactTransmission = (reduceMotion: boolean) => {
     setEarthLit(false);
     try {
       await sendContactMessage(message);
-      if (
-        reduceMotion ||
-        (typeof window.matchMedia === 'function' &&
-          window.matchMedia('(prefers-reduced-motion: reduce)').matches) ||
-        !measureFlightPath()
-      ) {
+      if (reduceMotion || reducedEffects || !measureFlightPath()) {
         completeFlight();
       } else {
         setStatus('flying');
