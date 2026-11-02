@@ -1,0 +1,9 @@
+.footer-local-time {
+  display: inline-block;
+  width: 21ch;
+  min-height: 1.7em;
+  color: var(--color-text-secondary);
+  font: 400 var(--type-readable)/1.7 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

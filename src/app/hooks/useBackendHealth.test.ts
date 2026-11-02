@@ -1,4 +1,4 @@
-import { cleanup, renderHook, waitFor } from '@testing-library/react';
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { wakeBackend, type BackendHealthStatus } from '../../lib/api/backend-health';
 import { useBackendHealth } from './useBackendHealth';
@@ -9,11 +9,28 @@ vi.mock('../../lib/api/backend-health', () => ({
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
+
+function mockIdleCallback() {
+  let runIdleCallback: (() => void) | undefined;
+  const cancelIdleCallback = vi.fn();
+  vi.stubGlobal(
+    'requestIdleCallback',
+    vi.fn((callback: () => void) => {
+      runIdleCallback = callback;
+      return 1;
+    }),
+  );
+  vi.stubGlobal('cancelIdleCallback', cancelIdleCallback);
+  return { runIdleCallback: () => runIdleCallback?.(), cancelIdleCallback };
+}
 
 it.each(['UP', 'UNAVAILABLE'] as const)(
   'tracks CHECKING then %s without a UI dependency',
   async (status) => {
+    const idle = mockIdleCallback();
     let finish: ((status: BackendHealthStatus) => void) | undefined;
     vi.mocked(wakeBackend).mockReturnValue(
       new Promise((resolve) => {
@@ -23,13 +40,16 @@ it.each(['UP', 'UNAVAILABLE'] as const)(
     const { result, rerender } = renderHook(() => useBackendHealth());
     expect(result.current).toBe('CHECKING');
     rerender();
+    expect(wakeBackend).not.toHaveBeenCalled();
+    act(() => idle.runIdleCallback());
     expect(wakeBackend).toHaveBeenCalledTimes(1);
     finish?.(status);
     await waitFor(() => expect(result.current).toBe(status));
   },
 );
 
-it('leaves a shared warm-up running after a consumer unmounts', async () => {
+it('does not update an unmounted consumer after the deferred warm-up settles', async () => {
+  const idle = mockIdleCallback();
   let finish: ((status: BackendHealthStatus) => void) | undefined;
   vi.mocked(wakeBackend).mockReturnValue(
     new Promise((resolve) => {
@@ -37,6 +57,8 @@ it('leaves a shared warm-up running after a consumer unmounts', async () => {
     }),
   );
   const { result, unmount } = renderHook(() => useBackendHealth());
+  act(() => idle.runIdleCallback());
+  expect(wakeBackend).toHaveBeenCalledTimes(1);
   unmount();
   finish?.('UP');
   await Promise.resolve();

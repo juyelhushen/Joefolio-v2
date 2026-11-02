@@ -18,9 +18,58 @@ html {
   scroll-padding-top: 100px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+:root[data-effects-reduced='true'] {
+  scroll-behavior: auto !important;
+}
+
+:root[data-effects-reduced='true'] .brand-orbit,
+:root[data-effects-reduced='true'] .skill-orbit-frame,
+:root[data-effects-reduced='true'] .skill-planet-counter,
+:root[data-effects-reduced='true'] .solar-core-corona,
+:root[data-effects-reduced='true'] .legacy-orbit-track,
+:root[data-effects-reduced='true'] .hero-planet,
+:root[data-effects-reduced='true'] .hero .ringed-planet,
+:root[data-effects-reduced='true'] .hero .small-planet-one,
+:root[data-effects-reduced='true'] .experience-entry,
+:root[data-effects-reduced='true'] .earth-fallback,
+:root[data-effects-reduced='true'] .earth-map,
+:root[data-effects-reduced='true'] .contact-earth-target[data-lit='true'],
+:root[data-effects-reduced='true'] .contact-orbit,
+:root[data-effects-reduced='true'] .cosmic-mesh-fallback,
+:root[data-effects-reduced='true'] .legacy-satellite-path,
+:root[data-effects-reduced='true'] .universe-intro,
+:root[data-effects-reduced='true'] .universe-intro-nebula,
+:root[data-effects-reduced='true'] .universe-intro-stars,
+:root[data-effects-reduced='true'] .universe-intro-orbit,
+:root[data-effects-reduced='true'] .universe-intro-ring,
+:root[data-effects-reduced='true'] .universe-intro-core,
+:root[data-effects-reduced='true'] .universe-intro-portal,
+:root[data-effects-reduced='true'] .universe-intro-warp-star,
+:root[data-effects-reduced='true'] .assistant-launcher::before,
+:root[data-effects-reduced='true'] .assistant-launcher-icon::after,
+:root[data-effects-reduced='true'] .contact-spinner {
+  animation: none !important;
+}
+
+[data-animation-visible='false'] .skill-orbit-frame,
+[data-animation-visible='false'] .skill-planet-counter,
+[data-animation-visible='false'] .solar-core-corona,
+[data-animation-visible='false'] .legacy-orbit-track,
+[data-animation-visible='false'] .earth-fallback,
+[data-animation-visible='false'] .contact-orbit {
+  animation-play-state: paused !important;
+}
+
+@media (max-width: 740px) {
+  .menu-backdrop {
+    backdrop-filter: none;
+  }
+
+  .cosmic-mesh-canvas,
+  .cosmic-mesh-fallback,
+  .hero-planet-halo,
+  .earth-halo {
+    filter: none !important;
   }
 }
 

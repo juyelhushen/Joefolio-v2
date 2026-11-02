@@ -1,10 +1,14 @@
 import { useRef, useState, type RefObject } from 'react';
 import { Linkedin, Plane } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { siGithub, siLeetcode, type SimpleIcon } from 'simple-icons';
 import ScrollReveal from '../../common/ScrollReveal';
 import { PROFILE_LINKS } from '../../../lib/profile';
 import './CosmicFooter.css';
+import EmailContact from '../../common/EmailContact';
+import ResumeDownload from '../../common/ResumeDownload';
+import EffectsPreferenceToggle from '../../common/EffectsPreferenceToggle';
+import LocalTime from './LocalTime';
 
 type CosmicFooterProps = {
   homeHeadingRef: RefObject<HTMLHeadingElement | null>;
@@ -50,11 +54,7 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
   const launchJet = () => {
     if (launchingRef.current) return;
 
-    if (
-      reducedMotion ||
-      (typeof window.matchMedia === 'function' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-    ) {
+    if (reducedMotion) {
       returnHome();
       return;
     }
@@ -80,7 +80,7 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
   return (
     <footer className="site-footer section-wrap">
       <ScrollReveal className="footer-connect">
-        <span className="section-kicker">COSMIC CONNECT / END OF TRANSMISSION</span>
+        <span className="footer-connect-kicker">COSMIC CONNECT / END OF TRANSMISSION</span>
         <h2>Let’s connect across the universe.</h2>
         <p>
           Thanks for exploring my work. Find me on these platforms and let’s keep the conversation
@@ -105,6 +105,11 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
             </a>
           ))}
         </nav>
+        <div className="footer-direct-contact">
+          <EmailContact />
+          <ResumeDownload />
+          <EffectsPreferenceToggle />
+        </div>
         <button
           className="back-top"
           type="button"
@@ -123,9 +128,10 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
           JH<span>•</span>
         </a>
         <p>© {currentYear} JUYEL HUSHEN · BUILT WITH CURIOSITY</p>
+        <LocalTime />
       </ScrollReveal>
       {flight && (
-        <motion.div
+        <m.div
           key={`${flight.x}-${flight.y}`}
           className="return-flight"
           data-testid="return-flight"
@@ -150,7 +156,7 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
         >
           <span className="return-flight-trail" />
           <Plane size={25} strokeWidth={1.7} />
-        </motion.div>
+        </m.div>
       )}
     </footer>
   );

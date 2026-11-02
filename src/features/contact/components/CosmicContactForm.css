@@ -73,7 +73,7 @@
   justify-content: space-between;
   gap: 12px;
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 14px;
 }
 .contact-honeypot {
   position: absolute;
@@ -146,7 +146,7 @@
 .contact-error,
 .contact-success {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .contact-live-status {
@@ -154,6 +154,10 @@
 }
 .contact-error {
   color: #ffaaaa;
+  font-size: var(--type-small);
+}
+.contact-error > p {
+  margin: 0;
 }
 .contact-success {
   color: #9fe4cb;
@@ -161,11 +165,6 @@
 @keyframes contact-spinner-turn {
   to {
     transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .contact-spinner {
-    animation: none;
   }
 }
 @media (max-width: 740px) {
@@ -191,14 +190,14 @@
 .contact-form-heading > span {
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-label);
   font-weight: 650;
   letter-spacing: 1.8px;
 }
 .contact-form-heading p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 14px;
 }
 .contact-form-heading p span {
   color: #ffb875;
@@ -213,7 +212,7 @@
 }
 .contact-field-error {
   color: #ffb3b3;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.45;
 }
 @media (max-width: 740px) {

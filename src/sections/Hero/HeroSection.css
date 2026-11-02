@@ -57,6 +57,30 @@
   margin-top: 24px;
 }
 
+.hero .hero-employment-proof {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  max-width: 560px;
+  margin: 16px 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--type-small);
+  line-height: 1.65;
+}
+
+.hero .hero-employment-proof > span {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+}
+
+.hero .hero-actions .button {
+  min-height: 44px;
+  font-size: var(--type-small);
+}
+
 .hero .hero-proof {
   display: flex;
   flex-wrap: wrap;
@@ -73,7 +97,7 @@
   color: var(--color-text-secondary);
   background: rgba(8, 13, 27, 0.58);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--type-readable);
   letter-spacing: 0.01em;
 }
 
@@ -265,7 +289,7 @@
     min-height: min(720px, calc(100svh - 76px));
     align-items: flex-start;
     padding-top: clamp(38px, 6svh, 54px);
-    padding-bottom: 205px;
+    padding-bottom: clamp(185px, 52vw, 205px);
   }
 
   .hero .hero-copy {
@@ -274,7 +298,7 @@
 
   .hero .eyebrow {
     gap: 9px;
-    font-size: 10px;
+    font-size: var(--type-label);
     letter-spacing: 0.08em;
   }
 
@@ -303,7 +327,7 @@
 
   .hero .planet-scene {
     inset: auto -17% 0 3%;
-    height: 245px;
+    height: clamp(185px, 52vw, 205px);
     opacity: 0.68;
     mask-image: linear-gradient(180deg, transparent, #000 18%, #000 86%, transparent);
   }
@@ -329,9 +353,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero .ringed-planet,
-  .hero .small-planet-one {
-    animation: none;
-  }
+:root[data-effects-reduced='true'] .hero .ringed-planet,
+:root[data-effects-reduced='true'] .hero .small-planet-one {
+  animation: none;
 }

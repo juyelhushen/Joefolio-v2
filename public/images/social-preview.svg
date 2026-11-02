@@ -29,25 +29,16 @@
   <rect width="1200" height="630" rx="30" fill="url(#background)"/>
   <rect width="1200" height="630" rx="30" fill="url(#glow)"/>
   <rect width="1200" height="630" rx="30" fill="url(#stars)"/>
-  <path d="M732 330C850 267 1005 275 1176 344" stroke="#7994C8" stroke-opacity=".22"/>
-  <path d="M759 365C879 312 1034 321 1187 383" stroke="#A99BFF" stroke-opacity=".2"/>
-  <circle cx="924" cy="277" r="128" fill="url(#planet)"/>
-  <ellipse cx="924" cy="277" rx="208" ry="55" transform="rotate(-17 924 277)" stroke="url(#ring)" stroke-width="8"/>
-  <ellipse cx="924" cy="277" rx="249" ry="72" transform="rotate(-17 924 277)" stroke="#82A5E8" stroke-opacity=".3" stroke-width="2"/>
-  <circle cx="1037" cy="165" r="5" fill="#65E7F2"/>
-  <circle cx="731" cy="423" r="8" fill="#FFB86C" fill-opacity=".8"/>
+  <circle cx="990" cy="240" r="90" fill="url(#planet)"/>
+  <ellipse cx="990" cy="240" rx="145" ry="40" transform="rotate(-17 990 240)" stroke="url(#ring)" stroke-width="6"/>
+  <circle cx="1080" cy="145" r="5" fill="#65E7F2"/>
   <rect x="78" y="72" width="54" height="54" rx="17" fill="#101A30" stroke="#65E7F2" stroke-opacity=".55"/>
   <text x="105" y="108" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="-2" text-anchor="middle">JH</text>
   <circle cx="136" cy="77" r="4" fill="#FFB86C"/>
-  <text x="154" y="105" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="3">JUYEL HUSHEN</text>
-  <text x="78" y="199" fill="#65E7F2" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">SOFTWARE ENGINEER</text>
-  <text x="78" y="282" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">Backend systems.</text>
-  <text x="78" y="355" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">Full-stack software.</text>
-  <text x="78" y="428" fill="#65E7F2" font-family="Arial,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">Practical AI.</text>
-  <text x="82" y="483" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="19">Building backend services and full-stack applications, while exploring AI</text>
-  <text x="82" y="512" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="19">engineering through document retrieval and agent workflows.</text>
-  <path d="M82 554h426" stroke="#BAC5D8" stroke-opacity=".2"/>
-  <text x="82" y="586" fill="#C5D0E3" font-family="Arial,sans-serif" font-size="14" letter-spacing=".4">JAVA · SPRING BOOT</text>
-  <text x="290" y="586" fill="#C5D0E3" font-family="Arial,sans-serif" font-size="14" letter-spacing=".4">REACT · TYPESCRIPT</text>
-  <text x="518" y="586" fill="#C5D0E3" font-family="Arial,sans-serif" font-size="14" letter-spacing=".4">LANGGRAPH · RAG</text>
+  <text x="154" y="108" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="3">JOEFOLIO</text>
+  <text x="78" y="280" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="78" font-weight="700" letter-spacing="-2">Juyel Hushen</text>
+  <text x="82" y="348" fill="#65E7F2" font-family="Arial,sans-serif" font-size="38" font-weight="700">Software Engineer</text>
+  <path d="M82 410h1036" stroke="#BAC5D8" stroke-opacity=".3"/>
+  <text x="82" y="478" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="32">Backend systems · Full-stack software · Practical AI</text>
+  <text x="82" y="549" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="24" letter-spacing="1">JAVA · SPRING BOOT · REACT · TYPESCRIPT · LANGGRAPH · RAG</text>
 </svg>

@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, useMotionValue, useSpring } from 'motion/react';
+import { useMotionValue, useSpring } from 'motion/react';
+import { m } from 'motion/react';
 import './CosmicMagnifyingCursor.css';
 import { createPortal } from 'react-dom';
+import { useEffectsPreference } from '../../hooks/useEffectsPreference';
 
 const POINTER_QUERY = '(hover: hover) and (pointer: fine)';
-const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const TARGET_SELECTOR = '[data-cursor-target], a[href], button:not(:disabled)';
 
 export default function CosmicMagnifyingCursor() {
@@ -25,11 +26,9 @@ export default function CosmicMagnifyingCursor() {
       document.removeEventListener('cosmic-overlay-host', changeHost);
     };
   }, []);
-  const [enabled, setEnabled] = useState(
-    () =>
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia(POINTER_QUERY).matches &&
-      !window.matchMedia(MOTION_QUERY).matches,
+  const { reducedEffects } = useEffectsPreference();
+  const [pointerSupported, setPointerSupported] = useState(
+    () => typeof window.matchMedia === 'function' && window.matchMedia(POINTER_QUERY).matches,
   );
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
@@ -45,15 +44,13 @@ export default function CosmicMagnifyingCursor() {
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
     const pointer = window.matchMedia(POINTER_QUERY);
-    const motionPreference = window.matchMedia(MOTION_QUERY);
-    const update = () => setEnabled(pointer.matches && !motionPreference.matches);
+    const update = () => setPointerSupported(pointer.matches);
     pointer.addEventListener('change', update);
-    motionPreference.addEventListener('change', update);
     return () => {
       pointer.removeEventListener('change', update);
-      motionPreference.removeEventListener('change', update);
     };
   }, []);
+  const enabled = pointerSupported && !reducedEffects;
 
   useEffect(() => {
     if (!enabled) {
@@ -178,17 +175,17 @@ export default function CosmicMagnifyingCursor() {
   if (!enabled) return null;
   return createPortal(
     <>
-      <motion.div
+      <m.div
         className="cosmic-cursor-ghost"
         aria-hidden="true"
         style={{ x: trailX, y: trailY, opacity, pointerEvents: 'none' }}
       />
-      <motion.div
+      <m.div
         className="cosmic-cursor-ghost cosmic-cursor-ghost-far"
         aria-hidden="true"
         style={{ x: ghostX, y: ghostY, opacity, pointerEvents: 'none' }}
       />
-      <motion.div
+      <m.div
         ref={scannerRef}
         className="cosmic-cursor"
         aria-hidden="true"
@@ -229,7 +226,7 @@ export default function CosmicMagnifyingCursor() {
           <span className="scanner-label scanner-inspect">INSPECT</span>
           <span className="scanner-label scanner-zoom">+ ZOOM</span>
         </div>
-      </motion.div>
+      </m.div>
     </>,
     overlayHost ?? document.body,
   );

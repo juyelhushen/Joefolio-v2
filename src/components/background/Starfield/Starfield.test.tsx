@@ -1,9 +1,10 @@
-import { cleanup, render } from '@testing-library/react';
+import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import Starfield, { advanceStars, type Star } from './Starfield';
 
 afterEach(() => {
   cleanup();
+  Reflect.deleteProperty(navigator, 'connection');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -51,11 +52,27 @@ function mockAnimationFrames() {
   return callbacks;
 }
 
-function mockMotionPreference(reduced: boolean) {
+function mockIdleCallbacks() {
+  const callbacks: (() => void)[] = [];
+  vi.stubGlobal(
+    'requestIdleCallback',
+    vi.fn((callback: () => void) => {
+      callbacks.push(callback);
+      return callbacks.length;
+    }),
+  );
+  vi.stubGlobal('cancelIdleCallback', vi.fn());
+  return callbacks;
+}
+
+function mockMotionPreference(reduced: boolean, mobile = false) {
   const changeListeners: { media: string; listener: EventListener }[] = [];
   const removedListeners = vi.fn();
+  let currentPreference = reduced;
   const matchMedia = vi.fn((media: string) => ({
-    matches: media.includes('prefers-reduced-motion') && reduced,
+    matches:
+      (media.includes('prefers-reduced-motion') && currentPreference) ||
+      (media.includes('(max-width: 740px)') && mobile),
     media,
     addEventListener: vi.fn(
       (_type: string, listener: EventListenerOrEventListenerObject | null) => {
@@ -69,7 +86,15 @@ function mockMotionPreference(reduced: boolean) {
     ),
   }));
   vi.stubGlobal('matchMedia', matchMedia);
-  return { matchMedia, changeListeners, removedListeners };
+  const setReducedPreference = (next: boolean) => {
+    currentPreference = next;
+    for (const { media, listener } of changeListeners) {
+      if (media.includes('prefers-reduced-motion')) {
+        listener(Object.assign(new Event('change'), { matches: next }));
+      }
+    }
+  };
+  return { matchMedia, changeListeners, removedListeners, setReducedPreference };
 }
 
 it('moves different depths at distinct time-based speeds and wraps at viewport edges', () => {
@@ -96,6 +121,7 @@ it('does not change positions when time or viewport dimensions are invalid', () 
 });
 
 it('schedules canvas animation when motion is enabled and cancels it on unmount', () => {
+  const idleCallbacks = mockIdleCallbacks();
   const callbacks = mockAnimationFrames();
   mockMotionPreference(false);
   const context = mockCanvasContext();
@@ -104,6 +130,9 @@ it('schedules canvas animation when motion is enabled and cancels it on unmount'
   const { container, unmount } = render(<Starfield />);
   const canvas = container.querySelector('canvas');
 
+  expect(callbacks).toHaveLength(0);
+  expect(idleCallbacks).toHaveLength(1);
+  act(() => idleCallbacks[0]());
   expect(callbacks.length).toBeGreaterThan(0);
   expect(canvas?.getAttribute('aria-hidden')).toBe('true');
   expect(canvas?.className).toBe('starfield');
@@ -112,6 +141,7 @@ it('schedules canvas animation when motion is enabled and cancels it on unmount'
 });
 
 it('draws a stable canvas without scheduling frames for reduced motion', () => {
+  const idleCallbacks = mockIdleCallbacks();
   const callbacks = mockAnimationFrames();
   mockMotionPreference(true);
   const context = mockCanvasContext();
@@ -120,20 +150,56 @@ it('draws a stable canvas without scheduling frames for reduced motion', () => {
   render(<Starfield />);
 
   expect(callbacks).toHaveLength(0);
+  expect(idleCallbacks).toHaveLength(0);
   expect(context.clearRect).toHaveBeenCalled();
 });
 
+it('draws a static starfield on mobile without scheduling animation', () => {
+  const idleCallbacks = mockIdleCallbacks();
+  const callbacks = mockAnimationFrames();
+  mockMotionPreference(false, true);
+  const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext');
+
+  const { container } = render(<Starfield />);
+
+  expect(callbacks).toHaveLength(0);
+  expect(idleCallbacks).toHaveLength(0);
+  expect(getContext).not.toHaveBeenCalled();
+  expect(container.querySelector('canvas')?.dataset.static).toBe('true');
+});
+
+it('keeps the starfield static when the connection requests data saving', () => {
+  const idleCallbacks = mockIdleCallbacks();
+  const callbacks = mockAnimationFrames();
+  mockMotionPreference(false);
+  Object.defineProperty(navigator, 'connection', {
+    configurable: true,
+    value: {
+      saveData: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
+  });
+  const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext');
+
+  const { container } = render(<Starfield />);
+
+  expect(callbacks).toHaveLength(0);
+  expect(idleCallbacks).toHaveLength(0);
+  expect(getContext).not.toHaveBeenCalled();
+  expect(container.querySelector('canvas')?.dataset.static).toBe('true');
+});
+
 it('stops animation when reduced motion is enabled at runtime and removes preference listeners', () => {
+  const idleCallbacks = mockIdleCallbacks();
   const callbacks = mockAnimationFrames();
   const preference = mockMotionPreference(false);
   const context = mockCanvasContext();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
   const { unmount } = render(<Starfield />);
+  act(() => idleCallbacks[0]());
 
-  const motionListener = preference.changeListeners.find(({ media }) =>
-    media.includes('prefers-reduced-motion'),
-  )?.listener;
-  motionListener?.(Object.assign(new Event('change'), { matches: true }) as MediaQueryListEvent);
+  act(() => preference.setReducedPreference(true));
 
   expect(callbacks).toHaveLength(1);
   expect(context.clearRect).toHaveBeenCalledTimes(2);
@@ -142,11 +208,13 @@ it('stops animation when reduced motion is enabled at runtime and removes prefer
 });
 
 it('pauses while the document is hidden and resumes when it becomes visible', () => {
+  const idleCallbacks = mockIdleCallbacks();
   mockAnimationFrames();
   mockMotionPreference(false);
   const context = mockCanvasContext();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
   render(<Starfield />);
+  act(() => idleCallbacks[0]());
 
   Object.defineProperty(document, 'hidden', { configurable: true, value: true });
   document.dispatchEvent(new Event('visibilitychange'));
@@ -158,6 +226,7 @@ it('pauses while the document is hidden and resumes when it becomes visible', ()
 });
 
 it('resizes the backing canvas to valid dimensions and applies a capped pixel ratio', () => {
+  mockIdleCallbacks();
   mockAnimationFrames();
   mockMotionPreference(false);
   const context = mockCanvasContext();

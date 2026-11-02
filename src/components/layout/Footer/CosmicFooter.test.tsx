@@ -1,7 +1,9 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createRef } from 'react';
 import { afterEach, expect, it, vi } from 'vitest';
+import { domAnimation, LazyMotion } from 'motion/react';
 import CosmicFooter from './CosmicFooter';
+import { PUBLIC_EMAIL, RESUME_FILENAME, RESUME_PATH } from '../../../lib/profile';
 
 afterEach(() => {
   cleanup();
@@ -12,12 +14,14 @@ afterEach(() => {
 function renderFooter(reducedMotion = false) {
   const homeHeadingRef = createRef<HTMLHeadingElement>();
   render(
-    <>
-      <h1 ref={homeHeadingRef} tabIndex={-1}>
-        Portfolio home
-      </h1>
-      <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reducedMotion} />
-    </>,
+    <LazyMotion features={domAnimation}>
+      <>
+        <h1 ref={homeHeadingRef} tabIndex={-1}>
+          Portfolio home
+        </h1>
+        <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reducedMotion} />
+      </>
+    </LazyMotion>,
   );
 }
 
@@ -35,6 +39,21 @@ it('renders the three accessible social profiles with verified destinations', ()
     expect(link.getAttribute('href')).toBe(href);
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+  }
+});
+
+it.each([false, true])('renders email and gates the footer PDF link: %s', (available) => {
+  vi.stubGlobal('__HAS_RESUME__', available);
+  renderFooter(true);
+  expect(screen.getByRole('link', { name: PUBLIC_EMAIL }).getAttribute('href')).toBe(
+    `mailto:${PUBLIC_EMAIL}`,
+  );
+  const download = screen.queryByRole('link', { name: 'Download résumé (PDF)' });
+  if (available) {
+    expect(download?.getAttribute('href')).toBe(RESUME_PATH);
+    expect(download?.getAttribute('download')).toBe(RESUME_FILENAME);
+  } else {
+    expect(download).toBeNull();
   }
 });
 

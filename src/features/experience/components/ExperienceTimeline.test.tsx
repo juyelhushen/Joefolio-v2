@@ -30,7 +30,7 @@ it('renders the four career chapters in reverse chronological order', () => {
   render(<ExperienceTimeline reduceMotion={false} />);
 
   const timeline = screen.getByRole('list', { name: 'Career milestones' });
-  const entries = within(timeline).getAllByRole('listitem');
+  const entries = Array.from(timeline.querySelectorAll(':scope > .experience-entry'));
   expect(entries).toHaveLength(4);
   expect(entries.map((entry) => entry.textContent)).toEqual([
     expect.stringContaining('Apexon'),
@@ -94,7 +94,7 @@ it('marks the first Apexon entry as the current role and initially selected mile
   expect(document.querySelector('.experience-entry')?.textContent).toContain('Apexon');
   expect(apexonEntry).toBe(document.querySelector('.experience-entry'));
   expect(apexonEntry?.classList).toContain('is-current');
-  expect(apexonEntry?.querySelector('.experience-current')?.textContent).toBe('CURRENT ROLE');
+  expect(apexonEntry?.querySelector('.experience-current')?.textContent).toBe('Current');
   expect(
     screen
       .getByRole('button', { name: 'Highlight Apexon: Software Engineer II' })

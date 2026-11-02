@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode, type ComponentProps } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m } from 'motion/react';
 import { createRevealVariants, type ScrollRevealVariant } from './reveal-variants';
+import { useEffectsPreference } from '../../hooks/useEffectsPreference';
 
 export type { ScrollRevealVariant } from './reveal-variants';
 
@@ -18,6 +19,7 @@ type ScrollRevealProps = {
   'aria-label'?: string;
   'data-reduced-motion'?: string;
   id?: string;
+  headingReveal?: boolean;
   'aria-live'?: ComponentProps<'div'>['aria-live'];
 };
 
@@ -29,16 +31,24 @@ export default function ScrollReveal({
   variant = 'fade-up',
   once = true,
   as = 'div',
+  headingReveal = false,
   ...attributes
 }: ScrollRevealProps) {
   const elementRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
+  const { reducedEffects } = useEffectsPreference();
   const [visible, setVisible] = useState(false);
   const observerAvailable = typeof IntersectionObserver !== 'undefined';
-  const isVisible = visible || Boolean(reduceMotion) || !observerAvailable;
+  const headingStatic =
+    headingReveal &&
+    (reducedEffects ||
+      !observerAvailable ||
+      Boolean(
+        (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData,
+      ));
+  const isVisible = visible || reducedEffects || !observerAvailable || headingStatic;
 
   useEffect(() => {
-    if (reduceMotion || !observerAvailable) return;
+    if (reducedEffects || !observerAvailable || headingStatic) return;
 
     const element = elementRef.current;
     if (!element) return;
@@ -47,9 +57,11 @@ export default function ScrollReveal({
     try {
       observer = new IntersectionObserver(
         (entries) => {
+          if (headingReveal)
+            element.dataset.headingVisible = String(entries.some((entry) => entry.isIntersecting));
           if (entries.some((entry) => entry.isIntersecting)) {
             setVisible(true);
-            if (once) observer?.disconnect();
+            if (once && !headingReveal) observer?.disconnect();
           } else if (!once) {
             setVisible(false);
           }
@@ -63,12 +75,20 @@ export default function ScrollReveal({
       setVisible(true);
     }
 
+    const updatePause = () => {
+      if (headingReveal) element.dataset.headingPaused = String(document.hidden);
+    };
+    if (headingReveal) {
+      updatePause();
+      document.addEventListener('visibilitychange', updatePause);
+    }
     return () => {
       observer?.disconnect();
+      if (headingReveal) document.removeEventListener('visibilitychange', updatePause);
     };
-  }, [observerAvailable, reduceMotion, once]);
+  }, [observerAvailable, reducedEffects, once, headingReveal, headingStatic]);
 
-  const RevealElement = as === 'article' ? motion.article : motion.div;
+  const RevealElement = as === 'article' ? m.article : m.div;
   return (
     <RevealElement
       {...attributes}
@@ -76,28 +96,30 @@ export default function ScrollReveal({
       ref={elementRef}
       initial={isVisible ? false : 'hidden'}
       animate={isVisible ? 'visible' : 'hidden'}
-      variants={createRevealVariants(variant, duration, delay, Boolean(reduceMotion))}
+      variants={createRevealVariants(variant, duration, delay, reducedEffects || headingStatic)}
       onFocusCapture={() => setVisible(true)}
       data-scroll-reveal=""
       data-revealed={isVisible ? 'true' : 'false'}
       data-reveal-variant={variant}
+      data-heading-reveal={headingReveal ? 'true' : undefined}
+      data-heading-static={headingStatic ? 'true' : undefined}
     >
       {children}
     </RevealElement>
   );
 }
 
-type RevealItemProps = ComponentProps<typeof motion.div> & {
+type RevealItemProps = ComponentProps<typeof m.div> & {
   variant?: Exclude<ScrollRevealVariant, 'stagger-container'>;
 };
 
 // Inherits the parent reveal labels; stagger children need no individual observers.
 export const ScrollRevealItem = ({ variant = 'fade-up', ...props }: RevealItemProps) => {
-  const reducedMotion = useReducedMotion();
+  const { reducedEffects } = useEffectsPreference();
   return (
-    <motion.div
+    <m.div
       {...props}
-      variants={createRevealVariants(variant, 0.55, 0, Boolean(reducedMotion))}
+      variants={createRevealVariants(variant, 0.55, 0, reducedEffects)}
       data-stagger-item=""
     />
   );

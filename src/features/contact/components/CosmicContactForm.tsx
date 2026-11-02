@@ -1,8 +1,9 @@
 import { useRef, useState, type ChangeEvent, type FormEvent, type RefObject } from 'react';
 import { LoaderCircle, Send } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import type { ContactMessage, ContactStatus } from '../types';
 import './CosmicContactForm.css';
+import EmailContact from '../../../components/common/EmailContact';
 
 type ContactFields = Omit<ContactMessage, 'website'>;
 type FieldName = keyof ContactFields;
@@ -20,7 +21,7 @@ const fieldNames: FieldName[] = ['name', 'email', 'subject', 'message'];
 
 function ButtonEnvelope({ sealed }: { sealed: boolean }) {
   return (
-    <motion.span
+    <m.span
       className={`contact-button-envelope${sealed ? ' is-sealed' : ''}`}
       initial={sealed ? { scale: 0.86 } : false}
       animate={{ scale: 1 }}
@@ -33,7 +34,7 @@ function ButtonEnvelope({ sealed }: { sealed: boolean }) {
         <path className="envelope-flap-closed" d="m3.5 6 10.5 9L24.5 6" />
         {sealed && <path className="button-envelope-seal" d="m14 11 3 3-3 3-3-3z" />}
       </svg>
-    </motion.span>
+    </m.span>
   );
 }
 
@@ -221,9 +222,10 @@ export default function CosmicContactForm({
         </p>
       )}
       {status === 'error' && (
-        <p className="contact-error" role="alert">
-          {error} Your message is still here—please retry.
-        </p>
+        <div className="contact-error" role="alert">
+          <p>{error} Your message is still here—please retry.</p>
+          <EmailContact />
+        </div>
       )}
 
       <button

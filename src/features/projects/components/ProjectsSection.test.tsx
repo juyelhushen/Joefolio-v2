@@ -25,11 +25,11 @@ afterEach(() => {
   Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
 });
 
-it('opens the case study with verified architecture, all technologies and external sources', () => {
+it('opens the case study with verified architecture, all technologies and external sources', async () => {
   render(<ProjectsSection reduceMotion />);
   const project = projects[0];
   fireEvent.click(screen.getByRole('button', { name: `${project.name}: view case study` }));
-  const dialog = screen.getByRole('dialog', { name: project.name });
+  const dialog = await screen.findByRole('dialog', { name: project.name });
   expect(location.hash).toBe(`#projects/${project.id}`);
   expect(document.body.style.overflow).toBe('hidden');
   expect(within(dialog).getByText(project.problem)).toBeTruthy();
@@ -44,6 +44,11 @@ it('opens the case study with verified architecture, all technologies and extern
   for (const title of ['Role', 'Outcome', 'Metrics', 'Lessons']) {
     expect(within(dialog).queryByRole('heading', { name: title })).toBeNull();
   }
+  for (const lane of project.architecture.lanes) {
+    const region = await within(dialog).findByRole('region', { name: lane.label });
+    expect(within(region).getAllByRole('listitem')).toHaveLength(lane.steps.length);
+    for (const step of lane.steps) expect(within(region).getByText(step)).toBeTruthy();
+  }
   expect(document.activeElement).toBe(
     within(dialog).getByRole('button', { name: 'Close case study' }),
   );
@@ -54,7 +59,7 @@ it('handles native Escape cancellation and restores opening focus and scroll', a
   const opener = screen.getByRole('button', { name: `${projects[0].name}: view case study` });
   opener.focus();
   fireEvent.click(opener);
-  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  fireEvent.keyDown(await screen.findByRole('dialog'), { key: 'Escape' });
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   expect(document.activeElement).toBe(opener);
   expect(location.hash).toBe('#projects');
@@ -64,7 +69,7 @@ it('handles native Escape cancellation and restores opening focus and scroll', a
 it('opens a case study from its initial hash and closes on history navigation', async () => {
   history.replaceState(null, '', `#projects/${projects[1].id}`);
   render(<ProjectsSection reduceMotion />);
-  expect(screen.getByRole('dialog', { name: projects[1].name })).toBeTruthy();
+  expect(await screen.findByRole('dialog', { name: projects[1].name })).toBeTruthy();
   history.replaceState(null, '', '#projects');
   fireEvent(window, new PopStateEvent('popstate'));
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
@@ -73,7 +78,7 @@ it('opens a case study from its initial hash and closes on history navigation', 
 it('closes on the backdrop but not on panel content', async () => {
   render(<ProjectsSection reduceMotion />);
   fireEvent.click(screen.getByRole('button', { name: `${projects[0].name}: view case study` }));
-  const dialog = screen.getByRole('dialog');
+  const dialog = await screen.findByRole('dialog');
   fireEvent.click(within(dialog).getByText(projects[0].problem));
   expect(screen.getByRole('dialog')).toBeTruthy();
   fireEvent.click(dialog);
@@ -83,7 +88,7 @@ it('closes on the backdrop but not on panel content', async () => {
 it('handles the native dialog cancel event', async () => {
   render(<ProjectsSection reduceMotion />);
   fireEvent.click(screen.getByRole('button', { name: `${projects[0].name}: view case study` }));
-  fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }));
+  fireEvent(await screen.findByRole('dialog'), new Event('cancel', { cancelable: true }));
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
 });
 

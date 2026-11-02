@@ -7,14 +7,20 @@ export default function AboutSection() {
     <section className="manifesto section-wrap" id="about" aria-labelledby="about-title">
       <ScrollReveal className="manifesto-symbol" variant="scale-up">
         <Sparkles size={24} strokeWidth={1.2} />
-        <span>FIELD NOTES / 002</span>
+        <span>01 / ABOUT</span>
       </ScrollReveal>
-      <ScrollReveal className="manifesto-copy" variant="stagger-container">
+      <ScrollReveal className="manifesto-copy" variant="stagger-container" headingReveal>
         <ScrollRevealItem>
           <h2 id="about-title">
-            Build end to end.
+            <span className="heading-line-mask">
+              <span className="heading-line">Build end to end.</span>
+            </span>
             <br />
-            <em>Keep the seams clear.</em>
+            <span className="heading-line-mask">
+              <span className="heading-line">
+                <em>Keep the seams clear.</em>
+              </span>
+            </span>
           </h2>
         </ScrollRevealItem>
         <ScrollRevealItem>

@@ -1,15 +1,32 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeAll, expect, it, vi } from 'vitest';
 import App from './App';
+import { wakeBackend } from '../lib/api/backend-health';
 
 vi.mock('../lib/api/backend-health', () => ({
   wakeBackend: vi.fn().mockResolvedValue('UP'),
 }));
 
+beforeAll(async () => {
+  await Promise.all([
+    import('../features/skills/components/SkillsSection'),
+    import('../features/experience/components/ExperienceSection'),
+    import('../features/projects/components/ProjectsSection'),
+    import('../features/ai-lab/components/AiLabSection'),
+    import('../features/contact/components/CosmicContactSection'),
+    import('../components/layout/Footer/CosmicFooter'),
+    import('../features/assistant/components/PortfolioAssistant'),
+    import('../components/intro/UniverseIntro'),
+  ]);
+});
+
 afterEach(() => {
   cleanup();
   window.history.replaceState(null, '', '/');
   window.sessionStorage.removeItem('joefolio-universe-intro-seen');
+  Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+  Reflect.deleteProperty(navigator, 'connection');
+  Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -20,8 +37,20 @@ class MockIntersectionObserver implements IntersectionObserver {
   readonly scrollMargin = '0px';
   readonly thresholds: number[] = [];
 
-  disconnect() {}
-  observe() {}
+  private timeoutId: number | undefined;
+  private disconnected = false;
+
+  constructor(private readonly callback: IntersectionObserverCallback) {}
+  disconnect() {
+    this.disconnected = true;
+    if (this.timeoutId !== undefined) window.clearTimeout(this.timeoutId);
+  }
+  observe(target: Element) {
+    this.timeoutId = window.setTimeout(() => {
+      if (!this.disconnected)
+        this.callback([{ isIntersecting: true, target } as IntersectionObserverEntry], this);
+    }, 0);
+  }
   takeRecords(): IntersectionObserverEntry[] {
     return [];
   }
@@ -31,8 +60,32 @@ class MockIntersectionObserver implements IntersectionObserver {
 function renderApp() {
   vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    configurable: true,
+    value: vi.fn(),
+  });
   return render(<App />);
 }
+
+it('passes the unavailable startup status to the contact section', async () => {
+  const idleCallbacks: (() => void)[] = [];
+  vi.stubGlobal(
+    'requestIdleCallback',
+    vi.fn((callback: () => void) => {
+      idleCallbacks.push(callback);
+      return idleCallbacks.length;
+    }),
+  );
+  vi.stubGlobal('cancelIdleCallback', vi.fn());
+  vi.mocked(wakeBackend).mockResolvedValueOnce('UNAVAILABLE');
+  window.history.replaceState(null, '', '#contact');
+  renderApp();
+  act(() => idleCallbacks.forEach((callback) => callback()));
+  expect(await screen.findByText(/The form may take a moment or be offline/)).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Launch message' }).hasAttribute('disabled')).toBe(
+    false,
+  );
+});
 
 it('positions Juyel through backend, full-stack, and practical AI engineering', () => {
   renderApp();
@@ -83,7 +136,8 @@ it('shows the intro once per tab session and completes on its master timeline', 
   renderApp();
 
   const intro = screen.getByTestId('universe-intro');
-  expect(intro.getAttribute('aria-hidden')).toBe('true');
+  expect(intro.hasAttribute('aria-hidden')).toBe(false);
+  expect(screen.getByRole('button', { name: 'Skip intro' })).toBeTruthy();
   expect(document.querySelector('.site-shell')?.getAttribute('data-intro-active')).toBe('true');
 
   fireEvent.animationEnd(intro, { animationName: 'universe-intro-timeline' });
@@ -111,6 +165,29 @@ it('skips the intro when reduced motion is enabled', () => {
   );
 
   renderApp();
+  expect(screen.queryByTestId('universe-intro')).toBeNull();
+});
+
+it('skips the intro at mobile widths', () => {
+  Object.defineProperty(window, 'innerWidth', { configurable: true, value: 740 });
+
+  renderApp();
+
+  expect(screen.queryByTestId('universe-intro')).toBeNull();
+});
+
+it('skips the intro when the connection requests data saving', () => {
+  Object.defineProperty(navigator, 'connection', {
+    configurable: true,
+    value: {
+      saveData: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
+  });
+
+  renderApp();
+
   expect(screen.queryByTestId('universe-intro')).toBeNull();
 });
 
@@ -266,10 +343,10 @@ it('keeps the cosmic mesh, starfield, and grain as non-interactive global backgr
   expect(document.querySelector('#main-content')).toBeTruthy();
 });
 
-it('renders concise project cards with links to their repositories', () => {
+it('renders concise project cards with links to their repositories', async () => {
   renderApp();
 
-  const projectSection = within(screen.getByRole('region', { name: 'Selected Work.' }));
+  const projectSection = within(await screen.findByRole('region', { name: 'Selected Work.' }));
   expect(projectSection.getAllByRole('article')).toHaveLength(5);
 
   const expectedProjects = [
@@ -295,10 +372,10 @@ it('renders concise project cards with links to their repositories', () => {
   }
 });
 
-it('grounds the AI Lab in documented projects and their verified repositories', () => {
+it('grounds the AI Lab in documented projects and their verified repositories', async () => {
   renderApp();
 
-  const aiLab = within(screen.getByRole('region', { name: /Engineering with/ }));
+  const aiLab = within(await screen.findByRole('region', { name: /Engineering with/ }));
   const legacyLink = aiLab.getByRole('link', { name: 'Visit Previous Portfolio' });
   expect(legacyLink.getAttribute('href')).toBe('https://juyelhushen.netlify.app/');
   expect(legacyLink.getAttribute('target')).toBe('_blank');
@@ -326,7 +403,7 @@ it('grounds the AI Lab in documented projects and their verified repositories', 
   expect(repoLink).toBeTruthy();
 });
 
-it('preserves section order and renders the Career Odyssey alongside Skills and Projects', () => {
+it('preserves section order and renders the Career Odyssey alongside Skills and Projects', async () => {
   renderApp();
 
   const skillsLink = screen.getByRole('link', { name: 'Skills' });
@@ -344,21 +421,21 @@ it('preserves section order and renders the Career Odyssey alongside Skills and 
       ?.compareDocumentPosition(document.querySelector('#projects')!),
   ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   expect(
-    screen.getByRole('heading', { level: 2, name: /Career, chapter by chapter/ }),
+    await screen.findByRole('heading', { level: 2, name: /Career, chapter by chapter/ }),
   ).toBeTruthy();
   expect(screen.getByRole('heading', { level: 3, name: 'Software Engineer II' })).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Select Spring Boot skill' })).toBeTruthy();
+  expect(await screen.findByRole('button', { name: 'Select Spring Boot skill' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Select LangGraph skill' })).toBeTruthy();
   expect(
-    within(screen.getByRole('region', { name: 'Selected Work.' })).getAllByRole('article'),
+    within(await screen.findByRole('region', { name: 'Selected Work.' })).getAllByRole('article'),
   ).toHaveLength(5);
   expect(screen.getByRole('heading', { level: 2, name: 'Selected Work.' })).toBeTruthy();
 });
 
-it('retains working contact destinations with secure external-link attributes', () => {
+it('retains working contact destinations with secure external-link attributes', async () => {
   renderApp();
 
-  const contact = within(screen.getByRole('region', { name: /Send a Message into Orbit/ }));
+  const contact = within(await screen.findByRole('region', { name: /Send a Message into Orbit/ }));
   const linkedin = contact.getByRole('link', { name: 'LinkedIn' });
   const github = contact.getByRole('link', { name: 'GitHub' });
 

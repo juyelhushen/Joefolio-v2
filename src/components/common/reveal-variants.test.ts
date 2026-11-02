@@ -3,13 +3,17 @@ import { createRevealVariants, type ScrollRevealVariant } from './reveal-variant
 
 it.each([
   ['fade-up', 'y', 40],
+  ['rise', 'y', 40],
   ['fade-down', 'y', -40],
   ['fade-left', 'x', -38],
   ['fade-right', 'x', 38],
   ['scale-up', 'scale', 0.97],
   ['blur-reveal', 'filter', 'blur(4px)'],
 ] as const)('configures %s without changing layout geometry', (variant, property, value) => {
-  expect(createRevealVariants(variant).hidden).toMatchObject({ opacity: 0, [property]: value });
+  expect(createRevealVariants(variant).hidden).toMatchObject({
+    opacity: variant === 'rise' ? 1 : 0,
+    [property]: value,
+  });
   expect(createRevealVariants(variant).visible).toMatchObject({ opacity: 1, x: 0, y: 0, scale: 1 });
 });
 
@@ -19,8 +23,13 @@ it('uses a 110ms stagger with configurable timing', () => {
   });
 });
 
+it('keeps the hero heading visible while applying its transform entrance', () => {
+  expect(createRevealVariants('rise').hidden).toMatchObject({ opacity: 1, y: 40 });
+});
+
 it.each([
   'fade-up',
+  'rise',
   'fade-down',
   'fade-left',
   'fade-right',

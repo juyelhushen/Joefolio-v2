@@ -4,16 +4,31 @@ import { projects } from '../../projects/data/projects';
 import LegacyPortfolioOrbit from './LegacyPortfolioOrbit';
 import ScrollReveal from '../../../components/common/ScrollReveal';
 import './AiLabSection.css';
+import { useAnimationVisibility } from '../../../hooks/useAnimationVisibility';
 
 export default function AiLabSection() {
+  const { ref, visible } = useAnimationVisibility<HTMLElement>();
+
   return (
-    <section className="ai-lab section-wrap" id="ai-lab" aria-labelledby="ai-lab-title">
-      <ScrollReveal className="ai-lab-heading" variant="blur-reveal">
-        <span className="section-kicker">EXPERIMENT BAY / 005</span>
+    <section
+      ref={ref}
+      className="ai-lab section-wrap"
+      id="ai-lab"
+      aria-labelledby="ai-lab-title"
+      data-animation-visible={visible}
+    >
+      <ScrollReveal className="ai-lab-heading" headingReveal>
+        <span className="section-kicker">05 / AI LAB</span>
         <h2 id="ai-lab-title">
-          Engineering with
+          <span className="heading-line-mask">
+            <span className="heading-line">Engineering with</span>
+          </span>
           <br />
-          <em>intelligent systems.</em>
+          <span className="heading-line-mask">
+            <span className="heading-line">
+              <em>intelligent systems.</em>
+            </span>
+          </span>
         </h2>
         <p>
           Applied AI work is strongest when its sources, tools, and boundaries are inspectable.
