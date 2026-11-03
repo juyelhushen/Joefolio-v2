@@ -144,7 +144,7 @@ function LazySection({
   );
 }
 
-function IdleAssistant() {
+function IdleAssistant({ reduceMotion }: { reduceMotion: boolean }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -157,7 +157,7 @@ function IdleAssistant() {
   return ready ? (
     <LoadBoundary label="the optional assistant" fallback={null}>
       <Suspense fallback={null}>
-        <PortfolioAssistant />
+        <PortfolioAssistant reduceMotion={reduceMotion} />
       </Suspense>
     </LoadBoundary>
   ) : null;
@@ -261,7 +261,7 @@ export default function App() {
         <LazySection id="footer" className="footer" label="Footer">
           <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion} />
         </LazySection>
-        {import.meta.env.VITE_AI_ASSISTANT_API_URL?.trim() && <IdleAssistant />}
+        <IdleAssistant reduceMotion={reduceMotion} />
         <CosmicMagnifyingCursor />
         <CosmicScrollProgress />
       </div>

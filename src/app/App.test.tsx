@@ -129,14 +129,14 @@ it('introduces dependable software with one concise identity and two hero action
   );
 });
 
-it('does not advertise an unconfigured assistant after idle initialization', async () => {
+it('advertises the assistant launcher even when unconfigured after idle initialization', async () => {
   vi.stubEnv('VITE_AI_ASSISTANT_API_URL', '');
   const callbacks: (() => void)[] = [];
   vi.stubGlobal('requestIdleCallback', (callback: () => void) => callbacks.push(callback));
   vi.stubGlobal('cancelIdleCallback', vi.fn());
   renderApp();
   await act(async () => callbacks.forEach((callback) => callback()));
-  expect(screen.queryByRole('button', { name: 'Open portfolio assistant' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Open portfolio assistant' })).toBeTruthy();
 });
 
 it('labels the sole mail link Gmail beside GitHub without displaying the address or manual controls', async () => {
