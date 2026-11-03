@@ -4,6 +4,12 @@ React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 
 ## Included
 
+Startup shows a minimal JH constellation signal for at least 2000ms, measured from first visibility.
+It releases when both that duration and shell/hero readiness are satisfied, while React and assets
+continue loading underneath. It never waits for backend checks or below-fold assets.
+Reduced motion bypasses the signal and timed hold. Lazy section failures
+show local reload states; optional visual failures preserve their lightweight fallback.
+
 - Responsive cosmic hero and navigation
 - Canvas starfield with occasional shooting stars
 - CSS-rendered planet/orbit layers

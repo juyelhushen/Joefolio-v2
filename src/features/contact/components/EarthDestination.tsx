@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState, type CSSProperties, type RefObject } from 'react';
+import LoadBoundary from '../../../components/common/LoadBoundary';
 
 const LazyEarthScene = lazy(() => import('./EarthGlobe'));
 
@@ -62,9 +63,11 @@ export default function EarthDestination({ lit, reduceMotion, targetRef }: Earth
       <div className="earth-halo" aria-hidden="true" />
       <div className="earth-fallback" style={fallbackStyle} aria-hidden="true" />
       {sceneVisible && (
-        <Suspense fallback={null}>
-          <LazyEarthScene lit={lit} reduceMotion={reduceMotion} />
-        </Suspense>
+        <LoadBoundary label="the optional Earth scene" fallback={null}>
+          <Suspense fallback={null}>
+            <LazyEarthScene lit={lit} reduceMotion={reduceMotion} />
+          </Suspense>
+        </LoadBoundary>
       )}
       <span className="earth-destination-label" aria-hidden="true">
         <span /> MESSAGE DESTINATION / EARTH

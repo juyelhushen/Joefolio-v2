@@ -41,11 +41,10 @@ src/
 src/
   app/
     App.tsx              Page composition
-    hooks/               useActiveSection, useUniverseIntro
+    hooks/               useActiveSection, useBackendHealth
   components/
     background/          Shared cosmic canvas/background layers
-    common/              ScrollReveal
-    intro/               UniverseIntro presentation
+    common/              ScrollReveal, LoadBoundary
     layout/              Navbar and Footer
   features/
     about/components/
@@ -75,6 +74,26 @@ src/
     global.css
     utilities.css
 ```
+
+## Initial startup and lazy loading
+
+The initial document contains the lightweight JH Signal Acquisition markup, critical styles and
+controller so feedback does not depend on React or another network request. It is shown immediately
+unless reduced motion is enabled, and remains visible for at least 2000ms from first visibility.
+App's layout effect records shell and immediately visible hero readiness. Both readiness and the
+minimum duration must be satisfied before the overlay becomes noninteractive and fades over 160ms.
+React and asset loading continue underneath; fonts, Motion features, backend health, assistant and
+lazy sections never gate release. Reduced motion bypasses the timed hold, including when enabled
+during loading. A single timer is cleared on release/failure, duplicate readiness calls are ignored,
+and transition completion clears its removal fallback. Critical entry failures show a reload
+message, and a root LoadBoundary handles render failures. JavaScript-disabled visitors get a GitHub
+alternative. The former session intro and its replay query are no longer used.
+
+Below-fold sections retain their existing viewport/hash activation and minimum-height reservations.
+Only pending activated imports show static skeletons. LoadBoundary isolates rejected section imports
+with an anchored reload state rather than replacing the whole page. Optional Earth failures retain
+the CSS globe; architecture failures retain a textual component list; failed search/case-study
+imports provide dismiss/reload states. Errors are logged without exposing exception details in UI.
 
 Component CSS and tests stay beside the component. Feature model types stay in the feature's
 typed data module when a separate types directory would add no value. There are no new feature

@@ -19,9 +19,6 @@ vi.mock('../components/background/CosmicMeshBackground/CosmicMeshBackground', ()
 }));
 vi.mock('../components/cursor/CosmicMagnifyingCursor', () => ({ default: () => null }));
 vi.mock('../components/common/CosmicScrollProgress', () => ({ default: () => null }));
-vi.mock('./hooks/useUniverseIntro', () => ({
-  useUniverseIntro: () => ({ showUniverseIntro: false, completeUniverseIntro: vi.fn() }),
-}));
 vi.mock('./hooks/useBackendHealth', () => ({ useBackendHealth: () => 'UP' }));
 vi.mock('../features/projects/components/ProjectsSection', () => ({
   default: () => (

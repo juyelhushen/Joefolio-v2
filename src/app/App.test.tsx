@@ -17,14 +17,13 @@ beforeAll(async () => {
     import('../features/contact/components/CosmicContactSection'),
     import('../components/layout/Footer/CosmicFooter'),
     import('../features/assistant/components/PortfolioAssistant'),
-    import('../components/intro/UniverseIntro'),
   ]);
 });
 
 afterEach(() => {
   cleanup();
   window.history.replaceState(null, '', '/');
-  window.sessionStorage.removeItem('joefolio-universe-intro-seen');
+  Reflect.deleteProperty(window, '__PORTFOLIO_STARTUP__');
   Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
   Reflect.deleteProperty(navigator, 'connection');
   Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
@@ -141,7 +140,6 @@ it('does not advertise an unconfigured assistant after idle initialization', asy
 });
 
 it('labels the sole mail link Gmail beside GitHub without displaying the address or manual controls', async () => {
-  window.sessionStorage.setItem('joefolio-universe-intro-seen', 'true');
   window.history.replaceState(null, '', '#footer');
   renderApp();
   const email = await screen.findByRole('link', { name: 'Gmail' });
@@ -183,71 +181,28 @@ it('opens and closes the mobile navigation menu', () => {
   );
 });
 
-it('shows the intro once per tab session and completes on its master timeline', () => {
-  renderApp();
-
-  const intro = screen.getByTestId('universe-intro');
-  expect(intro.hasAttribute('aria-hidden')).toBe(false);
-  expect(screen.getByRole('button', { name: 'Skip intro' })).toBeTruthy();
-  expect(document.querySelector('.site-shell')?.getAttribute('data-intro-active')).toBe('true');
-
-  fireEvent.animationEnd(intro, { animationName: 'universe-intro-timeline' });
-  expect(screen.queryByTestId('universe-intro')).toBeNull();
-  expect(window.sessionStorage.getItem('joefolio-universe-intro-seen')).toBe('true');
-
-  cleanup();
-  renderApp();
-  expect(screen.queryByTestId('universe-intro')).toBeNull();
-});
-
-it('skips the intro when reduced motion is enabled', () => {
-  vi.stubGlobal(
-    'matchMedia',
-    vi.fn((query: string) => ({
-      matches: query === '(prefers-reduced-motion: reduce)',
-      media: query,
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  );
-
-  renderApp();
-  expect(screen.queryByTestId('universe-intro')).toBeNull();
-});
-
-it('skips the intro at mobile widths', () => {
-  Object.defineProperty(window, 'innerWidth', { configurable: true, value: 740 });
-
-  renderApp();
-
-  expect(screen.queryByTestId('universe-intro')).toBeNull();
-});
-
-it('skips the intro when the connection requests data saving', () => {
-  Object.defineProperty(navigator, 'connection', {
-    configurable: true,
-    value: {
-      saveData: true,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-    },
+it('releases startup on shell commit without waiting for idle services or lazy sections', () => {
+  const ready = vi.fn(() => {
+    expect(document.getElementById('home-title')).toBeTruthy();
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeTruthy();
   });
+  window.__PORTFOLIO_STARTUP__ = { ready, fail: vi.fn() };
+  vi.stubGlobal(
+    'requestIdleCallback',
+    vi.fn(() => 1),
+  );
+  vi.stubGlobal('cancelIdleCallback', vi.fn());
+  vi.mocked(wakeBackend).mockClear();
 
   renderApp();
 
-  expect(screen.queryByTestId('universe-intro')).toBeNull();
-});
-
-it('allows the intro to be replayed in development with the intro query parameter', () => {
-  window.history.replaceState(null, '', '/?intro=1');
-  window.sessionStorage.setItem('joefolio-universe-intro-seen', 'true');
-
-  renderApp();
-  expect(screen.getByTestId('universe-intro')).toBeTruthy();
+  expect(ready).toHaveBeenCalledOnce();
+  expect(wakeBackend).not.toHaveBeenCalled();
+  expect(document.getElementById('projects')?.getAttribute('aria-busy')).toBe('true');
+  expect(document.querySelector('.hero-copy')?.getAttribute('style') ?? '').not.toContain(
+    'opacity: 0',
+  );
+  expect(document.querySelector('[data-intro-active]')).toBeNull();
 });
 
 it('tracks the active section while scrolling down and back up', () => {

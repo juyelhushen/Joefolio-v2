@@ -99,7 +99,7 @@ export default function HeroSection({ reduceMotion, headingRef }: HeroSectionPro
       <m.div
         ref={ref}
         className="hero-copy"
-        initial={staticEffects ? false : 'hidden'}
+        initial={false}
         animate="visible"
         variants={createRevealVariants('stagger-container', 0.55, 0, staticEffects)}
       >
