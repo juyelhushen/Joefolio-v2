@@ -151,6 +151,7 @@
   place-items: center;
   color: var(--color-accent-primary);
 }
+
 @media (max-width: 740px) {
   .assistant-widget .assistant-launcher {
     width: var(--control-height);
@@ -173,5 +174,11 @@
     width: min(410px, calc(100vw - 36px));
     height: min(620px, calc(100dvh - 98px));
     min-height: 330px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistant-panel {
+    animation: none;
   }
 }

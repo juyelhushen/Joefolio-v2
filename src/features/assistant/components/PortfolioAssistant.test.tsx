@@ -31,46 +31,61 @@ function respondWith(data: unknown, status = 200) {
 }
 
 function openAssistant(apiBaseUrl = '') {
-  render(<PortfolioAssistant apiBaseUrl={apiBaseUrl} />);
+  render(<PortfolioAssistant apiBaseUrl={apiBaseUrl} reduceMotion={false} />);
   const launcher = screen.getByRole('button', { name: 'Open portfolio assistant' });
   fireEvent.click(launcher);
-  return { launcher, panel: screen.getByRole('region', { name: 'Portfolio assistant' }) };
+  // Wait for the panel to appear with animation
+  return {
+    launcher,
+    async getPanel() {
+      return await screen.findByRole('region', { name: 'Portfolio assistant' });
+    },
+  };
 }
 
-it('stays unavailable and does not call the API without a configured URL', () => {
+it('stays unavailable and does not call the API without a configured URL', async () => {
   const adapter = respondWith({});
-  const { panel } = openAssistant();
+  const { getPanel } = openAssistant();
+  const panel = await getPanel();
 
   expect(panel.textContent).toContain('A backend service must be configured');
   expect(
-    screen.getByRole('textbox', { name: 'Ask about Juyel’s portfolio' }).hasAttribute('disabled'),
+    screen.getByRole('textbox', { name: "Ask about Juyel's portfolio" }).hasAttribute('disabled'),
   ).toBe(true);
   expect(adapter).not.toHaveBeenCalled();
 });
 
 it('keeps the floating launcher label and chat icon', () => {
-  render(<PortfolioAssistant apiBaseUrl="" />);
+  render(<PortfolioAssistant apiBaseUrl="" reduceMotion={false} />);
 
   const launcher = screen.getByRole('button', { name: 'Open portfolio assistant' });
   expect(launcher.textContent).toContain('Ask about my work');
   expect(launcher.querySelector('svg')).toBeTruthy();
 });
 
-it('opens, closes with Escape, and restores focus to the launcher', () => {
-  const { launcher } = openAssistant();
+it('opens, closes with Escape, and restores focus to the launcher', async () => {
+  const { launcher, getPanel } = openAssistant();
 
+  await getPanel();
   expect(screen.getByRole('region', { name: 'Portfolio assistant' })).toBeTruthy();
   fireEvent.keyDown(document, { key: 'Escape' });
-  expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull();
+  // Wait for the panel to disappear with animation
+  await waitFor(() => {
+    expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull();
+  });
   expect(document.activeElement).toBe(launcher);
 
   fireEvent.click(launcher);
+  const panel = await getPanel();
   fireEvent.click(
-    within(screen.getByRole('region', { name: 'Portfolio assistant' })).getByRole('button', {
+    within(panel).getByRole('button', {
       name: 'Close portfolio assistant',
     }),
   );
-  expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull();
+  // Wait for the panel to disappear with animation
+  await waitFor(() => {
+    expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull();
+  });
 });
 
 it('sends a valid message and displays the response and safe citation link', async () => {
@@ -84,9 +99,10 @@ it('sends a valid message and displays the response and safe citation link', asy
       },
     ],
   });
-  openAssistant('https://assistant.example.test');
+  const { getPanel } = openAssistant('https://assistant.example.test');
+  await getPanel();
 
-  const input = screen.getByRole('textbox', { name: 'Ask about Juyel’s portfolio' });
+  const input = screen.getByRole('textbox', { name: "Ask about Juyel's portfolio" });
   fireEvent.change(input, { target: { value: '  Which projects use RAG?  ' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -107,7 +123,8 @@ it('renders response text without interpreting HTML', async () => {
     conversationId: 'conversation-1',
     answer: '<img src=x onerror=alert(1)>',
   });
-  openAssistant('https://assistant.example.test');
+  const { getPanel } = openAssistant('https://assistant.example.test');
+  await getPanel();
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -119,7 +136,8 @@ it('reports network and HTTP failures without showing an assistant answer', asyn
   apiClient.defaults.adapter = async () => {
     throw new AxiosError('offline', AxiosError.ERR_NETWORK);
   };
-  openAssistant('https://assistant.example.test');
+  let { getPanel } = openAssistant('https://assistant.example.test');
+  await getPanel();
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -128,7 +146,8 @@ it('reports network and HTTP failures without showing an assistant answer', asyn
 
   cleanup();
   respondWith('failure', 503);
-  openAssistant('https://assistant.example.test');
+  ({ getPanel } = openAssistant('https://assistant.example.test'));
+  await getPanel();
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Another question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
   expect((await screen.findByRole('alert')).textContent).toContain('error (503)');
@@ -150,7 +169,8 @@ it('prevents duplicate submissions while the request is pending', async () => {
       }),
   );
   apiClient.defaults.adapter = adapter;
-  openAssistant('https://assistant.example.test');
+  const { getPanel } = openAssistant('https://assistant.example.test');
+  await getPanel();
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
@@ -169,7 +189,9 @@ it('aborts a pending request when the widget unmounts', () => {
     });
   });
   apiClient.defaults.adapter = adapter;
-  const view = render(<PortfolioAssistant apiBaseUrl="https://assistant.example.test" />);
+  const view = render(
+    <PortfolioAssistant apiBaseUrl="https://assistant.example.test" reduceMotion={false} />,
+  );
   fireEvent.click(screen.getByRole('button', { name: 'Open portfolio assistant' }));
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
