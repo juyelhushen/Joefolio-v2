@@ -7,7 +7,7 @@ const html = readFileSync(resolve('index.html'), 'utf8');
 
 it('keeps canonical, social sharing and structured data on the verified production domain', () => {
   const document = new DOMParser().parseFromString(html, 'text/html');
-  expect(document.title).toBe('Juyel Hushen | Software Engineer');
+  expect(document.title).toBe('Juyel | Portfolio');
   expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toBeTruthy();
   expect(document.querySelectorAll('link[rel="canonical"]')).toHaveLength(1);
   expect(document.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(origin);
