@@ -11,7 +11,6 @@ const originalAdapter = apiClient.defaults.adapter;
 afterEach(() => {
   cleanup();
   apiClient.defaults.adapter = originalAdapter;
-  window.sessionStorage.removeItem('joefolio-universe-intro-seen');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });

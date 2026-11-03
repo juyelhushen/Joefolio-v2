@@ -3,6 +3,7 @@ import { m } from 'motion/react';
 import { X } from 'lucide-react';
 import type { Project } from '../data/projects';
 import ProjectVisual from './ProjectVisual';
+import LoadBoundary from '../../../components/common/LoadBoundary';
 import './ProjectCaseStudy.css';
 
 const ArchitectureFlow = lazy(() => import('./ArchitectureFlow'));
@@ -106,9 +107,25 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
           )}
           <section>
             <h3>How it works</h3>
-            <Suspense fallback={<div className="architecture-loading" aria-busy="true" />}>
-              <ArchitectureFlow architecture={project.architecture} reduceMotion={reduceMotion} />
-            </Suspense>
+            <LoadBoundary
+              label="the architecture diagram"
+              fallback={
+                <div role="alert">
+                  <p>The interactive diagram could not load. System components:</p>
+                  <ul>
+                    {project.architecture.lanes.map((lane) => (
+                      <li key={lane.label}>
+                        {lane.label}: {lane.steps.join(' -> ')}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              }
+            >
+              <Suspense fallback={<div className="architecture-loading" aria-busy="true" />}>
+                <ArchitectureFlow architecture={project.architecture} reduceMotion={reduceMotion} />
+              </Suspense>
+            </LoadBoundary>
           </section>
           <section>
             <h3>Stack</h3>

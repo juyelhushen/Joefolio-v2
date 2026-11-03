@@ -5,6 +5,7 @@ import { projects } from '../data/projects';
 import './ProjectsSection.css';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
+import LoadBoundary from '../../../components/common/LoadBoundary';
 
 const ProjectCaseStudy = lazy(() => import('./ProjectCaseStudy'));
 
@@ -133,15 +134,33 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
       </div>
       <AnimatePresence>
         {selectedProject && (
-          <Suspense key={selectedProject.id} fallback={null}>
-            <ProjectCaseStudy
-              key={selectedProject.id}
-              project={selectedProject}
-              accent={accent}
-              reduceMotion={reduceMotion}
-              onClose={closeCaseStudy}
-            />
-          </Suspense>
+          <LoadBoundary
+            key={selectedProject.id}
+            label="the case study"
+            fallback={
+              <div className="load-error" role="alert">
+                <p>
+                  The case study could not load. The project repository is still available above.
+                </p>
+                <button className="button button-secondary" type="button" onClick={closeCaseStudy}>
+                  Dismiss
+                </button>
+                <a className="button button-tertiary" href="">
+                  Reload portfolio
+                </a>
+              </div>
+            }
+          >
+            <Suspense fallback={<p role="status">Loading case study...</p>}>
+              <ProjectCaseStudy
+                key={selectedProject.id}
+                project={selectedProject}
+                accent={accent}
+                reduceMotion={reduceMotion}
+                onClose={closeCaseStudy}
+              />
+            </Suspense>
+          </LoadBoundary>
         )}
       </AnimatePresence>
     </section>

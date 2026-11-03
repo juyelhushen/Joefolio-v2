@@ -1,4 +1,12 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { LazyMotion } from 'motion/react';
 import { useSystemReducedMotion } from '../hooks/useSystemReducedMotion';
 import './App.css';
@@ -6,7 +14,7 @@ import CosmicMeshBackground from '../components/background/CosmicMeshBackground/
 import HeroSection from '../sections/Hero/index';
 import Starfield from '../components/background/Starfield/Starfield';
 import Navbar from '../components/layout/Navbar/Navbar';
-import { useUniverseIntro } from './hooks/useUniverseIntro';
+import LoadBoundary from '../components/common/LoadBoundary';
 import { useActiveSection } from './hooks/useActiveSection';
 import { useBackendHealth } from './hooks/useBackendHealth';
 import CosmicMagnifyingCursor from '../components/cursor/CosmicMagnifyingCursor';
@@ -27,7 +35,6 @@ const CosmicFooter = lazy(() => import('../components/layout/Footer/CosmicFooter
 const PortfolioAssistant = lazy(
   () => import('../features/assistant/components/PortfolioAssistant'),
 );
-const UniverseIntro = lazy(() => import('../components/intro/UniverseIntro'));
 const loadPalette = () => import('../features/command-palette/components/CommandPalette');
 const CommandPalette = lazy(loadPalette);
 const loadMotionFeatures = () => import('../lib/motion-features').then((module) => module.default);
@@ -35,10 +42,12 @@ const loadMotionFeatures = () => import('../lib/motion-features').then((module) 
 function LazySection({
   id,
   className,
+  label,
   children,
 }: {
   id: string;
   className: string;
+  label: string;
   children: ReactNode;
 }) {
   const shellRef = useRef<HTMLDivElement>(null);
@@ -92,9 +101,42 @@ function LazySection({
   return (
     <div className="lazy-section-shell" ref={shellRef}>
       {loaded ? (
-        <Suspense fallback={<div id={id} className={`lazy-section-placeholder ${className}`} />}>
-          {children}
-        </Suspense>
+        <LoadBoundary
+          label={label}
+          fallback={
+            <section
+              id={id}
+              className={`lazy-section-placeholder ${className} section-wrap load-error`}
+              role="alert"
+            >
+              <h2>{label} could not load</h2>
+              <p>The rest of the portfolio is still available. Reload to try this section again.</p>
+              <a className="button button-secondary" href="">
+                Reload portfolio
+              </a>
+            </section>
+          }
+        >
+          <Suspense
+            fallback={
+              <section
+                id={id}
+                className={`lazy-section-placeholder ${className} section-wrap`}
+                aria-busy="true"
+                aria-label={`Loading ${label}`}
+              >
+                <div className="section-skeleton" aria-hidden="true">
+                  <span className="skeleton-kicker" />
+                  <span className="skeleton-heading" />
+                  <span className="skeleton-line" />
+                  <span className="skeleton-line skeleton-line-short" />
+                </div>
+              </section>
+            }
+          >
+            {children}
+          </Suspense>
+        </LoadBoundary>
       ) : (
         <div id={id} className={`lazy-section-placeholder ${className}`} aria-busy="true" />
       )}
@@ -113,19 +155,23 @@ function IdleAssistant() {
   }, []);
 
   return ready ? (
-    <Suspense fallback={null}>
-      <PortfolioAssistant />
-    </Suspense>
+    <LoadBoundary label="the optional assistant" fallback={null}>
+      <Suspense fallback={null}>
+        <PortfolioAssistant />
+      </Suspense>
+    </LoadBoundary>
   ) : null;
 }
 
 export default function App() {
   const [paletteOpener, setPaletteOpener] = useState<{ element: HTMLElement | null } | null>(null);
   const backendStatus = useBackendHealth();
-  const { showUniverseIntro, completeUniverseIntro } = useUniverseIntro();
   const { activeSection, handleNavigationClick } = useActiveSection();
   const homeHeadingRef = useRef<HTMLHeadingElement>(null);
   const reduceMotion = useSystemReducedMotion();
+  useLayoutEffect(() => {
+    window.__PORTFOLIO_STARTUP__?.ready();
+  }, []);
   const openPalette = () => {
     setPaletteOpener(
       (current) =>
@@ -137,9 +183,9 @@ export default function App() {
 
   return (
     <LazyMotion features={loadMotionFeatures}>
-      <div className="site-shell" data-intro-active={showUniverseIntro ? 'true' : undefined}>
-        <CosmicMeshBackground paused={showUniverseIntro} />
-        <Starfield paused={showUniverseIntro} />
+      <div className="site-shell">
+        <CosmicMeshBackground />
+        <Starfield />
         <div className="space-grain" aria-hidden="true" />
         <a className="skip-link" href="#main-content">
           Skip to content
@@ -155,56 +201,69 @@ export default function App() {
           }}
         />
         {paletteOpener && (
-          <Suspense fallback={null}>
-            <CommandPalette
-              opener={paletteOpener.element}
-              onClose={() => setPaletteOpener(null)}
-              onNavigate={handleNavigationClick}
-              reduceMotion={reduceMotion}
-            />
-          </Suspense>
+          <LoadBoundary
+            label="search"
+            fallback={
+              <div className="load-error section-wrap" role="alert">
+                <p>Search could not load. Use the section navigation or reload to try again.</p>
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  onClick={() => setPaletteOpener(null)}
+                >
+                  Dismiss
+                </button>
+              </div>
+            }
+          >
+            <Suspense fallback={null}>
+              <CommandPalette
+                opener={paletteOpener.element}
+                onClose={() => setPaletteOpener(null)}
+                onNavigate={handleNavigationClick}
+                reduceMotion={reduceMotion}
+              />
+            </Suspense>
+          </LoadBoundary>
         )}
 
         <main id="main-content">
           <HeroSection reduceMotion={reduceMotion} headingRef={homeHeadingRef} />
-          <LazySection id="about" className="about">
+          <LazySection id="about" className="about" label="About">
             <AboutSection />
           </LazySection>
           {impactStats.length > 0 && (
-            <Suspense fallback={<div className="impact-lazy-placeholder" aria-hidden="true" />}>
-              <ImpactStrip reduceMotion={reduceMotion} />
-            </Suspense>
+            <LoadBoundary label="the optional impact summary" fallback={null}>
+              <Suspense fallback={<div className="impact-lazy-placeholder" aria-hidden="true" />}>
+                <ImpactStrip reduceMotion={reduceMotion} />
+              </Suspense>
+            </LoadBoundary>
           )}
-          <LazySection id="experience" className="experience">
+          <LazySection id="experience" className="experience" label="Experience">
             <ExperienceSection reduceMotion={reduceMotion} />
           </LazySection>
-          <LazySection id="skills" className="skills">
+          <LazySection id="skills" className="skills" label="Skills">
             <SkillsSection reduceMotion={reduceMotion} />
           </LazySection>
 
-          <LazySection id="projects" className="projects">
+          <LazySection id="projects" className="projects" label="Projects">
             <ProjectsSection reduceMotion={reduceMotion} />
           </LazySection>
 
-          <LazySection id="ai-lab" className="ai-lab">
+          <LazySection id="ai-lab" className="ai-lab" label="AI Lab">
             <AiLabSection />
           </LazySection>
 
-          <LazySection id="contact" className="contact">
+          <LazySection id="contact" className="contact" label="Contact">
             <CosmicContactSection reduceMotion={reduceMotion} backendStatus={backendStatus} />
           </LazySection>
         </main>
-        <LazySection id="footer" className="footer">
+        <LazySection id="footer" className="footer" label="Footer">
           <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion} />
         </LazySection>
         {import.meta.env.VITE_AI_ASSISTANT_API_URL?.trim() && <IdleAssistant />}
         <CosmicMagnifyingCursor />
         <CosmicScrollProgress />
-        {showUniverseIntro && (
-          <Suspense fallback={null}>
-            <UniverseIntro onComplete={completeUniverseIntro} />
-          </Suspense>
-        )}
       </div>
     </LazyMotion>
   );

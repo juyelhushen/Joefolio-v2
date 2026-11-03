@@ -53,7 +53,285 @@
     </script>
   </head>
   <body>
+    <style>
+      body {
+        margin: 0;
+        background: #090d19;
+      }
+      .startup-signal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        box-sizing: border-box;
+        background: var(--color-bg, #090d19);
+        color: var(--color-text-primary, #f1f0ea);
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        transition: opacity 160ms ease-out;
+      }
+      .startup-signal[hidden] {
+        display: none;
+      }
+      .startup-signal.is-leaving {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .signal-composition {
+        width: min(100%, 320px);
+      }
+      .signal-monogram {
+        font-size: clamp(48px, 9vw, 64px);
+        font-weight: 600;
+        letter-spacing: -4px;
+        line-height: 1;
+      }
+      .signal-map {
+        display: block;
+        width: 100%;
+        height: 96px;
+        margin: 20px auto 28px;
+        overflow: visible;
+      }
+      .signal-path {
+        stroke: var(--color-accent-secondary, #a99af6);
+        stroke-opacity: 0.35;
+        stroke-width: 1;
+        fill: none;
+      }
+      .signal-connection {
+        transform-origin: 40px 68px;
+        animation: signal-acquire 3.6s ease-in-out infinite;
+      }
+      .signal-node,
+      .signal-packet {
+        fill: var(--color-accent-primary, #c5f477);
+      }
+      .signal-node {
+        animation: signal-node 3.6s ease-in-out infinite;
+      }
+      .signal-node:nth-of-type(2) {
+        animation-delay: 350ms;
+      }
+      .signal-node:nth-of-type(3) {
+        animation-delay: 700ms;
+      }
+      .signal-packet {
+        animation: signal-travel 3.6s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+      }
+      .signal-label {
+        margin: 0;
+        font-size: clamp(16px, 4vw, 18px);
+        font-weight: 500;
+        letter-spacing: -0.2px;
+      }
+      .signal-support {
+        margin: 10px 0 0;
+        color: var(--color-text-secondary, #aab2c2);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .signal-reload {
+        display: inline-flex;
+        min-height: 48px;
+        align-items: center;
+        padding: 0 16px;
+        margin-top: 20px;
+        border: 1px solid var(--color-accent-primary, #c5f477);
+        border-radius: 10px;
+        color: inherit;
+        text-decoration: none;
+      }
+      .signal-reload[hidden] {
+        display: none;
+      }
+      .signal-reload:focus-visible {
+        outline: 2px solid var(--color-accent-primary, #c5f477);
+        outline-offset: 4px;
+      }
+      .startup-signal[data-failed] .signal-map {
+        display: none;
+      }
+      .startup-signal[data-failed] .signal-label {
+        margin-top: 28px;
+      }
+      @keyframes signal-acquire {
+        0% {
+          transform: scaleX(0);
+          opacity: 0;
+        }
+        30%,
+        80% {
+          transform: scaleX(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scaleX(1);
+          opacity: 0.35;
+        }
+      }
+      @keyframes signal-node {
+        0%,
+        100% {
+          opacity: 0.35;
+        }
+        30%,
+        70% {
+          opacity: 1;
+        }
+      }
+      @keyframes signal-travel {
+        0%,
+        12% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        48% {
+          transform: translate(100px, -40px);
+        }
+        78% {
+          transform: translate(240px, 0);
+          opacity: 1;
+        }
+        90%,
+        100% {
+          transform: translate(240px, 0);
+          opacity: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .startup-signal {
+          transition: none;
+        }
+        .signal-map * {
+          animation: none;
+        }
+        .signal-packet {
+          display: none;
+        }
+      }
+    </style>
+    <div id="startup-signal" class="startup-signal" role="status" aria-live="polite" hidden>
+      <div class="signal-composition">
+        <div class="signal-monogram" aria-hidden="true">JH</div>
+        <svg class="signal-map" viewBox="0 0 320 96" aria-hidden="true">
+          <path class="signal-path signal-connection" d="M40 68 140 28 280 68" />
+          <circle class="signal-node" cx="40" cy="68" r="3" />
+          <circle class="signal-node" cx="140" cy="28" r="3" />
+          <circle class="signal-node" cx="280" cy="68" r="3" />
+          <circle class="signal-packet" cx="40" cy="68" r="2.5" />
+        </svg>
+        <p class="signal-label">Connecting the constellation</p>
+        <p class="signal-support">Preparing the experience</p>
+        <a class="signal-reload" href="" hidden>Reload portfolio</a>
+      </div>
+    </div>
     <div id="root"></div>
+    <noscript>
+      <p class="signal-support">
+        JavaScript is required for this portfolio. You can also explore
+        <a href="https://github.com/juyelhushen">Juyel's GitHub projects</a>.
+      </p>
+    </noscript>
+    <script id="startup-controller">
+      (() => {
+        const signal = document.getElementById('startup-signal');
+        const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let ready = false;
+        let leaving = false;
+        let timer;
+        let visibleAt;
+        const clearTimer = () => {
+          window.clearTimeout(timer);
+          timer = undefined;
+        };
+        const showSignal = () => {
+          signal.hidden = false;
+          visibleAt = performance.now();
+        };
+        const removeSignal = () => {
+          clearTimer();
+          motion.removeEventListener('change', onMotionChange);
+          signal.removeEventListener('transitionend', removeSignal);
+          signal.remove();
+        };
+        const release = () => {
+          clearTimer();
+          if (!ready || leaving) return;
+          if (motion.matches || signal.hidden) {
+            removeSignal();
+            return;
+          }
+          const remaining = 2000 - (performance.now() - visibleAt);
+          if (remaining > 0) {
+            timer = window.setTimeout(release, remaining);
+            return;
+          }
+          leaving = true;
+          signal.setAttribute('aria-hidden', 'true');
+          signal.classList.add('is-leaving');
+          signal.addEventListener('transitionend', removeSignal, { once: true });
+          timer = window.setTimeout(removeSignal, 180);
+        };
+        const onMotionChange = () => {
+          if (motion.matches) {
+            clearTimer();
+            if (ready) removeSignal();
+            else signal.hidden = true;
+          } else if (!ready && signal.hidden && !signal.dataset.failed) {
+            showSignal();
+          }
+        };
+        const removeListeners = () => {
+          window.removeEventListener('error', onError, true);
+          window.removeEventListener('unhandledrejection', onRejection);
+        };
+        const fail = () => {
+          if (ready) return;
+          clearTimer();
+          removeListeners();
+          motion.removeEventListener('change', onMotionChange);
+          signal.hidden = false;
+          signal.dataset.failed = 'true';
+          signal.setAttribute('role', 'alert');
+          signal.querySelector('.signal-label').textContent = 'The portfolio could not start';
+          signal.querySelector('.signal-support').textContent =
+            'Please reload to try again, or return when your connection is available.';
+          signal.querySelector('.signal-reload').hidden = false;
+        };
+        const onError = (event) => {
+          if (
+            event.error ||
+            (event.target?.tagName === 'SCRIPT' && event.target.type === 'module')
+          ) {
+            console.error('Portfolio startup failed.', event.error || event);
+            fail();
+          }
+        };
+        const onRejection = (event) => {
+          console.error('Portfolio startup failed.', event.reason);
+          fail();
+        };
+        window.addEventListener('error', onError, true);
+        window.addEventListener('unhandledrejection', onRejection);
+        motion.addEventListener('change', onMotionChange);
+        if (!motion.matches) showSignal();
+        window.__PORTFOLIO_STARTUP__ = {
+          ready() {
+            if (ready) return;
+            ready = true;
+            removeListeners();
+            release();
+          },
+          fail,
+        };
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
