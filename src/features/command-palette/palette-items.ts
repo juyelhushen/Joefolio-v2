@@ -11,7 +11,6 @@ export type PaletteItem = {
 } & (
   | { readonly kind: 'section'; readonly section: NavigationId }
   | { readonly kind: 'project'; readonly projectId: string }
-  | { readonly kind: 'copy' | 'effects' }
   | { readonly kind: 'link'; readonly href: string; readonly download?: string }
 );
 
@@ -32,7 +31,6 @@ export function getPaletteItems(hasResume: boolean): readonly PaletteItem[] {
       kind: 'project',
       projectId: project.id,
     })),
-    { id: 'copy-email', label: 'Copy email', group: 'Actions', kind: 'copy' },
     ...(hasResume
       ? [
           {
@@ -52,7 +50,6 @@ export function getPaletteItems(hasResume: boolean): readonly PaletteItem[] {
       kind: 'link',
       href,
     })),
-    { id: 'effects', label: 'Toggle Reduce effects', group: 'Actions', kind: 'effects' },
   ];
 }
 

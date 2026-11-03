@@ -1,13 +1,11 @@
 import { useRef, useState, type RefObject } from 'react';
-import { Linkedin, Plane } from 'lucide-react';
+import { Linkedin, Mail, Plane } from 'lucide-react';
 import { m } from 'motion/react';
 import { siGithub, siLeetcode, type SimpleIcon } from 'simple-icons';
 import ScrollReveal from '../../common/ScrollReveal';
-import { PROFILE_LINKS } from '../../../lib/profile';
+import { PROFILE_LINKS, PUBLIC_EMAIL } from '../../../lib/profile';
 import './CosmicFooter.css';
-import EmailContact from '../../common/EmailContact';
 import ResumeDownload from '../../common/ResumeDownload';
-import EffectsPreferenceToggle from '../../common/EffectsPreferenceToggle';
 import LocalTime from './LocalTime';
 
 type CosmicFooterProps = {
@@ -30,6 +28,7 @@ const socialLinks = [
     icon: 'linkedin',
   },
   { label: 'GitHub', href: PROFILE_LINKS.github, icon: siGithub },
+  { label: 'Gmail', href: `mailto:${PUBLIC_EMAIL}`, icon: 'mail' },
   { label: 'LeetCode', href: PROFILE_LINKS.leetcode, icon: siLeetcode },
 ] as const;
 
@@ -89,15 +88,17 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
         <nav className="footer-social-links" aria-label="Social profiles">
           {socialLinks.map((link) => (
             <a
-              className="footer-social-link"
+              className="button button-secondary footer-social-link"
               href={link.href}
               key={link.label}
-              target="_blank"
-              rel="noopener noreferrer"
+              target={link.icon === 'mail' ? undefined : '_blank'}
+              rel={link.icon === 'mail' ? undefined : 'noopener noreferrer'}
               aria-label={link.label}
             >
               {link.icon === 'linkedin' ? (
                 <Linkedin size={19} strokeWidth={1.8} aria-hidden="true" />
+              ) : link.icon === 'mail' ? (
+                <Mail size={19} strokeWidth={1.8} aria-hidden="true" />
               ) : (
                 <BrandIcon icon={link.icon} />
               )}
@@ -106,12 +107,10 @@ export default function CosmicFooter({ homeHeadingRef, reducedMotion }: CosmicFo
           ))}
         </nav>
         <div className="footer-direct-contact">
-          <EmailContact />
           <ResumeDownload />
-          <EffectsPreferenceToggle />
         </div>
         <button
-          className="back-top"
+          className="button button-tertiary back-top"
           type="button"
           onClick={launchJet}
           ref={returnButtonRef}

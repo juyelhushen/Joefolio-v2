@@ -63,13 +63,13 @@ export default function AiLabSection() {
                 </ul>
                 {project?.links.map((link) => (
                   <a
-                    className="text-link"
+                    className="button button-tertiary"
                     href={link.href}
                     key={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {link.label} <ArrowUpRight size={15} />
+                    {link.label} <ArrowUpRight size={18} aria-hidden="true" />
                   </a>
                 ))}
               </div>

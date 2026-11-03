@@ -6,13 +6,13 @@
 }
 .manifesto h2 em {
   font-weight: 600;
-  color: var(--orange);
-  font-style: italic;
+  color: var(--color-accent-primary);
+  font-style: normal;
 }
 .manifesto {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding: 76px 0;
+  padding: var(--space-section) 0;
   display: grid;
   grid-template-columns: 0.65fr 2fr 0.85fr;
   gap: 30px;
@@ -31,8 +31,8 @@
   color: var(--color-text-muted);
 }
 .manifesto h2 {
-  font-size: clamp(38px, 5vw, 61px);
-  letter-spacing: -2.3px;
+  font-size: var(--type-section);
+  letter-spacing: -0.045em;
   margin: 0 0 22px;
 }
 .manifesto-copy > p {
@@ -61,7 +61,7 @@
     gap: 19px;
   }
   .manifesto h2 {
-    font-size: 43px;
+    font-size: var(--type-section);
   }
   .manifesto-copy > p {
     font-size: 14px;

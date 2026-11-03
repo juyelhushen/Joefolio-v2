@@ -1,14 +1,13 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import ScrollReveal, { ScrollRevealItem } from './ScrollReveal';
-import { useEffectsPreference } from '../../hooks/useEffectsPreference';
+import { useReducedMotion } from 'motion/react';
 
-vi.mock('../../hooks/useEffectsPreference', () => {
+vi.mock('motion/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('motion/react')>();
   return {
-    useEffectsPreference: vi.fn(() => ({
-      reducedEffects: false,
-      setReducedEffects: vi.fn(),
-    })),
+    ...actual,
+    useReducedMotion: vi.fn(() => false),
   };
 });
 
@@ -20,15 +19,13 @@ afterEach(() => {
 });
 
 it('shows reduced-motion content immediately with no observer', () => {
-  vi.mocked(useEffectsPreference).mockReturnValueOnce({
-    reducedEffects: true,
-    setReducedEffects: vi.fn(),
-  });
+  vi.mocked(useReducedMotion).mockReturnValue(true);
   const observer = vi.fn();
   vi.stubGlobal('IntersectionObserver', observer);
   const { container } = render(<ScrollReveal variant="blur-reveal">Static content</ScrollReveal>);
   expect(container.firstElementChild?.getAttribute('data-revealed')).toBe('true');
   expect(observer).not.toHaveBeenCalled();
+  vi.mocked(useReducedMotion).mockReturnValue(false);
 });
 
 it('uses one observer for a stagger container and all its items', () => {

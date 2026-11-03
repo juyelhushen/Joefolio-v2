@@ -57,12 +57,12 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
               </span>
               <div>
                 <h2>Joe&apos;s AI System</h2>
-                <p>In development</p>
+                <p>{available ? 'Portfolio Q&A' : 'In development'}</p>
               </div>
             </div>
             <button
               ref={closeRef}
-              className="assistant-close"
+              className="button button-secondary button-icon assistant-close"
               type="button"
               onClick={() => {
                 setOpen(false);
@@ -121,6 +121,7 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
           <div className="assistant-suggestions" aria-label="Suggested questions">
             {followUps.map((question) => (
               <button
+                className="button button-secondary"
                 key={question}
                 type="button"
                 disabled={!available || pending}
@@ -136,6 +137,7 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
               Ask about Juyel’s portfolio
             </label>
             <input
+              className="form-control"
               ref={inputRef}
               id={`${panelId}-input`}
               value={draft}
@@ -144,6 +146,7 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
               disabled={!available || pending}
             />
             <button
+              className="button button-primary button-icon"
               type="submit"
               aria-label="Send message"
               disabled={!available || pending || !draft.trim()}
@@ -160,7 +163,7 @@ export default function PortfolioAssistant({ apiBaseUrl }: PortfolioAssistantPro
       )}
       <button
         ref={launcherRef}
-        className="assistant-launcher"
+        className="button button-secondary assistant-launcher"
         type="button"
         aria-label={open ? 'Hide portfolio assistant panel' : 'Open portfolio assistant'}
         aria-expanded={open}

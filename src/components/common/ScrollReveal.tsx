@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode, type ComponentProps } from 'react';
 import { m } from 'motion/react';
+import { useSystemReducedMotion } from '../../hooks/useSystemReducedMotion';
 import { createRevealVariants, type ScrollRevealVariant } from './reveal-variants';
-import { useEffectsPreference } from '../../hooks/useEffectsPreference';
 
 export type { ScrollRevealVariant } from './reveal-variants';
 
@@ -35,7 +35,7 @@ export default function ScrollReveal({
   ...attributes
 }: ScrollRevealProps) {
   const elementRef = useRef<HTMLDivElement>(null);
-  const { reducedEffects } = useEffectsPreference();
+  const reducedEffects = useSystemReducedMotion();
   const [visible, setVisible] = useState(false);
   const observerAvailable = typeof IntersectionObserver !== 'undefined';
   const headingStatic =
@@ -115,7 +115,7 @@ type RevealItemProps = ComponentProps<typeof m.div> & {
 
 // Inherits the parent reveal labels; stagger children need no individual observers.
 export const ScrollRevealItem = ({ variant = 'fade-up', ...props }: RevealItemProps) => {
-  const { reducedEffects } = useEffectsPreference();
+  const reducedEffects = useSystemReducedMotion();
   return (
     <m.div
       {...props}

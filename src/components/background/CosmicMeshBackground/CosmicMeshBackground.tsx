@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './CosmicMeshBackground.css';
-import { useEffectsPreference } from '../../../hooks/useEffectsPreference';
+import { useSystemReducedMotion } from '../../../hooks/useSystemReducedMotion';
 import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
 
 const vertexShaderSource = `
@@ -115,7 +115,7 @@ function isDataSaving(): boolean {
 export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackgroundProps) {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { reducedEffects } = useEffectsPreference();
+  const reducedEffects = useSystemReducedMotion();
   const [mobileLite, setMobileLite] = useState(() => isMobileViewport() || isDataSaving());
   const [readyGeneration, setReadyGeneration] = useState(0);
   const generationRef = useRef(0);

@@ -1,5 +1,5 @@
 .skills-section {
-  padding: 34px 0 96px;
+  padding: var(--space-section) 0;
 }
 .skills-heading {
   margin-bottom: 32px;
@@ -23,9 +23,7 @@
   aspect-ratio: 1.04;
   justify-self: center;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(247, 172, 93, 0.08), transparent 15%),
-    radial-gradient(ellipse at 50% 50%, rgba(45, 71, 141, 0.14), transparent 66%);
+  background: radial-gradient(ellipse at 50% 50%, var(--color-secondary-soft), transparent 66%);
 }
 .skills-orbit-scene::before,
 .skills-orbit-scene::after {
@@ -93,14 +91,13 @@
   height: 92%;
 }
 .solar-orbit-track-2 {
-  border-color: rgba(105, 199, 222, 0.15);
+  border-color: var(--color-border);
 }
 .solar-orbit-track-4 {
-  border-color: rgba(178, 145, 255, 0.15);
+  border-color: var(--color-border);
 }
 .solar-orbit-track-6 {
-  border-color: rgba(255, 174, 104, 0.16);
-  box-shadow: 0 0 18px rgba(255, 174, 104, 0.025);
+  border-color: var(--color-border);
 }
 .skill-orbit-frame {
   z-index: 3;
@@ -120,15 +117,13 @@
   height: 52px;
   place-items: center;
   padding: 0;
-  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
+  border: var(--border-control);
   border-radius: 50%;
   background:
     radial-gradient(circle at 30% 23%, rgba(255, 255, 255, 0.24), transparent 13%),
     radial-gradient(circle at 38% 32%, color-mix(in srgb, currentColor 34%, #17192c), #090d1d 74%);
-  box-shadow:
-    inset -7px -8px 13px rgba(0, 0, 0, 0.76),
-    inset 2px 2px 7px rgba(255, 255, 255, 0.09),
-    0 0 16px color-mix(in srgb, currentColor 25%, transparent);
+  color: var(--color-text-secondary);
+  box-shadow: inset -7px -8px 13px rgba(0, 0, 0, 0.6);
   cursor: pointer;
   pointer-events: auto;
   transform: translate(-50%, -50%);
@@ -140,12 +135,10 @@
 .skill-orbit-planet:hover,
 .skill-orbit-planet.is-selected,
 .skill-orbit-planet:focus-visible {
-  border-color: color-mix(in srgb, currentColor 80%, white);
-  box-shadow:
-    inset -6px -7px 12px rgba(0, 0, 0, 0.68),
-    inset 2px 2px 8px rgba(255, 255, 255, 0.13),
-    0 0 25px color-mix(in srgb, currentColor 45%, transparent);
-  scale: 1.14;
+  border-color: var(--color-accent-primary);
+  color: var(--color-accent-primary);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+  scale: 1.04;
 }
 .skill-planet-counter {
   position: relative;
@@ -206,29 +199,17 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  border: 1px solid rgba(255, 212, 157, 0.7);
+  border: 1px solid var(--color-accent-secondary);
   border-radius: 50%;
-  color: #fff6df;
-  background:
-    radial-gradient(circle at 34% 27%, rgba(255, 255, 237, 0.95), transparent 9%),
-    radial-gradient(
-      circle at 40% 34%,
-      #fff5c8 0,
-      #ffc36e 24%,
-      #f4874d 48%,
-      #7d3e5f 76%,
-      #17162d 100%
-    );
-  box-shadow:
-    0 0 25px rgba(255, 174, 94, 0.34),
-    0 0 75px rgba(255, 129, 73, 0.14),
-    inset -13px -12px 24px rgba(60, 19, 43, 0.56);
+  color: var(--color-text-primary);
+  background: radial-gradient(circle at 35% 25%, var(--color-surface-raised), var(--color-bg));
+  box-shadow: 0 0 32px var(--color-secondary-soft);
   transform: translate(-50%, -50%);
 }
 .solar-core-corona {
   position: absolute;
   inset: -8px;
-  border: 1px solid rgba(255, 193, 132, 0.24);
+  border: 1px solid var(--color-border);
   border-radius: 50%;
   animation: solar-corona 4.5s ease-in-out infinite alternate;
 }
@@ -239,7 +220,9 @@
 }
 .solar-core small {
   position: relative;
-  color: #fff0d3;
+  color: var(--color-text-secondary);
+  max-width: 90%;
+  text-align: center;
   font-family: var(--font-mono);
   font-size: var(--type-label);
   letter-spacing: 1.1px;
@@ -253,25 +236,13 @@
 .skill-category {
   min-width: 0;
   padding: 14px;
-  border: 1px solid rgba(173, 192, 228, 0.13);
-  border-radius: 12px;
-  background: rgba(8, 12, 25, 0.56);
-}
-.skill-category-backend {
-  --category-color: #76dbe6;
-}
-.skill-category-frontend {
-  --category-color: #b6a2ff;
-}
-.skill-category-data {
-  --category-color: #8ebaff;
-}
-.skill-category-ai {
-  --category-color: #a5e0c5;
+  border: var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
 }
 .skill-category h3 {
   margin: 0 0 9px;
-  color: var(--category-color);
+  color: var(--color-accent-secondary);
   font: 600 14px/1.35 var(--font-mono);
 }
 .skill-category ul {
@@ -285,7 +256,7 @@
 .skill-category li {
   padding: 4px 7px;
   border: 1px solid rgba(173, 192, 228, 0.12);
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   color: var(--color-text-secondary);
   font-size: 14px;
   line-height: 1.4;
@@ -294,27 +265,11 @@
   grid-area: details;
   min-width: 0;
   padding: clamp(22px, 3vw, 34px);
-  border: 1px solid rgba(173, 192, 228, 0.17);
-  border-radius: 19px;
-  background:
-    radial-gradient(ellipse at 100% 0%, var(--domain-glow), transparent 46%), rgba(8, 12, 25, 0.83);
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.15);
-}
-.skill-detail-backend {
-  --domain-color: #76dbe6;
-  --domain-glow: rgba(64, 198, 218, 0.1);
-}
-.skill-detail-frontend {
-  --domain-color: #b6a2ff;
-  --domain-glow: rgba(147, 113, 255, 0.12);
-}
-.skill-detail-data {
-  --domain-color: #8ebaff;
-  --domain-glow: rgba(91, 153, 247, 0.12);
-}
-.skill-detail-ai {
-  --domain-color: #a5e0c5;
-  --domain-glow: rgba(82, 199, 156, 0.1);
+  border: var(--border-subtle);
+  border-top: 2px solid var(--color-accent-primary);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-panel);
 }
 .skill-detail-heading {
   display: flex;
@@ -326,10 +281,10 @@
   width: 37px;
   height: 37px;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--domain-color) 36%, transparent);
-  border-radius: 12px;
-  color: var(--domain-color);
-  background: color-mix(in srgb, var(--domain-color) 10%, transparent);
+  border: var(--border-subtle);
+  border-radius: var(--radius-control);
+  color: var(--color-accent-primary);
+  background: var(--color-accent-soft);
 }
 .skill-detail-icon svg {
   width: 19px;
@@ -365,26 +320,12 @@
   gap: 7px;
 }
 .skill-evidence-list a {
-  display: flex;
-  min-height: 44px;
   justify-content: space-between;
-  gap: 12px;
-  padding: 9px 10px;
-  border: 1px solid rgba(173, 192, 228, 0.12);
-  border-radius: 9px;
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, 0.025);
-  font-size: 14px;
-  transition:
-    color var(--motion-fast) var(--ease-standard),
-    border-color var(--motion-fast) var(--ease-standard);
+  text-align: left;
+  font-weight: 400;
 }
 .skill-evidence-list a span:last-child {
-  color: var(--domain-color);
-}
-.skill-evidence-list a:hover {
-  border-color: color-mix(in srgb, var(--domain-color) 40%, transparent);
-  color: #fff;
+  color: var(--color-accent-primary);
 }
 @keyframes skill-orbit-revolution {
   from {
@@ -512,14 +453,11 @@
     gap: 3px 8px;
   }
 }
-:root[data-effects-reduced='true'] .skill-orbit-frame,
-:root[data-effects-reduced='true'] .skill-planet-counter,
-:root[data-effects-reduced='true'] .solar-core-corona {
-  animation: none !important;
-}
-:root[data-effects-reduced='true'] .skill-orbit-frame {
-  transform: translate(-50%, -50%) rotate(var(--skill-orbit-phase)) !important;
-}
-:root[data-effects-reduced='true'] .skill-planet-counter {
-  transform: rotate(var(--skill-counter-phase)) !important;
+@media (prefers-reduced-motion: reduce) {
+  .skill-orbit-frame {
+    transform: translate(-50%, -50%) rotate(var(--skill-orbit-phase)) !important;
+  }
+  .skill-planet-counter {
+    transform: rotate(var(--skill-counter-phase)) !important;
+  }
 }

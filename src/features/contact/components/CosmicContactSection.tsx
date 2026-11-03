@@ -8,7 +8,6 @@ import './CosmicContactSection.css';
 import { useContactTransmission } from '../hooks/useContactTransmission';
 import { PROFILE_LINKS } from '../../../lib/profile';
 import type { BackendHealthStatus } from '../../../lib/api/backend-health';
-import EmailContact from '../../../components/common/EmailContact';
 import { useAnimationVisibility } from '../../../hooks/useAnimationVisibility';
 
 type CosmicContactSectionProps = {
@@ -85,8 +84,10 @@ export default function CosmicContactSection({
                 role="status"
                 aria-label="Contact service availability"
               >
-                <p>The form may take a moment or be offline. You can email me directly instead.</p>
-                <EmailContact />
+                <p>
+                  The form may take a moment or be offline. You can use the email link in the footer
+                  instead.
+                </p>
               </div>
             )}
             <CosmicContactForm
@@ -96,15 +97,21 @@ export default function CosmicContactSection({
               submitButtonRef={launchButtonRef}
               onSubmitMessage={(message) => void submitMessage(message)}
             />
-            <div className="contact-direct-email">
-              <p>Prefer email?</p>
-              <EmailContact allowCopy />
-            </div>
             <nav className="contact-social-links" aria-label="Other ways to connect">
-              <a href={PROFILE_LINKS.linkedin} target="_blank" rel="noopener noreferrer">
+              <a
+                className="button button-tertiary"
+                href={PROFILE_LINKS.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Linkedin size={15} aria-hidden="true" /> LinkedIn
               </a>
-              <a href={PROFILE_LINKS.github} target="_blank" rel="noopener noreferrer">
+              <a
+                className="button button-tertiary"
+                href={PROFILE_LINKS.github}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Github size={15} aria-hidden="true" /> GitHub
               </a>
             </nav>

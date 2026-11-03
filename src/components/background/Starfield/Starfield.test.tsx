@@ -66,9 +66,9 @@ function mockIdleCallbacks() {
 }
 
 function mockMotionPreference(reduced: boolean, mobile = false) {
+  let currentPreference = reduced;
   const changeListeners: { media: string; listener: EventListener }[] = [];
   const removedListeners = vi.fn();
-  let currentPreference = reduced;
   const matchMedia = vi.fn((media: string) => ({
     matches:
       (media.includes('prefers-reduced-motion') && currentPreference) ||
@@ -89,9 +89,8 @@ function mockMotionPreference(reduced: boolean, mobile = false) {
   const setReducedPreference = (next: boolean) => {
     currentPreference = next;
     for (const { media, listener } of changeListeners) {
-      if (media.includes('prefers-reduced-motion')) {
+      if (media.includes('prefers-reduced-motion'))
         listener(Object.assign(new Event('change'), { matches: next }));
-      }
     }
   };
   return { matchMedia, changeListeners, removedListeners, setReducedPreference };
@@ -213,16 +212,39 @@ it('pauses while the document is hidden and resumes when it becomes visible', ()
   mockMotionPreference(false);
   const context = mockCanvasContext();
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-  render(<Starfield />);
+  const { container } = render(<Starfield />);
   act(() => idleCallbacks[0]());
 
   Object.defineProperty(document, 'hidden', { configurable: true, value: true });
-  document.dispatchEvent(new Event('visibilitychange'));
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
   expect(cancelAnimationFrame).toHaveBeenCalled();
+  expect(container.querySelector('.shooting-stars')?.getAttribute('data-running')).toBe('false');
 
   Object.defineProperty(document, 'hidden', { configurable: true, value: false });
-  document.dispatchEvent(new Event('visibilitychange'));
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
   expect(requestAnimationFrame).toHaveBeenCalledTimes(2);
+  expect(container.querySelector('.shooting-stars')?.getAttribute('data-running')).toBe('true');
+});
+
+it.each([
+  { reduced: false, mobile: false, paused: false, running: 'true' },
+  { reduced: true, mobile: false, paused: false, running: 'false' },
+  { reduced: false, mobile: true, paused: false, running: 'false' },
+  { reduced: false, mobile: false, paused: true, running: 'false' },
+])('gates three decorative CSS shooting stars: %j', ({ reduced, mobile, paused, running }) => {
+  mockIdleCallbacks();
+  mockAnimationFrames();
+  mockMotionPreference(reduced, mobile);
+  const context = mockCanvasContext();
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
+  const { container, rerender } = render(<Starfield paused={paused} />);
+  const layer = container.querySelector('.shooting-stars');
+  expect(layer?.getAttribute('aria-hidden')).toBe('true');
+  expect(layer?.getAttribute('data-running')).toBe(running);
+  expect(layer?.children).toHaveLength(3);
+  expect(context.createLinearGradient).not.toHaveBeenCalled();
+  rerender(<Starfield paused />);
+  expect(layer?.getAttribute('data-running')).toBe('false');
 });
 
 it('resizes the backing canvas to valid dimensions and applies a capped pixel ratio', () => {

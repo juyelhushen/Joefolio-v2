@@ -49,8 +49,21 @@ Return a non-2xx status for failures. The frontend reports a generic status-base
 
 ## Frontend behavior and backend responsibilities
 
-- Without a configured URL, the panel states that the assistant is being prepared, disables its input, and makes no requests.
+- Without a configured URL, the application hides the launcher and does not download the assistant
+  interface. Search, source-backed case studies and contact remain the available alternatives.
+  The standalone component still supports an honest disabled state for previews/tests.
 - With a URL configured, the frontend sends JSON to the contract above, prevents duplicate submissions, and cancels an in-flight request when the widget unmounts.
 - The frontend does not authenticate users, call a model, retrieve portfolio content, execute tools, or verify the truth of model claims.
 - A future backend should ground answers in approved portfolio material, enforce its own rate limits and safety/access controls, and return citations only for sources it actually used.
 - The current documented projects include a PDF knowledge assistant with retrieval citations and audit logging, and Sentinel with an investigation API plus a separate internal constrained repair workflow. Those project capabilities do not imply that this portfolio assistant backend exists.
+
+## Enablement checklist
+
+1. Implement and deploy the separate `/api/chat` service; no backend is supplied by this repository.
+2. Keep model/provider credentials on that server. Do not add them to any `VITE_` variable.
+3. Configure the service's CORS allowlist for `https://juyel.vercel.app` and only the development
+   origins actually needed, plus server-side rate limits, timeouts and approved grounding content.
+4. Set the public `VITE_AI_ASSISTANT_API_URL` in the build environment and rebuild. The launcher
+   then appears; configuration alone does not establish backend availability or answer quality.
+5. Verify a real grounded answer, citations, malformed-response handling, network/HTTP failures,
+   pending state, cancellation and duplicate-submission protection before advertising readiness.

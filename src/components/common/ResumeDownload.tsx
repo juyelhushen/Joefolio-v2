@@ -6,7 +6,7 @@ export default function ResumeDownload() {
 
   return (
     <a
-      className="button button-quiet"
+      className="button button-secondary"
       href={RESUME_PATH}
       download={RESUME_FILENAME}
       aria-label="Download résumé (PDF)"

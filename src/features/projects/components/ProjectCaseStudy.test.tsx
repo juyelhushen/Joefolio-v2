@@ -56,5 +56,5 @@ it('renders supplied optional fields and screenshot without altering authoritati
   expect(within(dialog).getByRole('link', { name: 'Live demo' }).getAttribute('href')).toBe(
     project.demoUrl,
   );
-  expect(projects[0].role).toBeUndefined();
+  expect(projects[0].role).toBe('Solo developer responsible for the application implementation.');
 });

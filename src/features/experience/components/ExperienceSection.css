@@ -1,10 +1,10 @@
 .experience-section {
   position: relative;
-  padding: var(--space-section) 0 68px;
+  padding: var(--space-section) 0;
 }
 .career-heading h2 {
   max-width: 740px;
-  font-size: clamp(34px, 4.4vw, 54px);
+  font-size: var(--type-section);
 }
 .career-heading > p {
   max-width: 400px;

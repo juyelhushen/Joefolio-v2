@@ -2,10 +2,6 @@ import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import CosmicMeshBackground from './CosmicMeshBackground';
 
-vi.mock('../../../hooks/useEffectsPreference', () => ({
-  useEffectsPreference: () => ({ reducedEffects: false }),
-}));
-
 afterEach(() => {
   cleanup();
   Reflect.deleteProperty(navigator, 'connection');

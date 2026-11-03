@@ -2,10 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createFlightPath } from '../flight-path';
 import { sendContactMessage } from '../services/contact-api';
 import type { ContactMessage, ContactStatus } from '../types';
-import { useEffectsPreference } from '../../../hooks/useEffectsPreference';
 
 export const useContactTransmission = (reduceMotion: boolean) => {
-  const { reducedEffects } = useEffectsPreference();
   const [status, setStatus] = useState<ContactStatus>('idle');
   const [error, setError] = useState('');
   const [earthLit, setEarthLit] = useState(false);
@@ -38,10 +36,10 @@ export const useContactTransmission = (reduceMotion: boolean) => {
   }, []);
 
   useEffect(() => {
-    if (!reducedEffects || status !== 'flying') return;
+    if (!reduceMotion || status !== 'flying') return;
     const frame = window.requestAnimationFrame(completeFlight);
     return () => window.cancelAnimationFrame(frame);
-  }, [completeFlight, reducedEffects, status]);
+  }, [completeFlight, reduceMotion, status]);
 
   useLayoutEffect(() => {
     measureFlightPath();
@@ -66,7 +64,7 @@ export const useContactTransmission = (reduceMotion: boolean) => {
     setEarthLit(false);
     try {
       await sendContactMessage(message);
-      if (reduceMotion || reducedEffects || !measureFlightPath()) {
+      if (reduceMotion || !measureFlightPath()) {
         completeFlight();
       } else {
         setStatus('flying');

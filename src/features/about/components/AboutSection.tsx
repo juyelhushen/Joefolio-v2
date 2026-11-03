@@ -33,7 +33,7 @@ export default function AboutSection() {
         </ScrollRevealItem>
       </ScrollReveal>
       <ScrollReveal className="manifesto-link-reveal" delay={0.14}>
-        <a className="text-link" href="#skills">
+        <a className="button button-tertiary" href="#skills">
           Explore my toolkit <ArrowUpRight size={16} aria-hidden="true" />
         </a>
       </ScrollReveal>

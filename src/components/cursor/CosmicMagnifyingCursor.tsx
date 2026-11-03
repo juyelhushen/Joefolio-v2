@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { useMotionValue, useSpring } from 'motion/react';
+import { useSystemReducedMotion } from '../../hooks/useSystemReducedMotion';
 import { m } from 'motion/react';
 import './CosmicMagnifyingCursor.css';
 import { createPortal } from 'react-dom';
-import { useEffectsPreference } from '../../hooks/useEffectsPreference';
 
 const POINTER_QUERY = '(hover: hover) and (pointer: fine)';
 const TARGET_SELECTOR = '[data-cursor-target], a[href], button:not(:disabled)';
@@ -26,7 +26,7 @@ export default function CosmicMagnifyingCursor() {
       document.removeEventListener('cosmic-overlay-host', changeHost);
     };
   }, []);
-  const { reducedEffects } = useEffectsPreference();
+  const reducedEffects = useSystemReducedMotion();
   const [pointerSupported, setPointerSupported] = useState(
     () => typeof window.matchMedia === 'function' && window.matchMedia(POINTER_QUERY).matches,
   );

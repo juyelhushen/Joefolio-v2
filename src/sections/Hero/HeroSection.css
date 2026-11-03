@@ -1,359 +1,326 @@
 .hero {
   position: relative;
-  display: flex;
-  min-height: min(760px, calc(100svh - 88px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
   align-items: center;
-  padding-block: 36px 48px;
+  min-height: min(680px, calc(100svh - 88px));
+  padding-block: 44px 56px;
+  color: var(--color-text-primary);
+  background: radial-gradient(ellipse at 75% 48%, var(--color-bg), transparent 70%);
 }
 
-.hero .hero-copy {
+.hero-copy {
   position: relative;
-  z-index: 5;
-  width: min(720px, 59%);
+  z-index: 1;
+  min-width: 0;
 }
 
-.hero .eyebrow-dot {
-  flex: 0 0 auto;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--orange);
-  box-shadow: 0 0 14px rgba(255, 158, 88, 0.8);
-}
-
-.hero .eyebrow-separator {
-  color: var(--color-text-muted);
+.hero .eyebrow {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
 }
 
 .hero h1 {
-  max-width: 760px;
-  margin: 25px 0 18px;
+  margin: 22px 0;
   font-family: var(--font-display);
-  font-size: clamp(52px, 6vw, 82px);
-  font-weight: 650;
-  letter-spacing: -0.065em;
-  line-height: 0.99;
+  font-size: clamp(44px, 4.65vw, 68px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1.07;
+}
+
+.hero h1 > span,
+.hero h1 em {
+  display: block;
 }
 
 .hero h1 em {
+  width: fit-content;
   color: var(--color-accent-primary);
-  font-style: italic;
-  font-weight: 600;
-  text-shadow: 0 0 30px rgba(101, 231, 242, 0.12);
+  font-style: normal;
+  box-shadow: 0 2px 0 var(--color-accent-soft);
 }
 
-.hero .hero-intro {
-  max-width: 510px;
+.hero-intro {
+  max-width: 450px;
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: 16px;
-  line-height: 1.72;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.75;
 }
 
-.hero .hero-actions {
+.hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 30px;
 }
 
-.hero .hero-employment-proof {
-  display: flex;
-  align-items: baseline;
-  gap: 9px;
-  max-width: 560px;
-  margin: 16px 0 0;
+.hero .hero-cta {
+  white-space: nowrap;
+}
+
+.engineering-constellation {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: 540 / 480;
+  justify-self: center;
+  isolation: isolate;
+}
+
+.constellation-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.constellation-lines ellipse {
+  stroke: color-mix(in srgb, var(--color-accent-secondary) 18%, transparent);
+}
+
+.constellation-lines circle {
+  fill: var(--color-accent-primary);
+  stroke: none;
+}
+
+.constellation-caption {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: max-content;
+  transform: translateX(-50%);
   color: var(--color-text-secondary);
-  font-size: var(--type-small);
-  line-height: 1.65;
+  font-size: 12px;
+  letter-spacing: 0.06em;
 }
 
-.hero .hero-employment-proof > span {
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
+.constellation-core {
+  position: absolute;
+  z-index: 1;
+  top: 52%;
+  left: 50%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 7px;
+  width: 112px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--color-accent-primary);
   border-radius: 50%;
-  background: var(--color-accent-primary);
+  background: var(--color-surface);
+  color: var(--color-accent-primary);
+  text-align: center;
+  pointer-events: none;
 }
 
-.hero .hero-actions .button {
-  min-height: 44px;
-  font-size: var(--type-small);
+.constellation-core > span:last-child {
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
 }
 
-.hero .hero-proof {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 29px 0 0;
-  padding: 0;
-  list-style: none;
+.constellation-core-halo {
+  position: absolute;
+  z-index: -1;
+  inset: -28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-accent-soft), transparent 70%);
+  animation: constellation-breathe 7s ease-in-out infinite paused;
 }
 
-.hero .hero-proof li {
-  padding: 7px 10px;
-  border: 1px solid rgba(185, 199, 230, 0.15);
-  border-radius: 999px;
+.constellation-node {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 3px 8px;
+  width: 176px;
+  min-height: 76px;
+  padding: 12px;
+  border: var(--border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-elevated);
+  transform: translate(-50%, -50%);
+  transition:
+    transform var(--motion-control) var(--ease-standard),
+    border-color var(--motion-control) var(--ease-standard),
+    background var(--motion-control) var(--ease-standard);
+}
+
+.constellation-node svg {
+  color: var(--color-accent-secondary);
+}
+
+.constellation-node strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.constellation-node > span {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  line-height: 1.6;
   color: var(--color-text-secondary);
-  background: rgba(8, 13, 27, 0.58);
-  font-family: var(--font-mono);
-  font-size: var(--type-readable);
-  letter-spacing: 0.01em;
 }
 
-.hero .planet-scene {
+.constellation-node:is(:hover, :focus-visible) {
+  border-color: var(--color-accent-primary);
+  background: var(--color-surface-raised);
+  transform: translate(-50%, calc(-50% - 3px));
+}
+
+.constellation-backend {
+  top: 20%;
+  left: 22%;
+}
+
+.constellation-fullstack {
+  top: 20%;
+  left: 78%;
+}
+
+.constellation-ai {
+  top: 84%;
+  left: 50%;
+}
+
+.constellation-satellite-orbit {
   position: absolute;
   z-index: 0;
-  inset: 0 -3% 0 43%;
-  overflow: hidden;
-  pointer-events: none;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 24%, #000 100%);
-}
-
-.hero .planet-scene::before {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 67% 48%, rgba(101, 231, 242, 0.1), transparent 36%),
-    radial-gradient(ellipse at 55% 24%, rgba(135, 113, 255, 0.14), transparent 34%),
-    radial-gradient(ellipse at 79% 79%, rgba(255, 184, 108, 0.08), transparent 31%);
-  content: '';
-}
-
-.hero .ringed-planet {
-  position: absolute;
-  top: 11%;
-  right: 4%;
-  width: clamp(240px, 30vw, 420px);
+  top: 52%;
+  left: 50%;
+  width: 62%;
   aspect-ratio: 1;
+  margin: -31% 0 0 -31%;
+  border: 1px dotted var(--color-border);
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 30% 28%,
-    #ced5e5 0,
-    #737e98 16%,
-    #38415e 34%,
-    #10182d 61%,
-    #060914 76%
-  );
-  box-shadow:
-    inset -25px -10px 45px #02030a,
-    inset 12px 12px 37px rgba(255, 201, 147, 0.23),
-    0 0 70px rgba(58, 102, 184, 0.16),
-    0 0 150px rgba(101, 231, 242, 0.06);
-  animation: hero-planet-float 14s ease-in-out infinite;
+  pointer-events: none;
+  animation: constellation-orbit 42s linear infinite paused;
 }
 
-.hero .ringed-planet::before {
+.constellation-satellite {
   position: absolute;
-  top: 38%;
-  right: -42%;
-  left: -30%;
-  height: 36%;
-  border: 14px solid rgba(240, 172, 117, 0.65);
-  border-radius: 50%;
-  box-shadow:
-    0 0 22px rgba(255, 162, 91, 0.25),
-    inset 0 0 12px rgba(255, 206, 164, 0.55);
-  clip-path: inset(0 0 47% 0);
-  content: '';
-  filter: blur(0.3px);
-  transform: rotate(-17deg);
+  top: 50%;
+  left: 0;
+  width: 24px;
+  color: var(--color-text-secondary);
+  animation: constellation-orbit 42s linear infinite reverse paused;
 }
 
-.hero .ringed-planet::after {
-  position: absolute;
-  top: 43%;
-  right: -30%;
-  left: -40%;
-  height: 25%;
-  border: 7px solid rgba(116, 139, 192, 0.4);
-  border-radius: 50%;
-  content: '';
-  filter: blur(1px);
-  transform: rotate(-17deg);
+.engineering-constellation[data-motion-active='true'] .constellation-core-halo,
+.engineering-constellation[data-motion-active='true'] .constellation-satellite-orbit,
+.engineering-constellation[data-motion-active='true'] .constellation-satellite {
+  animation-play-state: running;
 }
 
-.hero .planet-shadow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: linear-gradient(
-    130deg,
-    transparent 22%,
-    rgba(3, 5, 12, 0.1) 40%,
-    rgba(2, 4, 11, 0.9) 79%
-  );
-}
-
-.hero .planet-orbit {
-  position: absolute;
-  border: 1px solid rgba(119, 153, 214, 0.12);
-  border-radius: 50%;
-  transform: rotate(-24deg);
-}
-
-.hero .orbit-one {
-  top: 39%;
-  left: 3%;
-  width: 94%;
-  height: 32%;
-}
-
-.hero .orbit-two {
-  top: 44%;
-  left: 12%;
-  width: 78%;
-  height: 24%;
-  border-color: rgba(170, 151, 255, 0.17);
-}
-
-.hero .small-planet {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 29% 27%, #a8b9d8, #344465 40%, #0a1124 75%);
-  box-shadow:
-    inset -8px -5px 16px #030611,
-    0 0 25px rgba(67, 115, 203, 0.14);
-}
-
-.hero .small-planet-one {
-  top: 56%;
-  left: 17%;
-  width: 64px;
-  height: 64px;
-  animation: hero-planet-float 11s ease-in-out infinite reverse;
-}
-
-.hero .small-planet-two {
-  top: 24%;
-  left: 59%;
-  width: 27px;
-  height: 27px;
-  background: radial-gradient(circle at 30% 24%, #ffc28e, #8b543e 38%, #1a1727 76%);
-}
-
-.hero .nebula {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(42px);
-  opacity: 0.28;
-}
-
-.hero .nebula-one {
-  top: 16%;
-  left: 18%;
-  width: 230px;
-  height: 160px;
-  background: #24386e;
-}
-
-.hero .nebula-two {
-  right: 0;
-  bottom: 8%;
-  width: 280px;
-  height: 190px;
-  background: #433c8d;
-  opacity: 0.22;
-}
-
-@keyframes hero-planet-float {
+@keyframes constellation-breathe {
   0%,
   100% {
-    transform: translate3d(0, 0, 0);
+    opacity: 0.5;
+    transform: scale(0.94);
   }
-
   50% {
-    transform: translate3d(0, -12px, 0);
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes constellation-orbit {
+  to {
+    transform: rotate(360deg);
   }
 }
 
 @media (max-width: 1000px) {
-  .hero .hero-copy {
-    width: min(640px, 68%);
+  .hero {
+    gap: 20px;
   }
-
-  .hero .planet-scene {
-    right: -13%;
-    left: 37%;
-    opacity: 0.74;
-  }
-
   .hero h1 {
-    font-size: clamp(50px, 6.1vw, 66px);
+    font-size: clamp(36px, 4.8vw, 48px);
+  }
+  .constellation-node {
+    width: 144px;
+    padding: 9px;
+  }
+  .constellation-core {
+    width: 104px;
+    gap: 3px;
+  }
+  .constellation-caption {
+    letter-spacing: 0;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 740px) {
   .hero {
-    height: auto;
-    min-height: min(720px, calc(100svh - 76px));
-    align-items: flex-start;
-    padding-top: clamp(38px, 6svh, 54px);
-    padding-bottom: clamp(185px, 52vw, 205px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    min-height: 0;
+    padding-block: 30px 32px;
   }
-
-  .hero .hero-copy {
-    width: 100%;
-  }
-
-  .hero .eyebrow {
-    gap: 9px;
-    font-size: var(--type-label);
-    letter-spacing: 0.08em;
-  }
-
   .hero h1 {
-    margin: 22px 0 16px;
-    font-size: clamp(42px, 10.2vw, 54px);
-    letter-spacing: -0.06em;
-    line-height: 1;
+    font-size: clamp(36px, 9.5vw, 58px);
+    margin-block: 18px;
   }
-
-  .hero .hero-intro {
-    max-width: 430px;
-    font-size: 15px;
-    line-height: 1.68;
+  .hero .eyebrow {
+    letter-spacing: 0.025em;
   }
-
-  .hero .hero-actions {
-    gap: 10px;
-    margin-top: 20px;
+  .hero-intro {
+    font-size: 16px;
   }
-
-  .hero .hero-proof {
-    gap: 7px;
+  .hero-actions {
     margin-top: 22px;
+    gap: 10px;
   }
-
-  .hero .planet-scene {
-    inset: auto -17% 0 3%;
-    height: clamp(185px, 52vw, 205px);
-    opacity: 0.68;
-    mask-image: linear-gradient(180deg, transparent, #000 18%, #000 86%, transparent);
+  .engineering-constellation {
+    max-width: 420px;
+    aspect-ratio: 1.04;
   }
-
-  .hero .ringed-planet {
-    top: 3%;
-    right: 0;
-    width: clamp(200px, 61vw, 260px);
+  .constellation-node {
+    width: 132px;
+    min-height: 68px;
+    padding: 8px;
+    gap: 2px 6px;
   }
-
-  .hero .small-planet-one {
-    top: 49%;
-    left: 15%;
-    width: 48px;
-    height: 48px;
+  .constellation-node > span {
+    letter-spacing: -0.03em;
   }
-
-  .hero .small-planet-two {
-    top: 18%;
-    left: 42%;
-    width: 19px;
-    height: 19px;
+  .constellation-satellite-orbit {
+    display: none;
   }
 }
 
-:root[data-effects-reduced='true'] .hero .ringed-planet,
-:root[data-effects-reduced='true'] .hero .small-planet-one {
-  animation: none;
+@media (prefers-reduced-motion: reduce) {
+  .constellation-node:is(:hover, :focus-visible) {
+    transform: translate(-50%, -50%);
+  }
+  .constellation-core-halo,
+  .constellation-satellite-orbit,
+  .constellation-satellite {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .hero h1 em {
+    color: LinkText;
+    box-shadow: none;
+  }
+  .constellation-node,
+  .constellation-core {
+    border-color: CanvasText;
+  }
 }

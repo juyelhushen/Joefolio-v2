@@ -1,13 +1,6 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
-import { domAnimation, LazyMotion } from 'motion/react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { LazyMotion } from 'motion/react';
+import { useSystemReducedMotion } from '../hooks/useSystemReducedMotion';
 import './App.css';
 import CosmicMeshBackground from '../components/background/CosmicMeshBackground/CosmicMeshBackground';
 import HeroSection from '../sections/Hero/index';
@@ -18,7 +11,6 @@ import { useActiveSection } from './hooks/useActiveSection';
 import { useBackendHealth } from './hooks/useBackendHealth';
 import CosmicMagnifyingCursor from '../components/cursor/CosmicMagnifyingCursor';
 import CosmicScrollProgress from '../components/common/CosmicScrollProgress';
-import { useEffectsPreference } from '../hooks/useEffectsPreference';
 import { impactStats } from '../features/impact/data/impact';
 import { scheduleAfterIdle } from '../lib/scheduleAfterIdle';
 
@@ -38,6 +30,7 @@ const PortfolioAssistant = lazy(
 const UniverseIntro = lazy(() => import('../components/intro/UniverseIntro'));
 const loadPalette = () => import('../features/command-palette/components/CommandPalette');
 const CommandPalette = lazy(loadPalette);
+const loadMotionFeatures = () => import('../lib/motion-features').then((module) => module.default);
 
 function LazySection({
   id,
@@ -132,7 +125,7 @@ export default function App() {
   const { showUniverseIntro, completeUniverseIntro } = useUniverseIntro();
   const { activeSection, handleNavigationClick } = useActiveSection();
   const homeHeadingRef = useRef<HTMLHeadingElement>(null);
-  const { reducedEffects, setReducedEffects } = useEffectsPreference();
+  const reduceMotion = useSystemReducedMotion();
   const openPalette = () => {
     setPaletteOpener(
       (current) =>
@@ -142,12 +135,8 @@ export default function App() {
     );
   };
 
-  useLayoutEffect(() => {
-    document.documentElement.dataset.effectsReduced = String(reducedEffects);
-  }, [reducedEffects]);
-
   return (
-    <LazyMotion features={domAnimation}>
+    <LazyMotion features={loadMotionFeatures}>
       <div className="site-shell" data-intro-active={showUniverseIntro ? 'true' : undefined}>
         <CosmicMeshBackground paused={showUniverseIntro} />
         <Starfield paused={showUniverseIntro} />
@@ -171,31 +160,30 @@ export default function App() {
               opener={paletteOpener.element}
               onClose={() => setPaletteOpener(null)}
               onNavigate={handleNavigationClick}
-              reducedEffects={reducedEffects}
-              onToggleEffects={() => setReducedEffects(!reducedEffects)}
+              reduceMotion={reduceMotion}
             />
           </Suspense>
         )}
 
         <main id="main-content">
-          <HeroSection reduceMotion={reducedEffects} headingRef={homeHeadingRef} />
+          <HeroSection reduceMotion={reduceMotion} headingRef={homeHeadingRef} />
           <LazySection id="about" className="about">
             <AboutSection />
           </LazySection>
           {impactStats.length > 0 && (
             <Suspense fallback={<div className="impact-lazy-placeholder" aria-hidden="true" />}>
-              <ImpactStrip reduceMotion={reducedEffects} />
+              <ImpactStrip reduceMotion={reduceMotion} />
             </Suspense>
           )}
           <LazySection id="experience" className="experience">
-            <ExperienceSection reduceMotion={reducedEffects} />
+            <ExperienceSection reduceMotion={reduceMotion} />
           </LazySection>
           <LazySection id="skills" className="skills">
-            <SkillsSection reduceMotion={reducedEffects} />
+            <SkillsSection reduceMotion={reduceMotion} />
           </LazySection>
 
           <LazySection id="projects" className="projects">
-            <ProjectsSection reduceMotion={reducedEffects} />
+            <ProjectsSection reduceMotion={reduceMotion} />
           </LazySection>
 
           <LazySection id="ai-lab" className="ai-lab">
@@ -203,13 +191,13 @@ export default function App() {
           </LazySection>
 
           <LazySection id="contact" className="contact">
-            <CosmicContactSection reduceMotion={reducedEffects} backendStatus={backendStatus} />
+            <CosmicContactSection reduceMotion={reduceMotion} backendStatus={backendStatus} />
           </LazySection>
         </main>
         <LazySection id="footer" className="footer">
-          <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reducedEffects} />
+          <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion} />
         </LazySection>
-        <IdleAssistant />
+        {import.meta.env.VITE_AI_ASSISTANT_API_URL?.trim() && <IdleAssistant />}
         <CosmicMagnifyingCursor />
         <CosmicScrollProgress />
         {showUniverseIntro && (

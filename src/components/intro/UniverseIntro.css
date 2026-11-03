@@ -15,16 +15,6 @@
   z-index: 1;
   top: max(16px, env(safe-area-inset-top));
   right: max(16px, env(safe-area-inset-right));
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid rgba(185, 199, 230, 0.42);
-  border-radius: 999px;
-  color: var(--color-text-primary);
-  background: rgba(7, 11, 22, 0.9);
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
   pointer-events: auto;
 }
 

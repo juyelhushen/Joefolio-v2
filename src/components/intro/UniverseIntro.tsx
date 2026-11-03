@@ -78,7 +78,12 @@ export default function UniverseIntro({ onComplete }: UniverseIntroProps) {
 
   return (
     <div ref={introRef} className="universe-intro" data-testid="universe-intro">
-      <button ref={skipButtonRef} className="universe-intro-skip" type="button" onClick={skipIntro}>
+      <button
+        ref={skipButtonRef}
+        className="button button-secondary universe-intro-skip"
+        type="button"
+        onClick={skipIntro}
+      >
         Skip intro
       </button>
       <div className="universe-intro-nebula" />

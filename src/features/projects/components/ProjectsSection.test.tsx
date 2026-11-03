@@ -1,7 +1,11 @@
-import { cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { act, cleanup, render, screen, within, fireEvent, waitFor } from '@testing-library/react';
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import ProjectsSection from './ProjectsSection';
 import { projects } from '../data/projects';
+
+beforeAll(async () => {
+  await Promise.all([import('./ProjectCaseStudy'), import('./ArchitectureFlow')]);
+});
 
 beforeEach(() => {
   Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
@@ -28,7 +32,19 @@ afterEach(() => {
 it('opens the case study with verified architecture, all technologies and external sources', async () => {
   render(<ProjectsSection reduceMotion />);
   const project = projects[0];
-  fireEvent.click(screen.getByRole('button', { name: `${project.name}: view case study` }));
+  expect(
+    screen
+      .getByRole('button', { name: `${project.name}: view case study` })
+      .classList.contains('button-secondary'),
+  ).toBe(true);
+  expect(
+    screen
+      .getByRole('link', { name: `${project.name}: view GitHub repository` })
+      .classList.contains('button-tertiary'),
+  ).toBe(true);
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: `${project.name}: view case study` }));
+  });
   const dialog = await screen.findByRole('dialog', { name: project.name });
   expect(location.hash).toBe(`#projects/${project.id}`);
   expect(document.body.style.overflow).toBe('hidden');
@@ -41,7 +57,16 @@ it('opens the case study with verified architecture, all technologies and extern
     expect(source.getAttribute('target')).toBe('_blank');
     expect(source.getAttribute('rel')).toBe('noopener noreferrer');
   }
-  for (const title of ['Role', 'Outcome', 'Metrics', 'Lessons']) {
+  for (const title of [
+    'Role',
+    'Outcome',
+    'Engineering decisions',
+    'Challenges and trade-offs',
+    'Testing and reliability',
+  ]) {
+    expect(within(dialog).getByRole('heading', { name: title })).toBeTruthy();
+  }
+  for (const title of ['Metrics', 'Lessons']) {
     expect(within(dialog).queryByRole('heading', { name: title })).toBeNull();
   }
   for (const lane of project.architecture.lanes) {
@@ -53,6 +78,21 @@ it('opens the case study with verified architecture, all technologies and extern
     within(dialog).getByRole('button', { name: 'Close case study' }),
   );
 });
+
+it.each(projects)(
+  'documents contribution, trade-offs and reliability boundaries for $name',
+  (project) => {
+    expect(project.role).toMatch(/Solo developer/);
+    expect(project.decisions.length).toBeGreaterThan(0);
+    expect(project.tradeoffs.length).toBeGreaterThan(0);
+    expect(project.reliability.length).toBeGreaterThan(0);
+    expect(project.outcome).toBeTruthy();
+    expect(project.metrics).toBeUndefined();
+    expect(
+      project.architecture.sourceLinks.some((link) => /test|verification/i.test(link.label)),
+    ).toBe(true);
+  },
+);
 
 it('handles native Escape cancellation and restores opening focus and scroll', async () => {
   render(<ProjectsSection reduceMotion />);
@@ -99,6 +139,8 @@ it('renders five concise project cards with accurate copy and decorative covers'
   const cards = screen.getAllByRole('article');
   expect(projects).toHaveLength(5);
   expect(cards).toHaveLength(5);
+  expect(screen.queryByText('How an async pipeline behaves')).toBeNull();
+  expect(document.querySelector('.pipeline-lazy-slot')).toBeNull();
 
   for (const project of projects) {
     const card = screen.getByRole('article', { name: project.name });

@@ -23,6 +23,9 @@ export type Project = Readonly<{
   problem: string;
   summary: string;
   engineeringFocus?: string;
+  decisions: readonly string[];
+  tradeoffs: readonly string[];
+  reliability: readonly string[];
   role?: string;
   outcome?: string;
   metrics?: readonly Readonly<{ label: string; value: string }>[];
@@ -48,6 +51,21 @@ export const projects: readonly Project[] = [
       'An AI-assisted incident investigation system that uses agents to inspect repositories through controlled tools.',
     engineeringFocus:
       'The public API covers incident creation and investigation. The repository describes repair and verification as a constrained internal workflow, not a public patch API.',
+    role: 'Solo developer responsible for the application implementation.',
+    decisions: [
+      'Keep the FastAPI investigation boundary separate from the internal repair workflow, with LangGraph coordinating explicit workflow steps.',
+      'Route repository operations through policy-checked tools and persist execution records so an investigation can be inspected afterward.',
+    ],
+    tradeoffs: [
+      'The default internal approval gate is automatic, not a human approval interface. Repair remains an internal constrained workflow rather than a public patch API.',
+      'Deterministic repair fixtures make failure paths reproducible, but do not measure live-model accuracy or establish general autonomous repair reliability.',
+    ],
+    reliability: [
+      'The repository documents Pytest, Ruff and MyPy checks plus deterministic scenarios for repair, failed verification, retry exhaustion, approval rejection and persistence.',
+      'Live Ollama planner tests are separate from the deterministic evaluation. No evaluation pass rate or production reliability figure is claimed here.',
+    ],
+    outcome:
+      'A source-inspectable incident investigation API and internal repair demonstration. No measured user, traffic or business outcomes are published in this case study.',
     technologies: ['Python', 'FastAPI', 'LangGraph', 'MCP'],
     visual: 'agents',
     repositoryUrl: 'https://github.com/juyelhushen/sentinel',
@@ -74,6 +92,10 @@ export const projects: readonly Project[] = [
         },
       ],
       sourceLinks: [
+        {
+          label: 'Evaluation scope and verification',
+          href: 'https://github.com/juyelhushen/sentinel/blob/1b0f3f7473f9b49fb590fefcb1c2ccabe79b3ffa/README.md',
+        },
         {
           label: 'Investigation API',
           href: 'https://github.com/juyelhushen/sentinel/blob/1b0f3f7473f9b49fb590fefcb1c2ccabe79b3ffa/src/sentinel/api.py',
@@ -104,6 +126,21 @@ export const projects: readonly Project[] = [
     summary: 'Shorten and manage links, track redirect hits, and create QR codes.',
     engineeringFocus:
       'The reviewed controllers and service confirm URL creation and management, redirects with hit counts, and QR-code operations. The workflow below focuses on those source-verified paths.',
+    role: 'Solo developer responsible for the backend and React interface.',
+    decisions: [
+      'Separate the React management interface from Spring Boot APIs and persist links, ownership and QR-code data through JPA repositories.',
+      'Increment redirect hit counts in the URL service rather than treating an analytics dashboard as an independent source of truth.',
+    ],
+    tradeoffs: [
+      'The reviewed suffix generator loads existing short links to check for collisions. This is straightforward for a small dataset but is not evidence of high-concurrency scalability.',
+      'Redirect lookup and hit recording share the request path; database latency and failed writes need load and failure testing before making throughput claims.',
+    ],
+    reliability: [
+      'The reviewed backend test file contains a Spring context-load check and logging examples, not behavioral assertions for redirects or authentication.',
+      'Collision handling, simultaneous redirects, access control and QR-code failures remain explicit test-coverage follow-ups; no load-test results are claimed.',
+    ],
+    outcome:
+      'Source-backed link management, redirect hit tracking and QR-code workflows. No measured throughput or adoption results are claimed.',
     technologies: ['Java', 'Spring Boot', 'React', 'PostgreSQL'],
     visual: 'links',
     repositoryUrl: 'https://github.com/juyelhushen/Cut2Short-backend',
@@ -125,6 +162,10 @@ export const projects: readonly Project[] = [
         },
       ],
       sourceLinks: [
+        {
+          label: 'Current backend test coverage',
+          href: 'https://github.com/juyelhushen/Cut2Short-backend/blob/9a6abd1b5c3a8d3d2bec5bfdb072fb3a278c7a59/src/test/java/com/url/shortner/UrlshortnerApplicationTests.java',
+        },
         {
           label: 'URL API',
           href: 'https://github.com/juyelhushen/Cut2Short-backend/blob/9a6abd1b5c3a8d3d2bec5bfdb072fb3a278c7a59/src/main/java/com/url/shortner/controller/UrlController.java',
@@ -165,6 +206,21 @@ export const projects: readonly Project[] = [
       'Ask questions about PDFs and get answers grounded in retrieved passages with citations.',
     engineeringFocus:
       'PDFs are loaded and chunked before vector storage. Questions retrieve relevant chunks, pass through LangGraph retrieval, reasoning, and citation agents, and are recorded with source and latency metadata.',
+    role: 'Solo developer responsible for the document ingestion and question-answering application.',
+    decisions: [
+      'Separate document ingestion from question answering, using ChromaDB for retrieval and SQLite for document metadata and interaction audits.',
+      'Use distinct retrieval, reasoning and citation stages so returned answers can be traced to source passages and pages.',
+    ],
+    tradeoffs: [
+      'Answer quality depends on PDF extraction, chunk boundaries, retrieval and the selected local model. Citations aid inspection but do not prove that every answer is correct.',
+      'The local Ollama workflow avoids assuming an external hosted model service, but requires model setup and sufficient compute on the operator’s machine.',
+    ],
+    reliability: [
+      'Repository tests cover ingestion, chunking, retrieval, citations and workflow behavior. The reviewed workflow test asserts answer content and a source/page citation for a sample document.',
+      'These tests are implementation evidence, not a published retrieval benchmark; no accuracy percentage or latency improvement is claimed.',
+    ],
+    outcome:
+      'An inspectable PDF-to-answer workflow with citations and interaction audit records. No production adoption or measured answer-quality result is claimed.',
     technologies: ['Python', 'FastAPI', 'LangGraph', 'ChromaDB'],
     visual: 'knowledge',
     repositoryUrl: 'https://github.com/juyelhushen/enterprise-knowledge-assistant',
@@ -191,6 +247,10 @@ export const projects: readonly Project[] = [
         },
       ],
       sourceLinks: [
+        {
+          label: 'Answer and citation workflow test',
+          href: 'https://github.com/juyelhushen/enterprise-knowledge-assistant/blob/c3bc46cff22ce70872adfe6406d24093e5f980ca/tests/test_workflow.py',
+        },
         {
           label: 'Document ingestion',
           href: 'https://github.com/juyelhushen/enterprise-knowledge-assistant/blob/c3bc46cff22ce70872adfe6406d24093e5f980ca/app/ingestion/ingestion_service.py',
@@ -226,6 +286,21 @@ export const projects: readonly Project[] = [
     summary: 'A library app for managing books and categories, with borrowing and returns.',
     engineeringFocus:
       'The Java 11 / Spring Boot 3.0.2 backend uses Spring Data JPA and PostgreSQL. Its Angular 15.2 client and Spring Security/JWT components support the application workflows.',
+    role: 'Solo developer responsible for the Angular application and Spring backend.',
+    decisions: [
+      'Keep catalogue, category and borrowing operations in separate controller/service/repository paths over PostgreSQL.',
+      'Represent borrowing with order records and update book availability when an order or return is processed.',
+    ],
+    tradeoffs: [
+      'The reviewed service performs order and availability updates as separate repository operations. Atomicity and simultaneous borrowing need explicit verification before production use.',
+      'The application demonstrates the core catalogue and borrowing lifecycle; it does not establish a production circulation system or operational scale.',
+    ],
+    reliability: [
+      'The reviewed backend test is a Spring context-load check, not an end-to-end borrowing or return test.',
+      'Behavioral tests for invalid returns, duplicate borrowing, authorization and partial database failures remain follow-up work; no reliability metric is claimed.',
+    ],
+    outcome:
+      'A repository implementation of catalogue management and borrowing/return workflows, without published usage or performance measurements.',
     technologies: ['Java', 'Spring Boot', 'Angular', 'PostgreSQL'],
     visual: 'library',
     repositoryUrl: 'https://github.com/juyelhushen/library.management',
@@ -246,6 +321,14 @@ export const projects: readonly Project[] = [
         },
       ],
       sourceLinks: [
+        {
+          label: 'Borrowing and availability implementation',
+          href: 'https://github.com/juyelhushen/library.management/blob/e119f382d08eaf75af6e7ba9c3beef9e8a4e8a05/backend/src/main/java/com/library/management/service/OrderService.java',
+        },
+        {
+          label: 'Current backend test coverage',
+          href: 'https://github.com/juyelhushen/library.management/blob/e119f382d08eaf75af6e7ba9c3beef9e8a4e8a05/backend/src/test/java/com/library/management/ApplicationTests.java',
+        },
         {
           label: 'Book API',
           href: 'https://github.com/juyelhushen/library.management/blob/master/backend/src/main/java/com/library/management/controller/BooksController.java',
@@ -288,6 +371,21 @@ export const projects: readonly Project[] = [
     summary: 'A video-sharing app with uploads, playback, comments, likes, and subscriptions.',
     engineeringFocus:
       'The Java 17 / Spring Boot 3.1.4 Maven backend uses MongoDB and OAuth2 resource-server integration; its Angular 16.2 client pairs with an S3 service for uploaded files.',
+    role: 'Solo developer responsible for the Angular client and Java backend.',
+    decisions: [
+      'Store uploaded media in S3 and keep video metadata in MongoDB rather than putting file bytes in the application database.',
+      'Use an Angular client with Spring APIs for playback details and user interactions, with OAuth2 resource-server integration for identity.',
+    ],
+    tradeoffs: [
+      'An upload spans object storage and metadata persistence; consistency and orphan-file cleanup need explicit failure-path verification.',
+      'The reviewed S3 service uploads files and returns object URLs. It is not evidence of a transcoding pipeline, adaptive streaming or CDN delivery.',
+    ],
+    reliability: [
+      'The reviewed backend test is a Spring context-load check; it does not exercise S3 failures, playback or authorization.',
+      'Upload validation, failed storage writes, metadata consistency and user interaction tests remain follow-ups; no streaming-scale or performance metric is claimed.',
+    ],
+    outcome:
+      'A source-backed video-sharing application covering uploads, playback details and user interactions, without published traffic or delivery-performance results.',
     technologies: ['Java', 'Angular', 'MongoDB', 'AWS S3'],
     visual: 'video',
     repositoryUrl: 'https://github.com/juyelhushen/youtube-clone',
@@ -313,6 +411,10 @@ export const projects: readonly Project[] = [
         },
       ],
       sourceLinks: [
+        {
+          label: 'Current backend test coverage',
+          href: 'https://github.com/juyelhushen/youtube-clone/blob/e87afbe8698a01d8f98212696099d21369b8b4b9/backend/src/test/java/com/youtubeclone/YoutubeCloneApplicationTests.java',
+        },
         {
           label: 'Video API',
           href: 'https://github.com/juyelhushen/youtube-clone/blob/e87afbe8698a01d8f98212696099d21369b8b4b9/backend/src/main/java/com/youtubeclone/controller/VideoController.java',

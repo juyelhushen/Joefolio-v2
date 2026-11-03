@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PUBLIC_EMAIL } from '../../../lib/profile';
 import {
   filterItems,
   getPaletteItems,
@@ -11,24 +10,20 @@ import './CommandPalette.css';
 export type CommandPaletteProps = {
   onClose: () => void;
   onNavigate: (id: NavigationId) => void;
-  reducedEffects: boolean;
-  onToggleEffects: () => void;
+  reduceMotion: boolean;
   opener: HTMLElement | null;
 };
 
 export default function CommandPalette({
   onClose,
   onNavigate,
-  reducedEffects,
-  onToggleEffects,
+  reduceMotion,
   opener,
 }: CommandPaletteProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const mountedRef = useRef(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
-  const [feedback, setFeedback] = useState('');
   const [allItems] = useState(() => getPaletteItems(__HAS_RESUME__));
   const items = useMemo(() => filterItems(allItems, query), [allItems, query]);
   const selected = items[active];
@@ -36,7 +31,6 @@ export default function CommandPalette({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    mountedRef.current = true;
     const overflow = document.body.style.overflow;
     const gutter = document.documentElement.style.scrollbarGutter;
     dialog.showModal();
@@ -44,7 +38,6 @@ export default function CommandPalette({
     document.documentElement.style.scrollbarGutter = 'stable';
     document.body.style.overflow = 'hidden';
     return () => {
-      mountedRef.current = false;
       dialog.close();
       document.body.style.overflow = overflow;
       document.documentElement.style.scrollbarGutter = gutter;
@@ -57,23 +50,7 @@ export default function CommandPalette({
       document.getElementById(`command-${selected.id}`)?.scrollIntoView?.({ block: 'nearest' });
   }, [selected]);
 
-  const run = async (item: PaletteItem) => {
-    if (item.kind === 'copy') {
-      try {
-        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-        await navigator.clipboard.writeText(PUBLIC_EMAIL);
-        if (mountedRef.current) setFeedback('Email copied');
-      } catch {
-        if (mountedRef.current)
-          setFeedback(`Copy failed. Select and copy the address: ${PUBLIC_EMAIL}`);
-      }
-      return;
-    }
-    if (item.kind === 'effects') {
-      onToggleEffects();
-      setFeedback(reducedEffects ? 'Effects restored' : 'Effects reduced');
-      return;
-    }
+  const run = (item: PaletteItem) => {
     onClose();
     if (item.kind === 'section') {
       onNavigate(item.section);
@@ -91,7 +68,7 @@ export default function CommandPalette({
       ref={dialogRef}
       className="command-palette"
       aria-labelledby="command-title"
-      data-reduced={reducedEffects}
+      data-reduced={reduceMotion}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -110,7 +87,12 @@ export default function CommandPalette({
       <div className="command-panel">
         <div className="command-toolbar">
           <h2 id="command-title">Search portfolio</h2>
-          <button type="button" onClick={onClose} aria-label="Close search">
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={onClose}
+            aria-label="Close search"
+          >
             Esc
           </button>
         </div>
@@ -118,6 +100,7 @@ export default function CommandPalette({
           Search sections, projects and actions
         </label>
         <input
+          className="form-control"
           ref={inputRef}
           id="command-query"
           type="search"
@@ -131,7 +114,6 @@ export default function CommandPalette({
           onChange={(event) => {
             setQuery(event.target.value);
             setActive(0);
-            setFeedback('');
           }}
           onKeyDown={(event) => {
             if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
@@ -155,7 +137,7 @@ export default function CommandPalette({
           }}
         />
         <p className="command-status" role="status" aria-live="polite" aria-atomic="true">
-          {feedback || `${items.length} ${items.length === 1 ? 'result' : 'results'}`}
+          {`${items.length} ${items.length === 1 ? 'result' : 'results'}`}
         </p>
         <div id="command-results" role="listbox" aria-label="Search results">
           {groups.map((group) => {
@@ -193,7 +175,6 @@ export default function CommandPalette({
                       onClick={() => void run(item)}
                     >
                       {item.label}
-                      {item.kind === 'effects' && <span>{reducedEffects ? 'On' : 'Off'}</span>}
                     </button>
                   );
                 })}

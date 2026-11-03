@@ -1,8 +1,8 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import CommandPalette from './CommandPalette';
 import { projects } from '../../projects/data/projects';
-import { PROFILE_LINKS, PUBLIC_EMAIL, RESUME_FILENAME, RESUME_PATH } from '../../../lib/profile';
+import { PROFILE_LINKS, RESUME_FILENAME, RESUME_PATH } from '../../../lib/profile';
 
 beforeEach(() => {
   vi.stubGlobal('__HAS_RESUME__', false);
@@ -36,17 +36,15 @@ function show() {
   opener.focus();
   const onClose = vi.fn();
   const onNavigate = vi.fn();
-  const onToggleEffects = vi.fn();
   const view = render(
     <CommandPalette
       opener={opener}
       onClose={onClose}
       onNavigate={onNavigate}
-      reducedEffects={false}
-      onToggleEffects={onToggleEffects}
+      reduceMotion={false}
     />,
   );
-  return { ...view, opener, onClose, onNavigate, onToggleEffects };
+  return { ...view, opener, onClose, onNavigate };
 }
 
 it('focuses the combobox, locks scroll and restores opener focus and scroll on unmount', () => {
@@ -131,44 +129,24 @@ it('includes the real resume download only when the build flag is true', () => {
   expect(resume.getAttribute('download')).toBe(RESUME_FILENAME);
 });
 
-it('copies the real email and reports clipboard rejection explicitly', async () => {
-  const writeText = vi
-    .fn()
-    .mockResolvedValueOnce(undefined)
-    .mockRejectedValueOnce(new Error('Denied'));
-  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+it('has no copy-email or manual effects commands', () => {
   show();
-  fireEvent.click(screen.getByRole('option', { name: 'Copy email' }));
-  await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Email copied'));
-  expect(writeText).toHaveBeenCalledWith(PUBLIC_EMAIL);
-  fireEvent.click(screen.getByRole('option', { name: 'Copy email' }));
-  await waitFor(() =>
-    expect(screen.getByRole('status').textContent).toContain(
-      `Copy failed. Select and copy the address: ${PUBLIC_EMAIL}`,
-    ),
-  );
-  Reflect.deleteProperty(navigator, 'clipboard');
+  expect(screen.queryByRole('option', { name: /Copy email/i })).toBeNull();
+  expect(screen.queryByRole('option', { name: /Reduce effects/i })).toBeNull();
+  for (const value of ['copy email', 'reduce effects']) {
+    fireEvent.change(screen.getByRole('combobox'), { target: { value } });
+    expect(screen.getByText('No matches')).toBeTruthy();
+  }
 });
 
-it('closes on backdrop/native cancel but not panel content, and toggles effects', () => {
-  const { onClose, onToggleEffects, rerender } = show();
+it('closes on backdrop/native cancel but not panel content, and supports system reduced motion', () => {
+  const { onClose, rerender } = show();
   fireEvent.click(screen.getByRole('heading', { name: 'Search portfolio' }));
   expect(onClose).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('option', { name: /Toggle Reduce effects/ }));
-  expect(onToggleEffects).toHaveBeenCalledOnce();
-  expect(screen.getByRole('status').textContent).toBe('Effects reduced');
   fireEvent.click(screen.getByRole('dialog'));
   expect(onClose).toHaveBeenCalledOnce();
   fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }));
   expect(onClose).toHaveBeenCalledTimes(2);
-  rerender(
-    <CommandPalette
-      opener={null}
-      onClose={onClose}
-      onNavigate={vi.fn()}
-      reducedEffects
-      onToggleEffects={onToggleEffects}
-    />,
-  );
+  rerender(<CommandPalette opener={null} onClose={onClose} onNavigate={vi.fn()} reduceMotion />);
   expect(screen.getByRole('dialog').getAttribute('data-reduced')).toBe('true');
 });
