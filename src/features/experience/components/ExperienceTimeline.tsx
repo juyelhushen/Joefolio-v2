@@ -34,10 +34,8 @@ function CareerRoute({
           y1="0"
           y2="1"
         >
-          <stop offset="0%" stopColor="#77bbff" stopOpacity=".82" />
-          <stop offset="42%" stopColor="#8fd8ce" stopOpacity=".82" />
-          <stop offset="72%" stopColor="#c3a9ff" stopOpacity=".82" />
-          <stop offset="100%" stopColor="#ffc38e" stopOpacity=".3" />
+          <stop offset="0%" stopColor="var(--color-accent-primary)" stopOpacity=".82" />
+          <stop offset="100%" stopColor="var(--color-accent-secondary)" stopOpacity=".4" />
         </linearGradient>
       </defs>
       <path

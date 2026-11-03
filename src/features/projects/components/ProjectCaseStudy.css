@@ -24,18 +24,8 @@
   display: flex;
   justify-content: flex-end;
   background: var(--color-bg-elevated);
-  padding: 8px 16px;
-}
-.case-study-toolbar button {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
-  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: var(--border-subtle);
 }
 .case-study-art {
   height: 220px;
@@ -64,7 +54,9 @@
   margin: 0 0 12px;
 }
 .case-study-copy section {
-  margin-top: 28px;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: var(--border-subtle);
 }
 .case-study-copy p {
   color: var(--color-text-secondary);
@@ -80,31 +72,23 @@
   padding: 6px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
+  color: var(--color-text-secondary);
 }
 .case-study-sources {
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
 }
 .case-study-sources li + li {
   margin-top: 10px;
 }
 .case-study-sources a {
-  color: var(--project-accent);
-  text-decoration: underline;
+  max-width: 100%;
+  text-align: left;
   overflow-wrap: anywhere;
 }
 .case-study-copy dd {
   margin: 0;
   color: var(--project-accent);
-}
-.project-case-study-button {
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  padding: 10px 12px;
-  min-height: 44px;
-  font-size: var(--type-small);
-  cursor: pointer;
 }
 @media (max-width: 740px) {
   .project-case-study {

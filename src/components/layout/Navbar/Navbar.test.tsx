@@ -5,6 +5,16 @@ import Navbar from './Navbar';
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+
+it('does not measure a desktop underline when the mobile indicator is hidden', () => {
+  vi.stubGlobal('matchMedia', () => ({ matches: true }));
+  const width = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get');
+  const { getByRole } = render(<Navbar activeSection="home" onNavigate={vi.fn()} />);
+  fireEvent.click(getByRole('button', { name: 'Open menu' }));
+  expect(width).not.toHaveBeenCalled();
+  expect(document.activeElement).toBe(getByRole('link', { name: 'Home' }));
 });
 
 it('opens as a disclosure and closes on Escape without locking page scroll', () => {
@@ -16,6 +26,7 @@ it('opens as a disclosure and closes on Escape without locking page scroll', () 
   expect(toggle.getAttribute('aria-expanded')).toBe('true');
   expect(getByRole('navigation', { name: 'Main navigation' }).className).toContain('is-open');
   expect(document.querySelector('.menu-backdrop')).toBeTruthy();
+  expect(document.activeElement).toBe(getByRole('link', { name: 'Home' }));
 
   fireEvent.keyDown(document, { key: 'Escape' });
   expect(getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe('false');
@@ -67,6 +78,8 @@ it('prefetches search on focus and provides a mobile menu entry with focus resto
   expect(onSearch).toHaveBeenCalledOnce();
   const toggle = getByRole('button', { name: 'Open menu' });
   fireEvent.click(toggle);
+  expect(document.querySelector('.mobile-effects-toggle')).toBeNull();
+  expect(document.querySelector('button[role="switch"]')).toBeNull();
   fireEvent.click(document.querySelector('.mobile-search') as HTMLButtonElement);
   expect(onSearch).toHaveBeenCalledTimes(2);
   expect(document.activeElement).toBe(toggle);

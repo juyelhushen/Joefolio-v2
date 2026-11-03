@@ -75,7 +75,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
           <div className="solar-core" aria-hidden="true">
             <span className="solar-core-corona" />
             <strong>JH</strong>
-            <small>ENGINEERING CORE</small>
+            <small>CORE</small>
           </div>
 
           {skillPlanets.map((planet, index) => {
@@ -94,7 +94,6 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                 <m.button
                   className={`skill-orbit-planet${selected ? ' is-selected' : ''}`}
                   type="button"
-                  style={{ color: planet.color }}
                   aria-label={`Select ${planet.name} skill`}
                   aria-pressed={selected}
                   aria-controls="skill-detail"
@@ -119,7 +118,6 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                         viewBox="0 0 24 24"
                         role="img"
                         focusable="false"
-                        style={{ color: planet.color }}
                       >
                         <path d={icon.path} />
                       </svg>
@@ -183,7 +181,12 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
             <ul className="skill-evidence-list" aria-label="Related project repositories">
               {evidence.map((item) => (
                 <li key={`${item.projectName}-${item.href}`}>
-                  <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="button button-secondary"
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <span>{item.projectName}</span>
                     <span>{item.label}</span>
                   </a>

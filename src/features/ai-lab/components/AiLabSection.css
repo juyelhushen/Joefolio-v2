@@ -6,19 +6,19 @@
 }
 .ai-lab h2 em {
   font-weight: 600;
-  color: var(--orange);
-  font-style: italic;
+  color: var(--color-accent-primary);
+  font-style: normal;
 }
 .ai-lab {
   position: relative;
   isolation: isolate;
-  padding: 76px 0 88px;
+  padding: var(--space-section) 0;
 }
 .ai-lab h2 {
   max-width: 690px;
   margin: 18px 0 14px;
-  font-size: clamp(38px, 5vw, 58px);
-  letter-spacing: -2.3px;
+  font-size: var(--type-section);
+  letter-spacing: -0.045em;
 }
 .ai-lab-heading {
   position: relative;
@@ -37,40 +37,38 @@
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 15px;
+  gap: var(--space-5);
   margin-top: 33px;
 }
 .ai-lab-case {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 15px;
+  gap: var(--space-4);
   min-width: 0;
-  padding: 23px;
-  border: 1px solid rgba(173, 192, 228, 0.15);
-  border-radius: 15px;
-  background:
-    radial-gradient(ellipse at 100% 0%, rgba(77, 89, 150, 0.1), transparent 46%),
-    rgba(8, 12, 24, 0.72);
-  transition: border-color var(--motion-fast) var(--ease-standard);
+  padding: var(--space-5);
+  border: var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  transition: border-color var(--motion-control) var(--ease-standard);
 }
-.ai-lab-case:hover {
-  border-color: rgba(122, 185, 255, 0.32);
+.ai-lab-case:is(:hover, :focus-within) {
+  border-color: var(--color-border-strong);
 }
 .ai-lab-case-icon {
   display: grid;
   width: 36px;
   height: 36px;
   place-items: center;
-  border: 1px solid rgba(122, 185, 255, 0.24);
-  border-radius: 11px;
-  color: #a9c8f2;
-  background: rgba(50, 78, 132, 0.17);
+  border: var(--border-subtle);
+  border-radius: var(--radius-control);
+  color: var(--color-accent-secondary);
+  background: var(--color-secondary-soft);
 }
 .ai-lab-case-copy {
   min-width: 0;
 }
 .ai-lab-case-copy > span {
-  color: var(--color-accent-blue);
+  color: var(--color-text-secondary);
   font-family: var(--font-mono);
   font-size: var(--type-small);
   letter-spacing: 0.06em;
@@ -96,20 +94,17 @@
 }
 .ai-lab-case li {
   padding: 4px 7px;
-  border: 1px solid rgba(173, 192, 228, 0.16);
-  border-radius: 999px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-control);
   color: var(--color-text-secondary);
   font-size: 14px;
 }
-.ai-lab-case .text-link {
-  margin: 4px 14px 0 0;
-  min-height: 48px;
-  font-size: 14px;
+.ai-lab-case .button {
+  margin-top: var(--space-2);
 }
 @media (max-width: 740px) {
   .ai-lab h2 {
-    font-size: 38px;
-    letter-spacing: -1.7px;
+    font-size: var(--type-section);
   }
   .ai-lab-heading > p {
     font-size: 14px;
@@ -119,11 +114,11 @@
   }
   .ai-lab-cases {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: var(--space-4);
     margin-top: 23px;
   }
   .ai-lab-case {
     gap: 12px;
-    padding: 18px;
+    padding: var(--space-4);
   }
 }

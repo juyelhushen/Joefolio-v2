@@ -55,7 +55,7 @@ it('starts once on visibility, retains ordered steps and replays without losing 
   expect(container.querySelector('.architecture-packet')?.getAttribute('aria-hidden')).toBe('true');
 });
 
-it.each(['mobile', 'OS reduced motion', 'effects preference', 'missing observer', 'data saving'])(
+it.each(['mobile', 'OS reduced motion', 'reduced-motion prop', 'missing observer', 'data saving'])(
   'shows the final static state without Replay for %s',
   (condition) => {
     if (condition === 'data saving') {
@@ -80,7 +80,7 @@ it.each(['mobile', 'OS reduced motion', 'effects preference', 'missing observer'
     const { container } = render(
       <ArchitectureFlow
         architecture={architecture}
-        reduceMotion={condition === 'effects preference'}
+        reduceMotion={condition === 'reduced-motion prop'}
       />,
     );
     expect(container.querySelector('[data-animated="false"]')).toBeTruthy();

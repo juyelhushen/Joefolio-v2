@@ -3,7 +3,6 @@ import { LoaderCircle, Send } from 'lucide-react';
 import { m } from 'motion/react';
 import type { ContactMessage, ContactStatus } from '../types';
 import './CosmicContactForm.css';
-import EmailContact from '../../../components/common/EmailContact';
 
 type ContactFields = Omit<ContactMessage, 'website'>;
 type FieldName = keyof ContactFields;
@@ -88,6 +87,7 @@ export default function CosmicContactForm({
   };
 
   const fieldProps = (name: FieldName) => ({
+    className: 'form-control',
     id: `contact-${name}`,
     name,
     value: fields[name],
@@ -224,7 +224,7 @@ export default function CosmicContactForm({
       {status === 'error' && (
         <div className="contact-error" role="alert">
           <p>{error} Your message is still here—please retry.</p>
-          <EmailContact />
+          <p>You can also use the email link in the footer.</p>
         </div>
       )}
 

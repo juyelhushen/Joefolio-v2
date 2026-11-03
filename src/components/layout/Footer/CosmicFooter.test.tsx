@@ -42,12 +42,22 @@ it('renders the three accessible social profiles with verified destinations', ()
   }
 });
 
-it.each([false, true])('renders email and gates the footer PDF link: %s', (available) => {
+it.each([false, true])('labels email Gmail and gates the footer PDF link: %s', (available) => {
   vi.stubGlobal('__HAS_RESUME__', available);
   renderFooter(true);
-  expect(screen.getByRole('link', { name: PUBLIC_EMAIL }).getAttribute('href')).toBe(
+  expect(screen.getByRole('link', { name: 'Gmail' }).getAttribute('href')).toBe(
     `mailto:${PUBLIC_EMAIL}`,
   );
+  const email = screen.getByRole('link', { name: 'Gmail' });
+  expect(screen.queryByText(PUBLIC_EMAIL)).toBeNull();
+  expect(screen.queryByRole('link', { name: PUBLIC_EMAIL })).toBeNull();
+  expect(screen.getByRole('navigation', { name: 'Social profiles' }).textContent).toBe(
+    'LinkedInGitHubGmailLeetCode',
+  );
+  expect(email.previousElementSibling).toBe(screen.getByRole('link', { name: 'GitHub' }));
+  expect(email.closest('nav')?.className).toBe('footer-social-links');
+  expect(email.getAttribute('target')).toBeNull();
+  expect(screen.queryByRole('button', { name: /Reduce effects|Copy email/i })).toBeNull();
   const download = screen.queryByRole('link', { name: 'Download résumé (PDF)' });
   if (available) {
     expect(download?.getAttribute('href')).toBe(RESUME_PATH);

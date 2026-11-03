@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './Starfield.css';
-import { useEffectsPreference } from '../../../hooks/useEffectsPreference';
+import { useSystemReducedMotion } from '../../../hooks/useSystemReducedMotion';
 import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
 
 export type Star = {
@@ -13,15 +13,6 @@ export type Star = {
   depth: number;
   velocityX: number;
   velocityY: number;
-};
-
-type Meteor = {
-  x: number;
-  y: number;
-  length: number;
-  speed: number;
-  angle: number;
-  alpha: number;
 };
 
 type NavigatorWithConnection = Navigator & {
@@ -83,8 +74,9 @@ type StarfieldProps = {
 
 export default function Starfield({ paused = false }: StarfieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { reducedEffects } = useEffectsPreference();
+  const reducedEffects = useSystemReducedMotion();
   const [mobileLite, setMobileLite] = useState(getMobileLitePreference);
+  const [tabVisible, setTabVisible] = useState(() => !document.hidden);
 
   useEffect(() => {
     const mobileQuery =
@@ -95,9 +87,12 @@ export default function Starfield({ paused = false }: StarfieldProps) {
 
     mobileQuery?.addEventListener('change', updateMobileLite);
     connection?.addEventListener?.('change', updateMobileLite);
+    const updateVisibility = () => setTabVisible(!document.hidden);
+    document.addEventListener('visibilitychange', updateVisibility);
     return () => {
       mobileQuery?.removeEventListener('change', updateMobileLite);
       connection?.removeEventListener?.('change', updateMobileLite);
+      document.removeEventListener('visibilitychange', updateVisibility);
     };
   }, []);
 
@@ -121,12 +116,10 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     let width = 0;
     let height = 0;
     let raf = 0;
-    let lastMeteorAt = 0;
     let lastFrameAt = 0;
     let animationStarted = false;
     let cancelScheduledStart: (() => void) | undefined;
     const stars: Star[] = [];
-    const meteors: Meteor[] = [];
     const starCount = 210;
 
     const resize = () => {
@@ -166,59 +159,13 @@ export default function Starfield({ paused = false }: StarfieldProps) {
       }
     };
 
-    const updateMeteors = (deltaSeconds: number) => {
-      for (let index = meteors.length - 1; index >= 0; index -= 1) {
-        const meteor = meteors[index];
-        meteor.x += Math.cos(meteor.angle) * meteor.speed * deltaSeconds;
-        meteor.y += Math.sin(meteor.angle) * meteor.speed * deltaSeconds;
-        meteor.alpha -= 0.42 * deltaSeconds;
-        if (meteor.alpha <= 0 || meteor.x < -meteor.length || meteor.y > height + meteor.length) {
-          meteors.splice(index, 1);
-        }
-      }
-    };
-
-    const drawMeteors = () => {
-      for (const meteor of meteors) {
-        const tailX = meteor.x - Math.cos(meteor.angle) * meteor.length;
-        const tailY = meteor.y - Math.sin(meteor.angle) * meteor.length;
-        const gradient = ctx.createLinearGradient(meteor.x, meteor.y, tailX, tailY);
-        gradient.addColorStop(0, `rgba(255, 181, 125, ${meteor.alpha})`);
-        gradient.addColorStop(0.35, `rgba(125, 183, 255, ${meteor.alpha * 0.52})`);
-        gradient.addColorStop(1, 'rgba(125, 183, 255, 0)');
-        ctx.beginPath();
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 1.4;
-        ctx.moveTo(meteor.x, meteor.y);
-        ctx.lineTo(tailX, tailY);
-        ctx.stroke();
-      }
-    };
-
-    const spawnMeteor = (now: number) => {
-      const interval = mobile ? 12000 : 9000;
-      if (now - lastMeteorAt < interval || Math.random() < 0.35) return;
-      meteors.push({
-        x: Math.random() * width * 0.88 + width * 0.06,
-        y: Math.random() * height * 0.34,
-        length: Math.random() * 64 + 42,
-        speed: Math.random() * 110 + 95,
-        angle: Math.PI * (0.69 + Math.random() * 0.1),
-        alpha: 0.68,
-      });
-      lastMeteorAt = now;
-    };
-
     const handleFrame = (now: number) => {
       const deltaSeconds = Math.min(Math.max((now - lastFrameAt) / 1000, 0), 0.08);
       lastFrameAt = now;
       if (!isStaticFrame()) {
         advanceStars(stars, deltaSeconds, width, height);
-        spawnMeteor(now);
-        updateMeteors(deltaSeconds);
       }
       drawStars(now);
-      if (!isStaticFrame()) drawMeteors();
     };
 
     const start = () => {
@@ -252,8 +199,7 @@ export default function Starfield({ paused = false }: StarfieldProps) {
 
     resize();
     for (let index = 0; index < starCount; index += 1) stars.push(createStar(index, width, height));
-    lastMeteorAt = performance.now();
-    handleFrame(lastMeteorAt);
+    handleFrame(performance.now());
 
     const onResize = () => {
       mobile = mobileQuery?.matches ?? window.innerWidth <= 740;
@@ -281,5 +227,18 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     };
   }, [mobileLite, paused, reducedEffects]);
 
-  return <canvas ref={canvasRef} className="starfield" aria-hidden="true" />;
+  return (
+    <>
+      <canvas ref={canvasRef} className="starfield" aria-hidden="true" />
+      <div
+        className="shooting-stars"
+        data-running={!paused && !reducedEffects && !mobileLite && tabVisible}
+        aria-hidden="true"
+      >
+        <span className="shooting-star" />
+        <span className="shooting-star" />
+        <span className="shooting-star" />
+      </div>
+    </>
+  );
 }

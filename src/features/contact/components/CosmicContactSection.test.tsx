@@ -72,10 +72,10 @@ it.each(['CHECKING', 'UP', 'UNAVAILABLE'] as const)(
     if (backendStatus === 'UNAVAILABLE') {
       expect(note).toBeTruthy();
       expect(
-        within(screen.getByRole('status', { name: 'Contact service availability' }))
-          .getByRole('link', { name: PUBLIC_EMAIL })
-          .getAttribute('href'),
-      ).toBe(`mailto:${PUBLIC_EMAIL}`);
+        within(screen.getByRole('status', { name: 'Contact service availability' })).getByText(
+          /email link in the footer/,
+        ),
+      ).toBeTruthy();
     } else {
       expect(note).toBeNull();
     }
@@ -83,7 +83,9 @@ it.each(['CHECKING', 'UP', 'UNAVAILABLE'] as const)(
       false,
     );
     expect(screen.getByLabelText(/^Name/).hasAttribute('disabled')).toBe(false);
-    expect(screen.getByRole('button', { name: 'Copy email' })).toBeTruthy();
+    expect(screen.queryByText(PUBLIC_EMAIL)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Copy email' })).toBeNull();
+    expect(screen.getByLabelText(/^Email/).getAttribute('type')).toBe('email');
   },
 );
 
@@ -190,11 +192,8 @@ it('preserves entered values and offers retry after a network failure', async ()
 
   fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
   expect(await screen.findByRole('alert')).toBeTruthy();
-  expect(
-    within(screen.getByRole('alert'))
-      .getByRole('link', { name: PUBLIC_EMAIL })
-      .getAttribute('href'),
-  ).toBe(`mailto:${PUBLIC_EMAIL}`);
+  expect(within(screen.getByRole('alert')).getByText(/email link in the footer/)).toBeTruthy();
+  expect(screen.queryByText(PUBLIC_EMAIL)).toBeNull();
   expect(screen.getByRole('button', { name: 'Retry message' })).toBeTruthy();
   expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
   expect((screen.getByLabelText(/^Message/) as HTMLTextAreaElement).value).toContain(

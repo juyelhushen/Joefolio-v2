@@ -26,6 +26,13 @@ type EarthGlobeProps = {
 export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [webGlUnavailable, setWebGlUnavailable] = useState(false);
+  const reducedMotionRef = useRef(reduceMotion);
+  const updateAnimationRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    reducedMotionRef.current = reduceMotion;
+    updateAnimationRef.current?.();
+  }, [reduceMotion]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -95,7 +102,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
     let frame = 0;
     let texture: Texture | null = null;
     let disposed = false;
-    let inViewport = !('IntersectionObserver' in window);
+    let inViewport = typeof IntersectionObserver === 'undefined';
     let draw = () => renderer.render(scene, camera);
     new TextureLoader().load(
       `${import.meta.env.BASE_URL}images/earth-blue-marble.jpg`,
@@ -126,7 +133,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       if (previousFrame) earth.rotation.y += Math.min(time - previousFrame, 60) * 0.000012;
       previousFrame = time;
       draw();
-      if (inViewport && !document.hidden && !motionReduced) {
+      if (inViewport && !document.hidden && !reducedMotionRef.current) {
         frame = window.requestAnimationFrame(animate);
       }
     };
@@ -150,7 +157,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
             if (!entry || inViewport === entry.isIntersecting) return;
             inViewport = entry.isIntersecting;
             window.cancelAnimationFrame(frame);
-            if (document.hidden || motionReduced || !inViewport) {
+            if (document.hidden || reducedMotionRef.current || !inViewport) {
               draw();
               return;
             }
@@ -160,23 +167,24 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
     intersectionObserver?.observe(container);
     window.addEventListener('resize', resizeEarth);
     resizeEarth();
-    const motionReduced = reduceMotion;
-    if (motionReduced || !inViewport) draw();
+    if (reducedMotionRef.current || !inViewport) draw();
     else frame = window.requestAnimationFrame(animate);
 
     const onVisibilityChange = () => {
       window.cancelAnimationFrame(frame);
-      if (document.hidden || motionReduced || !inViewport) {
+      if (document.hidden || reducedMotionRef.current || !inViewport) {
         draw();
         return;
       }
       previousFrame = 0;
       frame = window.requestAnimationFrame(animate);
     };
+    updateAnimationRef.current = onVisibilityChange;
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       disposed = true;
+      updateAnimationRef.current = null;
       window.cancelAnimationFrame(frame);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       resizeObserver?.disconnect();
@@ -190,7 +198,7 @@ export default function EarthGlobe({ lit, reduceMotion }: EarthGlobeProps) {
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, [reduceMotion]);
+  }, []);
 
   return (
     <div

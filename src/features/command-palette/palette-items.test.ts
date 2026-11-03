@@ -6,6 +6,8 @@ import { PROFILE_LINKS, RESUME_PATH } from '../../lib/profile';
 
 it('derives destinations from the authoritative navigation, projects and profile modules', () => {
   const items = getPaletteItems(true);
+  expect(items.some((item) => /copy email|reduce effects/i.test(item.label))).toBe(false);
+  expect(items.every((item) => ['section', 'project', 'link'].includes(item.kind))).toBe(true);
   expect(items.filter((item) => item.group === 'Sections').map((item) => item.label)).toEqual(
     navItems.map((item) => item.label),
   );

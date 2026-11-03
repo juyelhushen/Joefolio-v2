@@ -3,38 +3,10 @@ import ProjectVisual from './ProjectVisual';
 import ScrollReveal, { ScrollRevealItem } from '../../../components/common/ScrollReveal';
 import { projects } from '../data/projects';
 import './ProjectsSection.css';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 
 const ProjectCaseStudy = lazy(() => import('./ProjectCaseStudy'));
-const EventPipelinePlayground = lazy(
-  () => import('../../playground/components/EventPipelinePlayground'),
-);
-
-function PlaygroundSlot({ reduceMotion }: { reduceMotion: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [loaded, setLoaded] = useState(() => typeof IntersectionObserver === 'undefined');
-  useEffect(() => {
-    if (loaded || !ref.current) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setLoaded(true);
-        observer.disconnect();
-      }
-    });
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [loaded]);
-  return (
-    <div ref={ref} className="pipeline-lazy-slot">
-      {loaded && (
-        <Suspense fallback={null}>
-          <EventPipelinePlayground reduceMotion={reduceMotion} />
-        </Suspense>
-      )}
-    </div>
-  );
-}
 
 const projectFromHash = () =>
   projects.find((project) => window.location.hash === `#projects/${project.id}`) ?? null;
@@ -115,7 +87,7 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
 
               <div className="project-gallery-actions">
                 <button
-                  className="project-case-study-button"
+                  className="button button-secondary project-case-study-button"
                   type="button"
                   aria-label={`${project.name}: view case study`}
                   onClick={(event) => {
@@ -133,7 +105,7 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
                   View case study
                 </button>
                 <a
-                  className="project-gallery-link"
+                  className="button button-tertiary project-gallery-link"
                   href={project.repositoryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -145,7 +117,7 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
                 </a>
                 {project.demoUrl && (
                   <a
-                    className="project-gallery-demo"
+                    className="button button-tertiary project-gallery-demo"
                     href={project.demoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -159,7 +131,6 @@ export default function ProjectsSection({ reduceMotion }: ProjectsSectionProps) 
           </ScrollReveal>
         ))}
       </div>
-      <PlaygroundSlot reduceMotion={reduceMotion} />
       <AnimatePresence>
         {selectedProject && (
           <Suspense key={selectedProject.id} fallback={null}>

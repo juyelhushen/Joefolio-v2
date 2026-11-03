@@ -2,7 +2,6 @@ import { cleanup, fireEvent, render, screen, act } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest';
 import { useSpring } from 'motion/react';
 import CosmicMagnifyingCursor from './CosmicMagnifyingCursor';
-import { setReducedEffects } from '../../hooks/useEffectsPreference';
 
 vi.mock('motion/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('motion/react')>();
@@ -11,8 +10,6 @@ vi.mock('motion/react', async (importOriginal) => {
 
 afterEach(() => {
   cleanup();
-  setReducedEffects(false);
-  localStorage.removeItem('joefolio-reduce-effects');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   vi.useRealTimers();
@@ -52,6 +49,7 @@ it('switches scanner modes only with targets and pauses rotations after pointer 
 });
 
 function configureMedia(fine = true, reduced = false) {
+  let currentReduced = reduced;
   const queries = new Map<
     string,
     {
@@ -63,8 +61,12 @@ function configureMedia(fine = true, reduced = false) {
   vi.stubGlobal(
     'matchMedia',
     vi.fn((query: string) => {
+      const existing = queries.get(query);
+      if (existing) return existing;
       const media = {
-        matches: query.includes('reduced-motion') ? reduced : fine,
+        get matches() {
+          return query.includes('reduced-motion') ? currentReduced : fine;
+        },
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
       };
@@ -72,7 +74,19 @@ function configureMedia(fine = true, reduced = false) {
       return media;
     }),
   );
-  return queries;
+  return {
+    queries,
+    setReducedPreference(next: boolean) {
+      currentReduced = next;
+      for (const [query, media] of queries) {
+        if (query.includes('reduced-motion')) {
+          for (const [, listener] of media.addEventListener.mock.calls) {
+            if (typeof listener === 'function') listener(new Event('change'));
+          }
+        }
+      }
+    },
+  };
 }
 
 function pointer(element: Element, type: string, x = 120, y = 180, pointerType = 'mouse') {
@@ -141,7 +155,7 @@ it('tracks pointer values without intercepting clicks, and clears targets on exi
 });
 
 it('removes pointer/media listeners and target styling on unmount or preference changes', () => {
-  const queries = configureMedia();
+  const { queries, setReducedPreference } = configureMedia();
   const removeDocument = vi.spyOn(document, 'removeEventListener');
   const removeWindow = vi.spyOn(window, 'removeEventListener');
   const { unmount } = render(
@@ -155,7 +169,7 @@ it('removes pointer/media listeners and target styling on unmount or preference 
   const springs = vi.mocked(useSpring).mock.results;
   const stopX = vi.spyOn(springs[0].value, 'stop');
   const stopY = vi.spyOn(springs[1].value, 'stop');
-  act(() => setReducedEffects(true));
+  act(() => setReducedPreference(true));
   expect(document.querySelector('.cosmic-cursor')).toBeNull();
   expect(link.classList.contains('is-cursor-target')).toBe(false);
   unmount();

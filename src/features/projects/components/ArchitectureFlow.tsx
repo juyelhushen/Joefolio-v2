@@ -34,7 +34,7 @@ export default function ArchitectureFlow({
       {animated && (
         <button
           type="button"
-          className="architecture-replay"
+          className="button button-secondary architecture-replay"
           aria-label="Replay architecture animation"
           onClick={() => setReplay((value) => value + 1)}
         >

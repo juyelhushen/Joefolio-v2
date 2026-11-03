@@ -73,7 +73,13 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
     >
       <div className="case-study-panel">
         <div className="case-study-toolbar">
-          <button ref={closeRef} type="button" onClick={onClose} aria-label="Close case study">
+          <button
+            className="button button-secondary button-icon"
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close case study"
+          >
             <X size={20} aria-hidden="true" />
           </button>
         </div>
@@ -109,6 +115,30 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
             <ul className="case-study-stack">
               {project.technologies.map((technology) => (
                 <li key={technology}>{technology}</li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <h3>Engineering decisions</h3>
+            <ul>
+              {project.decisions.map((decision) => (
+                <li key={decision}>{decision}</li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <h3>Challenges and trade-offs</h3>
+            <ul>
+              {project.tradeoffs.map((tradeoff) => (
+                <li key={tradeoff}>{tradeoff}</li>
+              ))}
+            </ul>
+          </section>
+          <section>
+            <h3>Testing and reliability</h3>
+            <ul>
+              {project.reliability.map((note) => (
+                <li key={note}>{note}</li>
               ))}
             </ul>
           </section>
@@ -152,19 +182,34 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
             <ul className="case-study-sources">
               {project.architecture.sourceLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="button button-tertiary"
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {link.label}
                   </a>
                 </li>
               ))}
               <li>
-                <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer">
+                <a
+                  className="button button-tertiary"
+                  href={project.repositoryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   GitHub repository
                 </a>
               </li>
               {project.demoUrl && (
                 <li>
-                  <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="button button-tertiary"
+                    href={project.demoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Live demo
                   </a>
                 </li>

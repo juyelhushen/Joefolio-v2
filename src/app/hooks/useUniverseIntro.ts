@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { useEffectsPreference } from '../../hooks/useEffectsPreference';
+import { useSystemReducedMotion } from '../../hooks/useSystemReducedMotion';
 
 const INTRO_SESSION_KEY = 'joefolio-universe-intro-seen';
 
@@ -29,7 +29,7 @@ function shouldShowUniverseIntro(reducedEffects: boolean): boolean {
 }
 
 export const useUniverseIntro = () => {
-  const { reducedEffects } = useEffectsPreference();
+  const reducedEffects = useSystemReducedMotion();
   const [completed, setCompleted] = useState(false);
   const shouldShowRef = useRef<boolean | null>(null);
   const dismissedByPreferenceRef = useRef(false);

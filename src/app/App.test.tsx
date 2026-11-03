@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import { afterEach, beforeAll, expect, it, vi } from 'vitest';
 import App from './App';
 import { wakeBackend } from '../lib/api/backend-health';
+import { PUBLIC_EMAIL } from '../lib/profile';
 
 vi.mock('../lib/api/backend-health', () => ({
   wakeBackend: vi.fn().mockResolvedValue('UP'),
@@ -28,6 +29,7 @@ afterEach(() => {
   Reflect.deleteProperty(navigator, 'connection');
   Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
@@ -85,24 +87,73 @@ it('passes the unavailable startup status to the contact section', async () => {
   expect(screen.getByRole('button', { name: 'Launch message' }).hasAttribute('disabled')).toBe(
     false,
   );
+  expect(
+    screen.getByRole('button', { name: 'Launch message' }).classList.contains('button-primary'),
+  ).toBe(true);
+  for (const field of within(screen.getByRole('form', { name: 'Send a message' })).getAllByRole(
+    'textbox',
+  )) {
+    expect(field.classList.contains('form-control')).toBe(true);
+  }
 });
 
-it('positions Juyel through backend, full-stack, and practical AI engineering', () => {
+it('introduces dependable software with one concise identity and two hero actions', () => {
   renderApp();
 
-  const hero = screen.getByRole('region', { name: /Backend systems.*Practical AI/ });
+  const hero = screen.getByRole('region', {
+    name: 'I turn complex ideas into reliable software.',
+  });
+
   expect(
-    screen.getByRole('heading', { level: 1, name: /Backend systems.*Practical AI/ }),
+    screen.getByRole('heading', {
+      level: 1,
+      name: 'I turn complex ideas into reliable software.',
+    }),
   ).toBeTruthy();
-  expect(hero.textContent).toContain('full-stack applications');
-  expect(hero.textContent).toContain('document retrieval and agent workflows');
-  expect(within(hero).getByText('Java · Spring Boot')).toBeTruthy();
-  expect(within(hero).getByText('React · TypeScript')).toBeTruthy();
-  expect(within(hero).getByText('LangGraph · RAG')).toBeTruthy();
-  expect(screen.getByRole('link', { name: /Explore Projects/ }).getAttribute('href')).toBe(
+  expect(hero.textContent).toContain('Building dependable backend systems');
+  expect(hero.textContent).toContain('practical AI solutions');
+  expect(hero.querySelector('.hero-actions')?.querySelectorAll('a')).toHaveLength(2);
+  expect(within(hero).queryByRole('list')).toBeNull();
+  expect(
+    within(hero)
+      .getByRole('link', { name: 'Explore my work' })
+      .classList.contains('button-primary'),
+  ).toBe(true);
+  expect(
+    within(hero).getByRole('link', { name: 'Get in touch' }).classList.contains('button-secondary'),
+  ).toBe(true);
+  expect(screen.getByRole('link', { name: 'Explore my work' }).getAttribute('href')).toBe(
     '#projects',
   );
-  expect(screen.getByRole('link', { name: /Let’s connect/ }).getAttribute('href')).toBe('#contact');
+  expect(within(hero).getByRole('link', { name: 'Get in touch' }).getAttribute('href')).toBe(
+    '#contact',
+  );
+});
+
+it('does not advertise an unconfigured assistant after idle initialization', async () => {
+  vi.stubEnv('VITE_AI_ASSISTANT_API_URL', '');
+  const callbacks: (() => void)[] = [];
+  vi.stubGlobal('requestIdleCallback', (callback: () => void) => callbacks.push(callback));
+  vi.stubGlobal('cancelIdleCallback', vi.fn());
+  renderApp();
+  await act(async () => callbacks.forEach((callback) => callback()));
+  expect(screen.queryByRole('button', { name: 'Open portfolio assistant' })).toBeNull();
+});
+
+it('labels the sole mail link Gmail beside GitHub without displaying the address or manual controls', async () => {
+  window.sessionStorage.setItem('joefolio-universe-intro-seen', 'true');
+  window.history.replaceState(null, '', '#footer');
+  renderApp();
+  const email = await screen.findByRole('link', { name: 'Gmail' });
+  expect(screen.queryByText(PUBLIC_EMAIL)).toBeNull();
+  expect(screen.queryByRole('link', { name: PUBLIC_EMAIL })).toBeNull();
+  expect(document.querySelectorAll('a[href^="mailto:"]')).toHaveLength(1);
+  expect(email.getAttribute('href')).toBe(`mailto:${PUBLIC_EMAIL}`);
+  expect(email.previousElementSibling?.textContent).toBe('GitHub');
+  expect(email.closest('footer')).toBeTruthy();
+  expect(email.classList.contains('button-secondary')).toBe(true);
+  expect(document.querySelector('[data-effects-reduced]')).toBeNull();
+  expect(screen.queryByRole('button', { name: /Reduce effects|Copy email/i })).toBeNull();
 });
 
 it('opens and closes the mobile navigation menu', () => {
@@ -116,7 +167,7 @@ it('opens and closes the mobile navigation menu', () => {
     'true',
   );
 
-  expect(screen.getByRole('link', { name: /Explore Projects/ }).getAttribute('href')).toBe(
+  expect(screen.getByRole('link', { name: 'Explore my work' }).getAttribute('href')).toBe(
     '#projects',
   );
   fireEvent.keyDown(document, { key: 'Escape' });
@@ -284,7 +335,7 @@ it('keeps the animated JH brand link and prominent Get in Touch destination', ()
   expect(decoration?.getAttribute('aria-hidden')).toBe('true');
   expect(decoration?.querySelector('a, button')).toBeNull();
 
-  const contactCta = screen.getByRole('link', { name: 'Get in Touch' });
+  const contactCta = within(screen.getByRole('banner')).getByRole('link', { name: 'Get in Touch' });
   expect(contactCta.getAttribute('href')).toBe('#contact');
   fireEvent.click(contactCta);
   expect(

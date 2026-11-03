@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { navItems } from './navItems';
-import EffectsPreferenceToggle from '../../common/EffectsPreferenceToggle';
 import './Navbar.css';
 
 type NavigationId = (typeof navItems)[number]['id'];
@@ -47,14 +46,17 @@ export default function Navbar({
     if (!navigation) return;
 
     const updateIndicator = () => {
+      if (
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(max-width: 900px)').matches
+      )
+        return;
       const activeLink = navigation.querySelector<HTMLAnchorElement>(
         `[data-nav-id="${activeSection}"]`,
       );
       if (!activeLink) return;
-      navigation.style.setProperty(
-        '--active-indicator-left',
-        `${activeLink.offsetLeft + (activeLink.offsetWidth - 17) / 2}px`,
-      );
+      navigation.style.setProperty('--active-indicator-left', `${activeLink.offsetLeft}px`);
+      navigation.style.setProperty('--active-indicator-width', `${activeLink.offsetWidth}px`);
     };
 
     updateIndicator();
@@ -67,11 +69,12 @@ export default function Navbar({
       observer?.disconnect();
       window.removeEventListener('resize', updateIndicator);
     };
-  }, [activeSection, menuOpen]);
+  }, [activeSection]);
 
   useEffect(() => {
     if (!menuOpen) return;
 
+    navigationRef.current?.querySelector<HTMLAnchorElement>('a')?.focus({ preventScroll: true });
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setMenuOpen(false);
@@ -137,10 +140,9 @@ export default function Navbar({
               {label}
             </a>
           ))}
-          <EffectsPreferenceToggle className="mobile-effects-toggle" />
           <button
             type="button"
-            className="mobile-search"
+            className="button button-secondary mobile-search"
             aria-label="Search portfolio from menu"
             onMouseEnter={onSearchIntent}
             onFocus={onSearchIntent}
@@ -156,7 +158,7 @@ export default function Navbar({
         </nav>
         <button
           type="button"
-          className="header-search"
+          className="button button-secondary header-search"
           aria-label="Search portfolio"
           aria-keyshortcuts="Control+k Meta+k"
           onMouseEnter={onSearchIntent}
@@ -167,13 +169,17 @@ export default function Navbar({
           <span>Search</span>
           <kbd>Ctrl K</kbd>
         </button>
-        <a className="header-cta" href="#contact" onClick={() => navigate('contact')}>
+        <a
+          className="button button-primary header-cta"
+          href="#contact"
+          onClick={() => navigate('contact')}
+        >
           <span>Get in Touch</span>
           <ArrowUpRight size={16} aria-hidden="true" />
         </a>
         <button
           ref={menuToggleRef}
-          className="menu-toggle"
+          className="button button-secondary button-icon menu-toggle"
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}

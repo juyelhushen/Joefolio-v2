@@ -21,7 +21,7 @@
   min-height: 1050px;
 }
 .lazy-section-placeholder.projects {
-  min-height: 1380px;
+  min-height: 1320px;
 }
 .lazy-section-placeholder.skills {
   min-height: 1080px;
@@ -35,14 +35,19 @@
 .lazy-section-placeholder.footer {
   min-height: 640px;
 }
+@media (max-width: 1100px) {
+  .lazy-section-placeholder.projects {
+    min-height: 1440px;
+  }
+}
 @media (max-width: 900px) {
   .lazy-section-placeholder.projects {
-    min-height: 2200px;
+    min-height: 1900px;
   }
 }
 @media (max-width: 600px) {
   .lazy-section-placeholder.projects {
-    min-height: 2790px;
+    min-height: 2820px;
   }
 }
 @media (max-width: 740px) {
@@ -91,9 +96,4 @@
   section[id] {
     scroll-margin-top: 84px;
   }
-}
-:root[data-effects-reduced='true'] *,
-:root[data-effects-reduced='true'] *::before,
-:root[data-effects-reduced='true'] *::after {
-  transition-duration: 0.01ms !important;
 }
