@@ -49,26 +49,27 @@ function start(reducedMotion = false) {
 
   // Mock canvas getContext
   if (canvas) {
-    (canvas.getContext as unknown as (contextId: string) => CanvasRenderingContext2D | null) = vi.fn(
-      () =>
-        ({
-          scale: vi.fn(),
-          fillRect: vi.fn(),
-          createRadialGradient: vi.fn(() => ({
-            addColorStop: vi.fn(),
-          })),
-          createLinearGradient: vi.fn(() => ({
-            addColorStop: vi.fn(),
-          })),
-          fillStyle: '',
-          strokeStyle: '',
-          lineWidth: 0,
-          beginPath: vi.fn(),
-          arc: vi.fn(),
-          fill: vi.fn(),
-          stroke: vi.fn(),
-        }) as unknown as CanvasRenderingContext2D,
-    );
+    (canvas.getContext as unknown as (contextId: string) => CanvasRenderingContext2D | null) =
+      vi.fn(
+        () =>
+          ({
+            scale: vi.fn(),
+            fillRect: vi.fn(),
+            createRadialGradient: vi.fn(() => ({
+              addColorStop: vi.fn(),
+            })),
+            createLinearGradient: vi.fn(() => ({
+              addColorStop: vi.fn(),
+            })),
+            fillStyle: '',
+            strokeStyle: '',
+            lineWidth: 0,
+            beginPath: vi.fn(),
+            arc: vi.fn(),
+            fill: vi.fn(),
+            stroke: vi.fn(),
+          }) as unknown as CanvasRenderingContext2D,
+      );
   }
 
   const execute = new Function('window', 'document', script!);
