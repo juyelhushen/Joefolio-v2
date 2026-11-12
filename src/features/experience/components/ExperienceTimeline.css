@@ -5,12 +5,12 @@
   margin-top: 39px;
   padding: 24px 0;
   background:
-    radial-gradient(ellipse at 16% 13%, rgba(85, 125, 198, 0.1), transparent 30%),
-    radial-gradient(ellipse at 86% 64%, rgba(135, 105, 181, 0.08), transparent 32%),
-    radial-gradient(circle at 6% 24%, rgba(197, 219, 255, 0.34) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 87% 16%, rgba(197, 219, 255, 0.24) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 18% 76%, rgba(197, 219, 255, 0.2) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 92% 89%, rgba(197, 219, 255, 0.22) 0 1px, transparent 1.5px);
+    radial-gradient(ellipse at 16% 13%, rgba(102, 139, 255, 0.12), transparent 30%),
+    radial-gradient(ellipse at 86% 64%, rgba(169, 149, 255, 0.1), transparent 32%),
+    radial-gradient(circle at 6% 24%, rgba(240, 244, 255, 0.34) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 87% 16%, rgba(240, 244, 255, 0.24) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 18% 76%, rgba(240, 244, 255, 0.2) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 92% 89%, rgba(240, 244, 255, 0.22) 0 1px, transparent 1.5px);
 }
 .career-route {
   position: absolute;

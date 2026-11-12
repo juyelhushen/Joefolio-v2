@@ -107,11 +107,49 @@
   }
 }
 
-@media (max-width: 740px), (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .shooting-stars {
     display: none;
   }
   .shooting-star::before {
     animation: none;
+  }
+}
+
+/* Mobile-specific shooting star styling */
+@media (max-width: 768px) {
+  .shooting-stars {
+    display: block;
+  }
+
+  .shooting-star::before {
+    opacity: 0;
+    animation: cosmic-shooting-star 20s linear infinite paused;
+    animation-delay: 6s;
+  }
+
+  .shooting-star:nth-child(2)::before {
+    animation-duration: 26s;
+    animation-delay: 16s;
+  }
+
+  .shooting-star:nth-child(3)::before {
+    animation-duration: 32s;
+    animation-delay: 26s;
+  }
+}
+
+/* Desktop-specific shooting star styling */
+@media (min-width: 769px) {
+  .shooting-star::before {
+    animation-delay: 4s;
+  }
+
+  .shooting-star:nth-child(2)::before {
+    animation-delay: 10s;
+  }
+
+  .shooting-star:nth-child(3)::before {
+    animation-delay: 17s;
   }
 }

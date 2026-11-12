@@ -21,6 +21,7 @@ import CosmicMagnifyingCursor from '../components/cursor/CosmicMagnifyingCursor'
 import CosmicScrollProgress from '../components/common/CosmicScrollProgress';
 import { impactStats } from '../features/impact/data/impact';
 import { scheduleAfterIdle } from '../lib/scheduleAfterIdle';
+import { EnvironmentProvider } from '../components/background/EnvironmentContext';
 
 const SkillsSection = lazy(() => import('../features/skills/components/SkillsSection'));
 const AboutSection = lazy(() => import('../features/about/components/AboutSection'));
@@ -183,88 +184,90 @@ export default function App() {
 
   return (
     <LazyMotion features={loadMotionFeatures}>
-      <div className="site-shell">
-        <CosmicMeshBackground />
-        <Starfield />
-        <div className="space-grain" aria-hidden="true" />
-        <a className="skip-link" href="#main-content">
-          Skip to content
-        </a>
-        <Navbar
-          activeSection={activeSection}
-          onNavigate={handleNavigationClick}
-          onSearch={openPalette}
-          onSearchIntent={() => {
-            void loadPalette().catch((error: unknown) =>
-              console.error('Could not prefetch search.', error),
-            );
-          }}
-        />
-        {paletteOpener && (
-          <LoadBoundary
-            label="search"
-            fallback={
-              <div className="load-error section-wrap" role="alert">
-                <p>Search could not load. Use the section navigation or reload to try again.</p>
-                <button
-                  className="button button-secondary"
-                  type="button"
-                  onClick={() => setPaletteOpener(null)}
-                >
-                  Dismiss
-                </button>
-              </div>
-            }
-          >
-            <Suspense fallback={null}>
-              <CommandPalette
-                opener={paletteOpener.element}
-                onClose={() => setPaletteOpener(null)}
-                onNavigate={handleNavigationClick}
-                reduceMotion={reduceMotion}
-              />
-            </Suspense>
-          </LoadBoundary>
-        )}
-
-        <main id="main-content">
-          <HeroSection reduceMotion={reduceMotion} headingRef={homeHeadingRef} />
-          <LazySection id="about" className="about" label="About">
-            <AboutSection />
-          </LazySection>
-          {impactStats.length > 0 && (
-            <LoadBoundary label="the optional impact summary" fallback={null}>
-              <Suspense fallback={<div className="impact-lazy-placeholder" aria-hidden="true" />}>
-                <ImpactStrip reduceMotion={reduceMotion} />
+      <EnvironmentProvider>
+        <div className="site-shell">
+          <CosmicMeshBackground />
+          <Starfield />
+          <div className="space-grain" aria-hidden="true" />
+          <a className="skip-link" href="#main-content">
+            Skip to content
+          </a>
+          <Navbar
+            activeSection={activeSection}
+            onNavigate={handleNavigationClick}
+            onSearch={openPalette}
+            onSearchIntent={() => {
+              void loadPalette().catch((error: unknown) =>
+                console.error('Could not prefetch search.', error),
+              );
+            }}
+          />
+          {paletteOpener && (
+            <LoadBoundary
+              label="search"
+              fallback={
+                <div className="load-error section-wrap" role="alert">
+                  <p>Search could not load. Use the section navigation or reload to try again.</p>
+                  <button
+                    className="button button-secondary"
+                    type="button"
+                    onClick={() => setPaletteOpener(null)}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              }
+            >
+              <Suspense fallback={null}>
+                <CommandPalette
+                  opener={paletteOpener.element}
+                  onClose={() => setPaletteOpener(null)}
+                  onNavigate={handleNavigationClick}
+                  reduceMotion={reduceMotion}
+                />
               </Suspense>
             </LoadBoundary>
           )}
-          <LazySection id="experience" className="experience" label="Experience">
-            <ExperienceSection reduceMotion={reduceMotion} />
-          </LazySection>
-          <LazySection id="skills" className="skills" label="Skills">
-            <SkillsSection reduceMotion={reduceMotion} />
-          </LazySection>
 
-          <LazySection id="projects" className="projects" label="Projects">
-            <ProjectsSection reduceMotion={reduceMotion} />
-          </LazySection>
+          <main id="main-content">
+            <HeroSection reduceMotion={reduceMotion} headingRef={homeHeadingRef} />
+            <LazySection id="about" className="about" label="About">
+              <AboutSection />
+            </LazySection>
+            {impactStats.length > 0 && (
+              <LoadBoundary label="the optional impact summary" fallback={null}>
+                <Suspense fallback={<div className="impact-lazy-placeholder" aria-hidden="true" />}>
+                  <ImpactStrip reduceMotion={reduceMotion} />
+                </Suspense>
+              </LoadBoundary>
+            )}
+            <LazySection id="experience" className="experience" label="Experience">
+              <ExperienceSection reduceMotion={reduceMotion} />
+            </LazySection>
+            <LazySection id="skills" className="skills" label="Skills">
+              <SkillsSection reduceMotion={reduceMotion} />
+            </LazySection>
 
-          <LazySection id="ai-lab" className="ai-lab" label="AI Lab">
-            <AiLabSection />
-          </LazySection>
+            <LazySection id="projects" className="projects" label="Projects">
+              <ProjectsSection reduceMotion={reduceMotion} />
+            </LazySection>
 
-          <LazySection id="contact" className="contact" label="Contact">
-            <CosmicContactSection reduceMotion={reduceMotion} backendStatus={backendStatus} />
+            <LazySection id="ai-lab" className="ai-lab" label="AI Lab">
+              <AiLabSection />
+            </LazySection>
+
+            <LazySection id="contact" className="contact" label="Contact">
+              <CosmicContactSection reduceMotion={reduceMotion} backendStatus={backendStatus} />
+            </LazySection>
+          </main>
+          <LazySection id="footer" className="footer" label="Footer">
+            <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion} />
           </LazySection>
-        </main>
-        <LazySection id="footer" className="footer" label="Footer">
-          <CosmicFooter homeHeadingRef={homeHeadingRef} reducedMotion={reduceMotion} />
-        </LazySection>
-        <IdleAssistant reduceMotion={reduceMotion} />
-        <CosmicMagnifyingCursor />
-        <CosmicScrollProgress />
-      </div>
+          <IdleAssistant reduceMotion={reduceMotion} />
+          <CosmicMagnifyingCursor />
+          <CosmicScrollProgress />
+        </div>
+      </EnvironmentProvider>
     </LazyMotion>
   );
 }

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import './Starfield.css';
 import { useSystemReducedMotion } from '../../../hooks/useSystemReducedMotion';
 import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
+import { useEnvironment } from '../EnvironmentContext';
+import { DEPTH_LAYERS, calculateLayerTransform, getCSSTransform } from '../VirtualCamera';
 
 export type Star = {
   x: number;
@@ -24,9 +26,21 @@ type NavigatorWithConnection = Navigator & {
 };
 
 function getMobileLitePreference(): boolean {
-  const narrowViewport =
-    typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 740px)').matches;
-  return narrowViewport || Boolean((navigator as NavigatorWithConnection).connection?.saveData);
+  // Only enable lite mode for devices explicitly using data-saver
+  // Do not disable animations based on viewport size alone
+  return Boolean((navigator as NavigatorWithConnection).connection?.saveData);
+}
+
+function getResponsiveStarCount(): number {
+  // Scale particle count based on viewport area for better performance
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const area = width * height;
+
+  if (area < 100000) return 50; // ~360px mobile
+  if (area < 300000) return 80; // ~600px mobile/tablet
+  if (area < 1000000) return 120; // ~900px tablet
+  return 210; // Desktop
 }
 
 function seededValue(index: number, salt: number): number {
@@ -75,6 +89,13 @@ type StarfieldProps = {
 export default function Starfield({ paused = false }: StarfieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedEffects = useSystemReducedMotion();
+  const environment = useEnvironment();
+  const layerTransform = calculateLayerTransform(
+    DEPTH_LAYERS.MID_SPACE_STARS,
+    environment.cameraState,
+    window.innerWidth,
+    window.innerHeight,
+  );
   const [mobileLite, setMobileLite] = useState(getMobileLitePreference);
   const [tabVisible, setTabVisible] = useState(() => !document.hidden);
 
@@ -99,20 +120,15 @@ export default function Starfield({ paused = false }: StarfieldProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    if (mobileLite) {
-      canvas.dataset.static = 'true';
-      canvas.dataset.ready = 'static';
-      return;
-    }
 
     delete canvas.dataset.static;
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     const mobileQuery =
-      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 740px)') : null;
+      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 768px)') : null;
     let mobile = Boolean(mobileQuery?.matches);
-    const isStaticFrame = () => reducedEffects || mobile || paused;
+    const isStaticFrame = () => reducedEffects || paused;
     let width = 0;
     let height = 0;
     let raf = 0;
@@ -120,7 +136,7 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     let animationStarted = false;
     let cancelScheduledStart: (() => void) | undefined;
     const stars: Star[] = [];
-    const starCount = 210;
+    let starCount = getResponsiveStarCount();
 
     const resize = () => {
       const nextWidth = document.documentElement.clientWidth || window.innerWidth;
@@ -145,8 +161,7 @@ export default function Starfield({ paused = false }: StarfieldProps) {
 
     const drawStars = (now: number) => {
       ctx.clearRect(0, 0, width, height);
-      const visibleCount = mobile ? 95 : starCount;
-      for (let index = 0; index < visibleCount; index += 1) {
+      for (let index = 0; index < starCount; index += 1) {
         const star = stars[index];
         const twinkle = isStaticFrame()
           ? 0.82
@@ -202,7 +217,16 @@ export default function Starfield({ paused = false }: StarfieldProps) {
     handleFrame(performance.now());
 
     const onResize = () => {
-      mobile = mobileQuery?.matches ?? window.innerWidth <= 740;
+      mobile = mobileQuery?.matches ?? window.innerWidth <= 768;
+      const newStarCount = getResponsiveStarCount();
+      // If star count changed, regenerate stars
+      if (newStarCount !== starCount) {
+        starCount = newStarCount;
+        stars.length = 0;
+        for (let index = 0; index < starCount; index += 1) {
+          stars.push(createStar(index, width, height));
+        }
+      }
       resize();
       if (isStaticFrame()) start();
       else scheduleStart();
@@ -229,10 +253,18 @@ export default function Starfield({ paused = false }: StarfieldProps) {
 
   return (
     <>
-      <canvas ref={canvasRef} className="starfield" aria-hidden="true" />
+      <canvas
+        ref={canvasRef}
+        className="starfield"
+        style={{
+          transform: getCSSTransform(layerTransform),
+          opacity: layerTransform.opacity,
+        }}
+        aria-hidden="true"
+      />
       <div
         className="shooting-stars"
-        data-running={!paused && !reducedEffects && !mobileLite && tabVisible}
+        data-running={!paused && !reducedEffects && tabVisible}
         aria-hidden="true"
       >
         <span className="shooting-star" />

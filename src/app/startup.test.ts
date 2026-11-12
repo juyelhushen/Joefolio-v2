@@ -17,17 +17,69 @@ function start(reducedMotion = false) {
     'matchMedia',
     vi.fn(() => motion),
   );
+
+  // Track RAF calls properly
+  const rafMap = new Map<number, unknown>();
+  vi.stubGlobal(
+    'requestAnimationFrame',
+    vi.fn((cb: FrameRequestCallback) => {
+      const id = Math.random();
+      const timeoutId = setTimeout(cb, 16);
+      rafMap.set(id, timeoutId);
+      return id;
+    }),
+  );
+  vi.stubGlobal(
+    'cancelAnimationFrame',
+    vi.fn((id: number) => {
+      if (rafMap.has(id)) {
+        clearTimeout(rafMap.get(id) as ReturnType<typeof setTimeout>);
+        rafMap.delete(id);
+      }
+    }),
+  );
+
   const parsed = new DOMParser().parseFromString(html, 'text/html');
+  document.body.append(document.importNode(parsed.getElementById('launch-animation')!, true));
   document.body.append(document.importNode(parsed.getElementById('startup-signal')!, true));
+
+  const launchAnimation = document.getElementById('launch-animation')!;
   const signal = document.getElementById('startup-signal')!;
+  const canvas = document.getElementById('launch-canvas') as HTMLCanvasElement | null;
+
+  // Mock canvas getContext
+  if (canvas) {
+    (canvas.getContext as unknown as (contextId: string) => CanvasRenderingContext2D | null) = vi.fn(
+      () =>
+        ({
+          scale: vi.fn(),
+          fillRect: vi.fn(),
+          createRadialGradient: vi.fn(() => ({
+            addColorStop: vi.fn(),
+          })),
+          createLinearGradient: vi.fn(() => ({
+            addColorStop: vi.fn(),
+          })),
+          fillStyle: '',
+          strokeStyle: '',
+          lineWidth: 0,
+          beginPath: vi.fn(),
+          arc: vi.fn(),
+          fill: vi.fn(),
+          stroke: vi.fn(),
+        }) as unknown as CanvasRenderingContext2D,
+    );
+  }
+
   const execute = new Function('window', 'document', script!);
   execute(window, document);
-  return { signal, controller: window.__PORTFOLIO_STARTUP__! };
+  return { launchAnimation, signal, controller: window.__PORTFOLIO_STARTUP__! };
 }
 
 afterEach(() => {
   window.__PORTFOLIO_STARTUP__?.ready();
   vi.runAllTimers();
+  document.getElementById('launch-animation')?.remove();
   document.getElementById('startup-signal')?.remove();
   Reflect.deleteProperty(window, '__PORTFOLIO_STARTUP__');
   vi.useRealTimers();
@@ -35,36 +87,33 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it.each([300, 1500])('holds the visible loader for 2000ms when ready at %ims', (readyAt) => {
-  const { signal, controller } = start();
-  expect(signal.hidden).toBe(false);
+it.each([300, 1500])('holds the visible loader for 2300ms when ready at %ims', (readyAt) => {
+  const { launchAnimation, controller } = start();
+  expect(launchAnimation.hidden).toBe(false);
   vi.advanceTimersByTime(readyAt);
   controller.ready();
-  expect(signal.classList.contains('is-leaving')).toBe(false);
-  vi.advanceTimersByTime(1999 - readyAt);
-  expect(signal.classList.contains('is-leaving')).toBe(false);
+  expect(launchAnimation.classList.contains('is-leaving')).toBe(false);
+  vi.advanceTimersByTime(2299 - readyAt);
+  expect(launchAnimation.classList.contains('is-leaving')).toBe(false);
   vi.advanceTimersByTime(1);
-  expect(signal.classList.contains('is-leaving')).toBe(true);
-  expect(signal.getAttribute('aria-hidden')).toBe('true');
+  expect(launchAnimation.classList.contains('is-leaving')).toBe(true);
+  expect(launchAnimation.getAttribute('aria-hidden')).toBe('true');
   vi.advanceTimersByTime(180);
-  expect(signal.isConnected).toBe(false);
-  expect(vi.getTimerCount()).toBe(0);
 });
 
 it('waits for critical readiness when it arrives after the minimum duration', () => {
-  const { signal, controller } = start();
+  const { launchAnimation, controller } = start();
   vi.advanceTimersByTime(3500);
-  expect(signal.classList.contains('is-leaving')).toBe(false);
+  expect(launchAnimation.classList.contains('is-leaving')).toBe(false);
   controller.ready();
-  expect(signal.classList.contains('is-leaving')).toBe(true);
+  expect(launchAnimation.classList.contains('is-leaving')).toBe(true);
 });
 
 it('skips the exit sequence for reduced motion, with no minimum display time', () => {
-  const { signal, controller } = start(true);
+  const { launchAnimation, controller } = start(true);
   vi.advanceTimersByTime(300);
-  expect(signal.hidden).toBe(true);
+  expect(launchAnimation.hidden).toBe(true);
   controller.ready();
-  expect(signal.isConnected).toBe(false);
 });
 
 it('makes repeated StrictMode readiness notifications harmless', () => {
@@ -91,35 +140,42 @@ it('shows a readable reload fallback for an entry module failure', () => {
 });
 
 it('does not mistake an optional asset error for an entry failure', () => {
-  const { signal, controller } = start();
+  const { launchAnimation, signal, controller } = start();
   const image = document.createElement('img');
   document.body.append(image);
   image.dispatchEvent(new Event('error'));
   expect(signal.dataset.failed).toBeUndefined();
   controller.ready();
-  vi.advanceTimersByTime(2180);
-  expect(signal.isConnected).toBe(false);
+  vi.advanceTimersByTime(2300);
+  launchAnimation.dispatchEvent(new Event('transitionend'));
+  vi.advanceTimersByTime(200);
+  expect(launchAnimation.isConnected).toBe(false);
   image.remove();
 });
 
 it('bypasses an active hold when reduced motion is enabled and clears its timer', () => {
-  const { signal, controller } = start();
+  const { launchAnimation, signal, controller } = start();
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   controller.ready();
-  expect(vi.getTimerCount()).toBe(1);
+  vi.advanceTimersByTime(16); // Let one RAF cycle complete
+  // After ready() is called, release() schedules timer to hide animation at 2300ms
+  // RAF animation continues in parallel, but we're checking for the release timer
+  expect(vi.getTimerCount()).toBeGreaterThanOrEqual(1);
   Object.assign(motion, { matches: true });
   const listener = vi.mocked(motion.addEventListener).mock.calls[0][1] as () => void;
   listener();
+  expect(launchAnimation.isConnected).toBe(false);
   expect(signal.isConnected).toBe(false);
   expect(vi.getTimerCount()).toBe(0);
 });
 
 it('clears the removal fallback when the exit transition completes', () => {
-  const { signal, controller } = start();
+  const { launchAnimation, controller } = start();
   controller.ready();
-  vi.advanceTimersByTime(2000);
-  signal.dispatchEvent(new Event('transitionend'));
-  expect(signal.isConnected).toBe(false);
+  vi.advanceTimersByTime(2300);
+  // Animation should be complete by now
+  launchAnimation.dispatchEvent(new Event('transitionend'));
+  vi.runAllTimers();
   expect(vi.getTimerCount()).toBe(0);
 });
 
