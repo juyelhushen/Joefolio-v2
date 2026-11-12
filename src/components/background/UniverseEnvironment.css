@@ -1,0 +1,28 @@
+/**
+ * UniverseEnvironment.css
+ *
+ * Styling for the universe environment container.
+ * Ensures all background layers are properly positioned and stacked.
+ */
+
+.universe-environment {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* Ensure no accidental layout shifts from this container */
+.universe-environment * {
+  box-sizing: border-box;
+}
+
+/* Disable text selection on background elements */
+.universe-environment {
+  user-select: none;
+  -webkit-user-select: none;
+}

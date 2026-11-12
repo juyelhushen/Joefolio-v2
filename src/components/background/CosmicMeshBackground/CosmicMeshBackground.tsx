@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import './CosmicMeshBackground.css';
 import { useSystemReducedMotion } from '../../../hooks/useSystemReducedMotion';
 import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
+import { useEnvironment } from '../EnvironmentContext';
+import { DEPTH_LAYERS, calculateLayerTransform, getCSSTransform } from '../VirtualCamera';
 
 const vertexShaderSource = `
   attribute vec2 a_position;
@@ -56,22 +58,22 @@ const fragmentShaderSource = `
     float warpB = fbm(p * 1.7 - slowDrift.yx + vec2(4.3, -2.1));
     vec2 warped = p + (vec2(warpA, warpB) - 0.5) * 0.72;
 
-    float blueField = fbm(warped * 1.55 + vec2(-0.42, 0.12) + slowDrift * 0.8);
+    float indigo = fbm(warped * 1.55 + vec2(-0.42, 0.12) + slowDrift * 0.8);
     float cyanField = fbm(warped * 1.9 + vec2(0.56, -0.2) - slowDrift.yx * 1.1);
     float violetField = fbm(warped * 1.35 + vec2(0.05, 0.58) + slowDrift.yx * 0.7);
-    float amberField = fbm(warped * 2.1 + vec2(-0.12, -0.62) + slowDrift * 0.45);
+    float blueField = fbm(warped * 2.1 + vec2(-0.12, -0.62) + slowDrift * 0.45);
 
-    vec3 color = vec3(0.012, 0.022, 0.055);
+    vec3 color = vec3(0.032, 0.051, 0.106);
     float edgeFade = 1.0 - smoothstep(0.18, 0.95, length((uv - 0.5) * vec2(1.05, 0.9)));
-    float blue = smoothstep(0.43, 0.79, blueField) * 0.58 * edgeFade;
-    float cyan = smoothstep(0.57, 0.88, cyanField) * 0.23 * edgeFade;
-    float violet = smoothstep(0.53, 0.83, violetField) * 0.31 * edgeFade;
-    float amber = smoothstep(0.72, 0.94, amberField) * 0.09 * edgeFade;
+    float indigoStrength = smoothstep(0.43, 0.79, indigo) * 0.64 * edgeFade;
+    float cyan = smoothstep(0.57, 0.88, cyanField) * 0.26 * edgeFade;
+    float violet = smoothstep(0.53, 0.83, violetField) * 0.35 * edgeFade;
+    float blue = smoothstep(0.72, 0.94, blueField) * 0.12 * edgeFade;
 
-    color += vec3(0.10, 0.27, 0.58) * blue;
-    color += vec3(0.10, 0.43, 0.54) * cyan;
-    color += vec3(0.25, 0.16, 0.48) * violet;
-    color += vec3(0.50, 0.22, 0.09) * amber;
+    color += vec3(0.15, 0.22, 0.52) * indigoStrength;
+    color += vec3(0.38, 0.87, 0.96) * cyan;
+    color += vec3(0.40, 0.37, 0.73) * violet;
+    color += vec3(0.20, 0.35, 0.66) * blue;
 
     float luminance = max(max(color.r, color.g), color.b);
     float alpha = clamp(luminance * 2.4, 0.0, 0.62);
@@ -96,49 +98,32 @@ type CosmicMeshBackgroundProps = {
   paused?: boolean;
 };
 
-type NavigatorWithConnection = Navigator & {
-  connection?: {
-    saveData?: boolean;
-    addEventListener?: (type: 'change', listener: EventListener) => void;
-    removeEventListener?: (type: 'change', listener: EventListener) => void;
-  };
-};
-
-function isMobileViewport(): boolean {
-  return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 740px)').matches;
-}
-
-function isDataSaving(): boolean {
-  return Boolean((navigator as NavigatorWithConnection).connection?.saveData);
-}
-
 export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackgroundProps) {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedEffects = useSystemReducedMotion();
-  const [mobileLite, setMobileLite] = useState(() => isMobileViewport() || isDataSaving());
+  const environment = useEnvironment();
+  const layerTransform = calculateLayerTransform(
+    DEPTH_LAYERS.GALACTIC_ATMOSPHERE,
+    environment.cameraState,
+    window.innerWidth,
+    window.innerHeight,
+  );
   const [readyGeneration, setReadyGeneration] = useState(0);
   const generationRef = useRef(0);
 
   useEffect(() => {
-    const mobileQuery =
-      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 740px)') : null;
-    const connection = (navigator as NavigatorWithConnection).connection;
-    const updateMobileLite = () =>
-      setMobileLite(Boolean(mobileQuery?.matches || connection?.saveData));
-
-    mobileQuery?.addEventListener('change', updateMobileLite);
-    connection?.addEventListener?.('change', updateMobileLite);
+    // Note: mobileLite state tracking has been removed - mobile devices now render with full animation
+    // potential, allowing WebGL initialization and CSS fallback animations on all viewport sizes.
     return () => {
-      mobileQuery?.removeEventListener('change', updateMobileLite);
-      connection?.removeEventListener?.('change', updateMobileLite);
+      // Cleanup for any future listeners if needed
     };
   }, []);
 
   useEffect(() => {
     const generation = ++generationRef.current;
     const background = backgroundRef.current;
-    if (paused || reducedEffects || mobileLite) {
+    if (paused || reducedEffects) {
       if (background) {
         background.dataset.mode = 'static';
         if (canvasRef.current) canvasRef.current.dataset.ready = 'static';
@@ -160,13 +145,13 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       active = false;
       cancelScheduledInitialization();
     };
-  }, [mobileLite, paused, reducedEffects]);
+  }, [paused, reducedEffects]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (paused || reducedEffects || mobileLite) {
+    if (paused || reducedEffects) {
       canvas.dataset.ready = 'static';
       if (backgroundRef.current) backgroundRef.current.dataset.mode = 'static';
       return;
@@ -242,9 +227,9 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       const bounds = canvas.getBoundingClientRect();
       const mobile =
         typeof window.matchMedia === 'function'
-          ? window.matchMedia('(max-width: 700px)').matches
+          ? window.matchMedia('(max-width: 768px)').matches
           : false;
-      const quality = mobile ? 0.56 : 0.68;
+      const quality = mobile ? 0.64 : 0.72;
       const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.35) * quality;
       canvas.width = Math.max(1, Math.round(bounds.width * pixelRatio));
       canvas.height = Math.max(1, Math.round(bounds.height * pixelRatio));
@@ -267,7 +252,9 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
 
     const animate = (now: number) => {
       if (disposed || contextLost || document.hidden || reducedMotion) return;
-      if (previousFrame && now - previousFrame < 33) {
+      const mobile = window.innerWidth <= 768;
+      const targetFrameTime = mobile ? 33 : 16; // 30 FPS mobile, 60 FPS desktop
+      if (previousFrame && now - previousFrame < targetFrameTime) {
         frame = window.requestAnimationFrame(animate);
         return;
       }
@@ -335,13 +322,17 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       context.deleteBuffer(geometry);
       context.deleteProgram(shaderProgram);
     };
-  }, [mobileLite, paused, reducedEffects, readyGeneration]);
+  }, [paused, reducedEffects, readyGeneration]);
 
   return (
     <div
       ref={backgroundRef}
       className="cosmic-mesh-background"
       data-mode="static"
+      style={{
+        transform: getCSSTransform(layerTransform),
+        opacity: layerTransform.opacity,
+      }}
       aria-hidden="true"
     >
       <div className="cosmic-mesh-fallback" />

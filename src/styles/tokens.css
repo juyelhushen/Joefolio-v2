@@ -1,20 +1,36 @@
 :root {
-  --color-bg: #090d19;
-  --color-bg-elevated: #101624;
-  --color-surface: #141c2b;
-  --color-surface-raised: #1b2636;
-  --color-text-primary: #f1f0ea;
-  --color-text-secondary: #aab2c2;
-  --color-text-muted: #98a3b6;
-  --color-accent-primary: #c5f477;
-  --color-accent-secondary: #a99af6;
-  --color-on-accent: #141d0a;
-  --color-accent-soft: color-mix(in srgb, var(--color-accent-primary) 8%, transparent);
-  --color-secondary-soft: color-mix(in srgb, var(--color-accent-secondary) 8%, transparent);
-  --color-danger: #ffaaaa;
-  --color-success: var(--color-accent-primary);
-  --color-border: #30394b;
-  --color-border-strong: #657187;
+  /* Cosmic Background Palette */
+  --color-bg: #080d1b;
+  --color-bg-elevated: #0d1426;
+  --color-surface: #111d35;
+  --color-surface-raised: #182541;
+
+  /* Typography */
+  --color-text-primary: #f0f4ff;
+  --color-text-secondary: #a7b5ce;
+  --color-text-muted: #7787a5;
+
+  /* Cosmic Accents */
+  --color-accent-primary: #62ddf5;
+  --color-accent-secondary: #668bff;
+  --color-accent-tertiary: #a995ff;
+  --color-on-accent: #080d1b;
+
+  /* Accent Soft Variants */
+  --color-accent-soft: color-mix(in srgb, var(--color-accent-primary) 12%, transparent);
+  --color-secondary-soft: color-mix(in srgb, var(--color-accent-secondary) 12%, transparent);
+  --color-tertiary-soft: color-mix(in srgb, var(--color-accent-tertiary) 12%, transparent);
+
+  /* Status Colours */
+  --color-danger: #ff8fa3;
+  --color-success: #62ddf5;
+
+  /* Borders */
+  --color-border: #263652;
+  --color-border-hover: #536d9d;
+  --color-border-active: #62ddf5;
+
+  /* Legacy Aliases (for compatibility) */
   --color-accent-warm: var(--color-accent-primary);
   --color-accent-blue: var(--color-accent-secondary);
   --font-display: 'Space Grotesk Variable', 'Space Grotesk', sans-serif;
@@ -33,11 +49,13 @@
   --text: var(--color-text-primary);
   --muted: var(--color-text-muted);
   --line: var(--color-border);
-  --orange: var(--color-accent-warm);
-  --blue: var(--color-accent-blue);
-  --violet: var(--color-accent-secondary);
+  --orange: var(--color-accent-primary);
+  --blue: var(--color-accent-secondary);
+  --violet: var(--color-accent-tertiary);
   --cyan: var(--color-accent-primary);
   --glow-orange: var(--color-accent-soft);
+  --glow-blue: var(--color-secondary-soft);
+  --glow-violet: var(--color-tertiary-soft);
   --focus-ring: var(--color-accent-primary);
   --font-size-body: var(--type-body);
   --line-height-body: 1.7;
@@ -54,6 +72,7 @@
   --radius-control: 10px;
   --radius-card: 16px;
   --radius-pill: 999px;
+  --color-border-strong: #536d9d;
   --border-subtle: 1px solid var(--color-border);
   --border-control: 1px solid var(--color-border-strong);
   --shadow-panel: 0 16px 48px rgba(0, 0, 0, 0.18);
