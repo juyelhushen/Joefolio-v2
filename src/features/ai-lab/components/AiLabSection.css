@@ -48,7 +48,7 @@
   padding: var(--space-5);
   border: var(--border-subtle);
   border-radius: var(--radius-card);
-  background: var(--color-bg-elevated);
+  background: var(--cosmic-panel);
   transition: border-color var(--motion-control) var(--ease-standard);
 }
 .ai-lab-case:is(:hover, :focus-within) {

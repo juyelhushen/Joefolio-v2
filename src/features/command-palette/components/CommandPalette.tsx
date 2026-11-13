@@ -88,7 +88,7 @@ export default function CommandPalette({
         <div className="command-toolbar">
           <h2 id="command-title">Search portfolio</h2>
           <button
-            className="button button-secondary"
+            className="button button-secondary button-compact"
             type="button"
             onClick={onClose}
             aria-label="Close search"
@@ -150,7 +150,7 @@ export default function CommandPalette({
                     id: `command-${item.id}`,
                     role: 'option',
                     'aria-selected': selected?.id === item.id,
-                    className: 'command-option',
+                    className: 'pulse-control command-option',
                     tabIndex: -1,
                     onMouseDown: (event: React.MouseEvent) => event.preventDefault(),
                     onMouseEnter: () => setActive(items.indexOf(item)),

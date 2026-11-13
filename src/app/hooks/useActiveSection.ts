@@ -10,12 +10,21 @@ export const useActiveSection = () => {
   const [activeSection, setActiveSection] = useState<(typeof navItems)[number]['id']>(
     initialHashTarget?.id ?? 'home',
   );
+  const activeSectionRef = useRef(activeSection);
+  const [isScrolled, setIsScrolled] = useState(
+    () => typeof window !== 'undefined' && window.scrollY > 64,
+  );
+  const selectSection = useCallback((id: (typeof navItems)[number]['id']) => {
+    activeSectionRef.current = id;
+    setActiveSection((current) => (current === id ? current : id));
+  }, []);
   const pendingNavigationRef = useRef<(typeof navItems)[number]['id'] | null>(
     initialHashTarget?.id ?? null,
   );
   const updateActiveSection = useCallback(() => {
+    setIsScrolled((current) => window.scrollY > (current ? 24 : 64));
     if (window.location.hash.startsWith('#projects/')) {
-      setActiveSection('projects');
+      selectSection('projects');
       return;
     }
     const header = document.querySelector<HTMLElement>('.site-header');
@@ -29,7 +38,7 @@ export const useActiveSection = () => {
       page.scrollHeight > window.innerHeight &&
       window.scrollY + window.innerHeight >= page.scrollHeight - 2
     ) {
-      setActiveSection((current) => (current === 'contact' ? current : 'contact'));
+      selectSection('contact');
       return;
     }
 
@@ -39,12 +48,28 @@ export const useActiveSection = () => {
       if (section && section.getBoundingClientRect().top <= activationLine)
         currentSection = item.id;
     }
-    setActiveSection((current) => (current === currentSection ? current : currentSection));
-  }, []);
+    const previousIndex = navItems.findIndex((item) => item.id === activeSectionRef.current);
+    const nextIndex = navItems.findIndex((item) => item.id === currentSection);
+    // A small dead band prevents scroll/section-height jitter from toggling adjacent items.
+    if (
+      nextIndex > previousIndex &&
+      (document.getElementById(currentSection)?.getBoundingClientRect().top ?? Infinity) >
+        activationLine - 12
+    )
+      return;
+    if (
+      nextIndex < previousIndex &&
+      (document.getElementById(activeSectionRef.current)?.getBoundingClientRect().top ??
+        Infinity) <=
+        activationLine + 12
+    )
+      return;
+    selectSection(currentSection);
+  }, [selectSection]);
 
   const handleNavigationClick = (id: (typeof navItems)[number]['id']) => {
     pendingNavigationRef.current = id;
-    setActiveSection(id);
+    selectSection(id);
   };
 
   useEffect(() => {
@@ -75,7 +100,7 @@ export const useActiveSection = () => {
       const hashId = window.location.hash.slice(1).split('/')[0];
       const hashTarget = navItems.find((item) => item.id === hashId);
       pendingNavigationRef.current = hashTarget?.id ?? null;
-      if (hashTarget) setActiveSection(hashTarget.id);
+      if (hashTarget) selectSection(hashTarget.id);
       if (historyFrame !== undefined) cancelAnimationFrame(historyFrame);
       historyFrame = requestAnimationFrame(() => {
         historyFrame = undefined;
@@ -104,7 +129,7 @@ export const useActiveSection = () => {
       window.removeEventListener('popstate', syncHistoryNavigation);
       document.removeEventListener('scrollend', finishPendingNavigation);
     };
-  }, [updateActiveSection]);
+  }, [selectSection, updateActiveSection]);
 
-  return { activeSection, handleNavigationClick };
+  return { activeSection, handleNavigationClick, isScrolled };
 };

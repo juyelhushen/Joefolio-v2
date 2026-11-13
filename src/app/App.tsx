@@ -167,7 +167,7 @@ function IdleAssistant({ reduceMotion }: { reduceMotion: boolean }) {
 export default function App() {
   const [paletteOpener, setPaletteOpener] = useState<{ element: HTMLElement | null } | null>(null);
   const backendStatus = useBackendHealth();
-  const { activeSection, handleNavigationClick } = useActiveSection();
+  const { activeSection, handleNavigationClick, isScrolled } = useActiveSection();
   const homeHeadingRef = useRef<HTMLHeadingElement>(null);
   const reduceMotion = useSystemReducedMotion();
   useLayoutEffect(() => {
@@ -194,6 +194,7 @@ export default function App() {
           </a>
           <Navbar
             activeSection={activeSection}
+            scrolled={isScrolled}
             onNavigate={handleNavigationClick}
             onSearch={openPalette}
             onSearchIntent={() => {

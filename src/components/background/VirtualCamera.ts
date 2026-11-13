@@ -136,8 +136,12 @@ export function calculateLayerTransform(
 ): LayerTransform {
   // Base parallax offset: deeper layers (higher parallax factor) move more
   // Scale: 0.0001 converts camera Z (0–50000) to pixel offsets (0–5px typical)
-  const baseOffsetX = cameraState.cameraZ * layer.parallaxFactor * 0.0001;
-  const baseOffsetY = cameraState.cameraZ * layer.parallaxFactor * 0.00005; // Subtle vertical drift
+  const baseOffsetX = cameraState.reducedMotion
+    ? 0
+    : cameraState.cameraZ * layer.parallaxFactor * 0.0001;
+  const baseOffsetY = cameraState.reducedMotion
+    ? 0
+    : cameraState.cameraZ * layer.parallaxFactor * 0.00005;
 
   // Add mouse parallax wobble (only to mid/near layers)
   // Far layers (factor < 0.2) are not affected by mouse movement
@@ -209,22 +213,33 @@ export interface RenderingProfile {
   frameRateTarget: number; // Target FPS
   enableWebGL: boolean; // Whether to use WebGL vs CSS fallback
   enableMouseParallax: boolean; // Whether desktop mouse tracking is active
+  starCount: number;
+  nearParticleCount: number;
+  meteorInterval: readonly [number, number];
+  maxMeteors: number;
 }
+
+export const UNIVERSE_PROFILES = {
+  desktop: { starCount: 620, nearParticleCount: 12, meteorInterval: [2, 4], maxMeteors: 3 },
+  tablet: { starCount: 400, nearParticleCount: 8, meteorInterval: [3, 5], maxMeteors: 2 },
+  mobile: { starCount: 230, nearParticleCount: 6, meteorInterval: [4, 6], maxMeteors: 2 },
+} as const;
 
 export function calculateRenderingProfile(
   viewport: { width: number; height: number },
   _devicePixelRatio: number,
   reducedMotion: boolean,
 ): RenderingProfile {
-  const area = viewport.width * viewport.height;
   const isMobile = viewport.width < 768;
   const isTablet = viewport.width >= 768 && viewport.width < 1024;
+  const particles = UNIVERSE_PROFILES[isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop'];
 
   if (reducedMotion) {
     return {
       quality: 'low',
-      particleScale: 0.2,
-      frameRateTarget: 24,
+      ...particles,
+      particleScale: 1,
+      frameRateTarget: 0,
       enableWebGL: false,
       enableMouseParallax: false,
     };
@@ -234,7 +249,8 @@ export function calculateRenderingProfile(
     // Mobile: lightweight rendering
     return {
       quality: 'medium',
-      particleScale: area < 300000 ? 0.4 : 0.6,
+      ...particles,
+      particleScale: 1,
       frameRateTarget: 30,
       enableWebGL: true, // Try WebGL but fallback to CSS
       enableMouseParallax: false, // No touch parallax
@@ -245,8 +261,9 @@ export function calculateRenderingProfile(
     // Tablet: balanced rendering
     return {
       quality: 'high',
-      particleScale: 0.8,
-      frameRateTarget: 45,
+      ...particles,
+      particleScale: 1,
+      frameRateTarget: 30,
       enableWebGL: true,
       enableMouseParallax: false, // Optional: could enable for large tablets
     };
@@ -255,6 +272,7 @@ export function calculateRenderingProfile(
   // Desktop: full quality
   return {
     quality: 'high',
+    ...particles,
     particleScale: 1.0,
     frameRateTarget: 60,
     enableWebGL: true,

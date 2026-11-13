@@ -9,7 +9,7 @@
   padding: clamp(22px, 3.2vw, 36px);
   border: var(--border-subtle);
   border-radius: var(--radius-card);
-  background: var(--color-bg-elevated);
+  background: var(--cosmic-panel);
   box-shadow: var(--shadow-panel);
   text-align: left;
 }
@@ -48,58 +48,6 @@
 .contact-submit {
   justify-self: start;
 }
-.contact-button-envelope {
-  display: inline-flex;
-  width: 19px;
-  height: 16px;
-}
-.contact-button-envelope svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.contact-button-envelope rect {
-  fill: rgba(44, 31, 23, 0.08);
-  stroke: currentColor;
-  stroke-width: 1.5;
-}
-.contact-button-envelope path {
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.5;
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
-}
-.contact-button-envelope .envelope-flap-closed {
-  fill: rgba(44, 31, 23, 0.08);
-  opacity: 0;
-  transform: translateY(-3px);
-}
-.contact-button-envelope.is-sealed .envelope-flap-open {
-  opacity: 0;
-}
-.contact-button-envelope.is-sealed .envelope-flap-closed {
-  opacity: 1;
-  transform: translateY(0);
-}
-.contact-button-envelope .button-envelope-seal {
-  fill: var(--color-on-accent);
-  stroke: var(--color-text-primary);
-  stroke-width: 0.7;
-}
-.contact-submit:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 4px;
-}
-.contact-submit:disabled {
-  cursor: wait;
-}
-.contact-spinner {
-  animation: contact-spinner-turn 1s linear infinite;
-}
 .contact-live-status,
 .contact-error,
 .contact-success {
@@ -119,11 +67,6 @@
 }
 .contact-success {
   color: var(--color-success);
-}
-@keyframes contact-spinner-turn {
-  to {
-    transform: rotate(360deg);
-  }
 }
 @media (max-width: 740px) {
   .cosmic-contact-form {

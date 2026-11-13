@@ -120,8 +120,16 @@
   border: var(--border-control);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 23%, rgba(255, 255, 255, 0.24), transparent 13%),
-    radial-gradient(circle at 38% 32%, color-mix(in srgb, currentColor 34%, #17192c), #090d1d 74%);
+    radial-gradient(
+      circle at 30% 23%,
+      color-mix(in srgb, var(--color-text-primary) 24%, transparent),
+      transparent 13%
+    ),
+    radial-gradient(
+      circle at 38% 32%,
+      color-mix(in srgb, currentColor 34%, var(--color-surface)),
+      var(--color-bg) 74%
+    );
   color: var(--color-text-secondary);
   box-shadow: inset -7px -8px 13px rgba(0, 0, 0, 0.6);
   cursor: pointer;
@@ -238,7 +246,7 @@
   padding: 14px;
   border: var(--border-subtle);
   border-radius: var(--radius-card);
-  background: var(--color-bg-elevated);
+  background: var(--cosmic-panel);
 }
 .skill-category h3 {
   margin: 0 0 9px;
@@ -268,7 +276,7 @@
   border: var(--border-subtle);
   border-top: 2px solid var(--color-accent-primary);
   border-radius: var(--radius-card);
-  background: var(--color-bg-elevated);
+  background: var(--cosmic-panel);
   box-shadow: var(--shadow-panel);
 }
 .skill-detail-heading {
@@ -418,8 +426,8 @@
     height: 80%;
   }
   .skill-orbit-planet {
-    width: 44px;
-    height: 44px;
+    width: var(--control-height-compact);
+    height: var(--control-height-compact);
   }
   .skill-planet-label {
     top: calc(100% + 5px);

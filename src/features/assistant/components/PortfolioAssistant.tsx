@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { AnimatePresence, motion, type Transition } from 'motion/react';
 import { MessageCircle, Send, Sparkles, X } from 'lucide-react';
+import Button from '../../../components/common/Button';
 import { useAssistantConversation } from '../hooks/useAssistantConversation';
 import './PortfolioAssistant.css';
 
@@ -171,14 +172,17 @@ export default function PortfolioAssistant({
                 placeholder={available ? 'Ask a question…' : 'Assistant unavailable'}
                 disabled={!available || pending}
               />
-              <button
-                className="button button-primary button-icon"
+              <Button
+                variant="primary"
+                iconOnly
+                state={pending ? 'loading' : 'idle'}
+                loadingLabel="Sending message"
                 type="submit"
                 aria-label="Send message"
                 disabled={!available || pending || !draft.trim()}
               >
                 <Send size={16} />
-              </button>
+              </Button>
             </form>
             <p className="assistant-disclaimer">
               {available

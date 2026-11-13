@@ -30,7 +30,7 @@ export default function LegacyPortfolioOrbit() {
         </div>
       ))}
       <a
-        className="legacy-portfolio-link"
+        className="pulse-control legacy-portfolio-link"
         href="https://juyelhushen.netlify.app/"
         target="_blank"
         rel="noopener noreferrer"

@@ -47,7 +47,10 @@
         "name": "Juyel Hushen",
         "url": "https://juyel.vercel.app/",
         "jobTitle": "Software Engineer II",
-        "sameAs": ["https://github.com/juyelhushen"],
+        "sameAs": [
+          "https://github.com/juyelhushen",
+          "https://www.linkedin.com/in/juyel-h-770674170/"
+        ],
         "knowsAbout": ["Backend development", "Full-stack development", "AI engineering"]
       }
     </script>
@@ -56,129 +59,58 @@
     <style>
       body {
         margin: 0;
-        background: #090d19;
+        background: #080d1b;
       }
-      .startup-signal {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        box-sizing: border-box;
-        background: var(--color-bg, #090d19);
-        color: var(--color-text-primary, #f1f0ea);
-        font-family: system-ui, sans-serif;
-        text-align: center;
-        transition: opacity 160ms ease-out;
-      }
-      .startup-signal[hidden] {
-        display: none;
-      }
-      .startup-signal.is-leaving {
-        opacity: 0;
-        pointer-events: none;
-      }
-      /* Launch Animation Styles */
       .launch-animation {
         position: fixed;
         inset: 0;
         z-index: 101;
-        display: grid;
-        place-items: center;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        background: var(--color-bg, #080d1b);
-        transition: opacity 160ms ease-out;
-      }
-      .launch-animation[hidden] {
-        display: none;
-      }
-      .launch-animation.is-leaving {
-        opacity: 0;
+        background: #080d1b;
         pointer-events: none;
       }
-      .launch-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
+      .launch-animation[hidden],
+      .startup-signal[hidden],
+      .signal-reload[hidden] {
+        display: none;
       }
-      .launch-monogram {
-        position: absolute;
+      .launch-animation[data-painted] {
+        background: transparent;
+      }
+      body[data-cosmic-intro] {
+        overflow: hidden;
+      }
+      body[data-cosmic-intro] .site-shell > :not(.cosmic-mesh-background):not(.starfield) {
+        visibility: hidden;
+      }
+      .startup-signal {
+        position: fixed;
         inset: 0;
+        z-index: 102;
         display: grid;
         place-items: center;
-        font-size: clamp(48px, 9vw, 64px);
-        font-weight: 600;
-        letter-spacing: -4px;
-        line-height: 1;
-        color: var(--color-accent-primary, #62ddf5);
-        z-index: 1;
-        opacity: 0;
-        animation: launch-monogram-fade 400ms ease-out 0ms forwards;
-      }
-      @keyframes launch-monogram-fade {
-        0% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-        }
+        padding: 24px;
+        box-sizing: border-box;
+        background: #080d1b;
+        color: #f0f4ff;
+        font-family: system-ui, sans-serif;
+        text-align: center;
       }
       .signal-composition {
         width: min(100%, 320px);
       }
       .signal-monogram {
-        font-size: clamp(48px, 9vw, 64px);
+        font-size: 48px;
         font-weight: 600;
         letter-spacing: -4px;
-        line-height: 1;
-      }
-      .signal-map {
-        display: block;
-        width: 100%;
-        height: 96px;
-        margin: 20px auto 28px;
-        overflow: visible;
-      }
-      .signal-path {
-        stroke: var(--color-accent-secondary, #a99af6);
-        stroke-opacity: 0.35;
-        stroke-width: 1;
-        fill: none;
-      }
-      .signal-connection {
-        transform-origin: 40px 68px;
-        animation: signal-acquire 3.6s ease-in-out infinite;
-      }
-      .signal-node,
-      .signal-packet {
-        fill: var(--color-accent-primary, #c5f477);
-      }
-      .signal-node {
-        animation: signal-node 3.6s ease-in-out infinite;
-      }
-      .signal-node:nth-of-type(2) {
-        animation-delay: 350ms;
-      }
-      .signal-node:nth-of-type(3) {
-        animation-delay: 700ms;
-      }
-      .signal-packet {
-        animation: signal-travel 3.6s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
       }
       .signal-label {
-        margin: 0;
-        font-size: clamp(16px, 4vw, 18px);
+        margin: 28px 0 0;
+        font-size: 18px;
         font-weight: 500;
-        letter-spacing: -0.2px;
       }
       .signal-support {
         margin: 10px 0 0;
-        color: var(--color-text-secondary, #aab2c2);
+        color: #a7b5ce;
         font-size: 13px;
         line-height: 1.6;
       }
@@ -188,105 +120,29 @@
         align-items: center;
         padding: 0 16px;
         margin-top: 20px;
-        border: 1px solid var(--color-accent-primary, #c5f477);
+        border: 1px solid #62ddf5;
         border-radius: 10px;
         color: inherit;
         text-decoration: none;
       }
-      .signal-reload[hidden] {
-        display: none;
-      }
       .signal-reload:focus-visible {
-        outline: 2px solid var(--color-accent-primary, #c5f477);
+        outline: 2px solid #62ddf5;
         outline-offset: 4px;
-      }
-      .startup-signal[data-failed] .signal-map {
-        display: none;
-      }
-      .startup-signal[data-failed] .signal-label {
-        margin-top: 28px;
-      }
-      @keyframes signal-acquire {
-        0% {
-          transform: scaleX(0);
-          opacity: 0;
-        }
-        30%,
-        80% {
-          transform: scaleX(1);
-          opacity: 1;
-        }
-        100% {
-          transform: scaleX(1);
-          opacity: 0.35;
-        }
-      }
-      @keyframes signal-node {
-        0%,
-        100% {
-          opacity: 0.35;
-        }
-        30%,
-        70% {
-          opacity: 1;
-        }
-      }
-      @keyframes signal-travel {
-        0%,
-        12% {
-          transform: translate(0, 0);
-          opacity: 0;
-        }
-        20% {
-          opacity: 1;
-        }
-        48% {
-          transform: translate(100px, -40px);
-        }
-        78% {
-          transform: translate(240px, 0);
-          opacity: 1;
-        }
-        90%,
-        100% {
-          transform: translate(240px, 0);
-          opacity: 0;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .startup-signal {
-          transition: none;
-        }
-        .signal-map * {
-          animation: none;
-        }
-        .signal-packet {
-          display: none;
-        }
       }
     </style>
     <div
       id="launch-animation"
       class="launch-animation"
-      role="presentation"
+      data-scene="anomaly"
+      aria-label="STELLAR FOLD — ENTER ANOTHER DIMENSION"
       aria-hidden="true"
       hidden
-    >
-      <canvas id="launch-canvas" class="launch-canvas" aria-hidden="true"></canvas>
-      <div class="launch-monogram" aria-hidden="true">JH</div>
-    </div>
+    ></div>
     <div id="startup-signal" class="startup-signal" role="status" aria-live="polite" hidden>
       <div class="signal-composition">
         <div class="signal-monogram" aria-hidden="true">JH</div>
-        <svg class="signal-map" viewBox="0 0 320 96" aria-hidden="true">
-          <path class="signal-path signal-connection" d="M40 68 140 28 280 68" />
-          <circle class="signal-node" cx="40" cy="68" r="3" />
-          <circle class="signal-node" cx="140" cy="28" r="3" />
-          <circle class="signal-node" cx="280" cy="68" r="3" />
-          <circle class="signal-packet" cx="40" cy="68" r="2.5" />
-        </svg>
-        <p class="signal-label">Connecting the constellation</p>
-        <p class="signal-support">Preparing the experience</p>
+        <p class="signal-label">Preparing the experience</p>
+        <p class="signal-support"></p>
         <a class="signal-reload" href="" hidden>Reload portfolio</a>
       </div>
     </div>
@@ -299,387 +155,119 @@
     </noscript>
     <script id="startup-controller">
       (() => {
-        const launchAnimation = document.getElementById('launch-animation');
-        const canvas = document.getElementById('launch-canvas');
+        const launch = document.getElementById('launch-animation');
         const signal = document.getElementById('startup-signal');
         const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const duration = 3200;
+        const fold = { active: !motion.matches, elapsed: 0, painted: false, settled: 0 };
+        window.__STELLAR_FOLD__ = fold;
         let ready = false;
-        let leaving = false;
-        let timer;
-        let rafId;
-        let visibleAt;
-        let animationStartTime;
-        let animationRunning = false;
-        let launchRenderer;
+        let failed = false;
+        let frame;
+        let watchdog;
+        let paintWatchdog;
+        let previous;
 
-        // Launch Animation Renderer
-        class LaunchRenderer {
-          constructor(canvas) {
-            this.canvas = canvas;
-            this.ctx = canvas.getContext('2d', { alpha: false });
-            this.width = 0;
-            this.height = 0;
-            this.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-            this.stars = [];
-            this.earthPos = { x: 0, y: 0, scale: 1 };
-            this.cameraZ = 0;
-            this.resize();
-            this.generateStars();
+        const clearFrames = () => {
+          window.cancelAnimationFrame(frame);
+          frame = undefined;
+        };
+        const removeIntro = () => {
+          const wasActive = fold.active;
+          clearFrames();
+          window.clearTimeout(paintWatchdog);
+          fold.active = false;
+          fold.elapsed = duration;
+          launch.remove();
+          delete document.body.dataset.cosmicIntro;
+          document.removeEventListener('visibilitychange', onVisibilityChange);
+          window.removeEventListener('stellar-fold-painted', onPainted);
+          window.removeEventListener('stellar-fold-failed', onVisualFailure);
+          window.removeEventListener('stellar-fold-settled', release);
+          motion.removeEventListener('change', onMotionChange);
+          if (wasActive) window.dispatchEvent(new Event('cosmic-intro-complete'));
+        };
+        const release = () => {
+          if (!ready || failed) return;
+          if (!fold.active) {
+            signal.remove();
+            return;
           }
-
-          resize() {
-            this.width = window.innerWidth;
-            this.height = window.innerHeight;
-            this.canvas.width = this.width * this.dpr;
-            this.canvas.height = this.height * this.dpr;
-            this.ctx.scale(this.dpr, this.dpr);
+          if (fold.elapsed < duration || document.hidden || frame !== undefined) return;
+          if (fold.settled !== 3) {
+            if (paintWatchdog === undefined)
+              paintWatchdog = window.setTimeout(onVisualFailure, 2000);
+            return;
           }
-
-          generateStars() {
-            const count = Math.max(
-              40,
-              Math.min(100, Math.floor((this.width * this.height) / 25000)),
-            );
-            this.stars = [];
-            for (let i = 0; i < count; i++) {
-              this.stars.push({
-                x: Math.random() * this.width,
-                y: Math.random() * this.height,
-                z: Math.random(),
-                baseZ: Math.random(),
-                size: Math.random() * 1.2 + 0.3,
-                opacity: Math.random() * 0.5 + 0.3,
-              });
-            }
-          }
-
-          drawEarth(progress) {
-            const ctx = this.ctx;
-            const centerX = this.width / 2;
-            const centerY = this.height * 0.65;
-
-            // Earth size based on progress
-            const baseRadius = Math.min(this.width, this.height) * 0.25;
-            const scale = 1 - Math.max(0, Math.min(1, (progress - 0.22) / 0.5)) * 0.7;
-            const radius = baseRadius * scale;
-
-            // Atmospheric glow
-            if (progress < 0.65) {
-              const glowIntensity = Math.sin(progress * Math.PI) * 0.4;
-              const gradientAlpha = Math.max(0, glowIntensity);
-
-              // Outer glow
-              const glowGradient = ctx.createRadialGradient(
-                centerX,
-                centerY - radius * 0.3,
-                radius * 0.8,
-                centerX,
-                centerY,
-                radius * 1.3,
-              );
-              glowGradient.addColorStop(0, `rgba(98, 221, 245, ${gradientAlpha * 0.4})`);
-              glowGradient.addColorStop(0.5, `rgba(102, 139, 255, ${gradientAlpha * 0.2})`);
-              glowGradient.addColorStop(1, `rgba(169, 149, 255, 0)`);
-
-              ctx.fillStyle = glowGradient;
-              ctx.fillRect(centerX - radius * 1.5, centerY - radius * 1.5, radius * 3, radius * 3);
-            }
-
-            // Earth sphere
-            const earthGradient = ctx.createRadialGradient(
-              centerX - radius * 0.2,
-              centerY - radius * 0.3,
-              radius * 0.3,
-              centerX,
-              centerY,
-              radius,
-            );
-            earthGradient.addColorStop(0, 'rgba(156, 220, 255, 0.8)');
-            earthGradient.addColorStop(0.6, 'rgba(35, 117, 219, 1)');
-            earthGradient.addColorStop(1, 'rgba(8, 13, 27, 1)');
-
-            ctx.fillStyle = earthGradient;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Atmospheric line (horizon)
-            const lineGradient = ctx.createLinearGradient(
-              centerX - radius * 0.8,
-              centerY - radius * 0.4,
-              centerX + radius * 0.8,
-              centerY + radius * 0.4,
-            );
-            lineGradient.addColorStop(
-              0,
-              `rgba(98, 221, 245, ${0.6 * (1 - Math.max(0, progress - 0.5))})`,
-            );
-            lineGradient.addColorStop(
-              0.5,
-              `rgba(102, 139, 255, ${0.3 * (1 - Math.max(0, progress - 0.5))})`,
-            );
-            lineGradient.addColorStop(1, `rgba(169, 149, 255, 0)`);
-
-            ctx.strokeStyle = lineGradient;
-            ctx.lineWidth = radius * 0.08;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius - ctx.lineWidth / 2, 0.3, Math.PI - 0.3);
-            ctx.stroke();
-          }
-
-          drawStars(progress) {
-            const ctx = this.ctx;
-
-            // Star visibility increases after Scene 1
-            const starsStartVisibleAt = 0.22; // Scene 2 start
-            const starsFullVisibilityAt = 0.82; // Late Scene 3
-
-            this.stars.forEach((star) => {
-              // Progressive visibility based on depth and animation progress
-              let targetZ = star.baseZ + progress * 0.5;
-              let targetOpacity =
-                star.opacity *
-                Math.max(
-                  0,
-                  Math.min(
-                    1,
-                    (progress - starsStartVisibleAt) /
-                      (starsFullVisibilityAt - starsStartVisibleAt),
-                  ),
-                );
-
-              // Camera parallax - stars move based on depth
-              const cameraProgress = Math.max(0, progress - 0.22) / 0.6;
-              const parallaxOffset = cameraProgress * 500 * (star.baseZ - 0.5);
-
-              let x = star.x - parallaxOffset;
-              let y = star.y + cameraProgress * 800 * (0.5 - star.baseZ);
-
-              // Wrap stars that go off-screen
-              if (x < -100) x += this.width + 200;
-              if (x > this.width + 100) x -= this.width + 200;
-              if (y < -100) y += this.height + 200;
-              if (y > this.height + 100) y -= this.height + 200;
-
-              // Draw star
-              ctx.fillStyle = `rgba(240, 244, 255, ${targetOpacity})`;
-              ctx.beginPath();
-              ctx.arc(x, y, Math.max(0.2, star.size * (0.5 + targetZ * 0.5)), 0, Math.PI * 2);
-              ctx.fill();
-            });
-          }
-
-          drawParticles(progress) {
-            const ctx = this.ctx;
-
-            // Particle pass (near-viewer particles for depth) - Scene 3 onwards
-            if (progress > 0.565) {
-              const particleProgress = (progress - 0.565) / 0.435;
-              const particleCount = Math.floor(particleProgress * 20);
-
-              for (let i = 0; i < particleCount; i++) {
-                const t = (particleProgress - i / particleCount) % 1;
-                if (t < 0 || t > 1) continue;
-
-                const x = this.width * 0.5 + (Math.sin(i * 0.7) * 200 - 100) * (1 - t);
-                const y = this.height * 0.5 + (Math.cos(i * 0.3) * 300 - 150) + t * 400;
-                const size = (1 - t) * 3 + 0.5;
-                const opacity = Math.sin(t * Math.PI) * 0.6;
-
-                ctx.fillStyle = `rgba(98, 221, 245, ${opacity})`;
-                ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
-                ctx.fill();
-              }
-            }
-          }
-
-          render(progress) {
-            const ctx = this.ctx;
-
-            // Clear canvas
-            ctx.fillStyle = 'var(--color-bg, #080d1b)';
-            ctx.fillRect(0, 0, this.width, this.height);
-
-            // Background gradient (deep space)
-            const bgGradient = ctx.createRadialGradient(
-              this.width / 2,
-              this.height / 3,
-              0,
-              this.width / 2,
-              this.height / 2,
-              Math.max(this.width, this.height),
-            );
-            const bgAlpha = Math.max(0, progress - 0.565) / 0.435; // Fade in during Scene 3
-            bgGradient.addColorStop(0, `rgba(51, 92, 155, ${bgAlpha * 0.2})`);
-            bgGradient.addColorStop(0.5, `rgba(102, 139, 255, ${bgAlpha * 0.1})`);
-            bgGradient.addColorStop(1, 'rgba(8, 13, 27, 0)');
-
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, this.width, this.height);
-
-            // Draw elements in order
-            this.drawStars(progress);
-            this.drawParticles(progress);
-            this.drawEarth(progress);
+          window.clearTimeout(paintWatchdog);
+          paintWatchdog = undefined;
+          // Both renderers must paint the endpoint before content can uncover it.
+          frame = window.requestAnimationFrame(() => {
+            frame = undefined;
+            if (document.hidden) return;
+            signal.remove();
+            removeIntro();
+          });
+        };
+        const tick = (now) => {
+          frame = undefined;
+          if (!fold.active || document.hidden) return;
+          if (previous !== undefined)
+            fold.elapsed = Math.min(duration, fold.elapsed + now - previous);
+          previous = now;
+          launch.dataset.scene =
+            fold.elapsed < 700
+              ? 'anomaly'
+              : fold.elapsed < 1500
+                ? 'distortion'
+                : fold.elapsed < 2400
+                  ? 'formation'
+                  : 'reveal';
+          if (fold.elapsed < duration) frame = window.requestAnimationFrame(tick);
+          else release();
+        };
+        function onPainted() {
+          if (!fold.active || fold.painted) return;
+          fold.painted = true;
+          launch.dataset.painted = 'true';
+          window.clearTimeout(paintWatchdog);
+          paintWatchdog = undefined;
+          if (!document.hidden) frame = window.requestAnimationFrame(tick);
+        }
+        function onVisibilityChange() {
+          clearFrames();
+          window.clearTimeout(paintWatchdog);
+          paintWatchdog = undefined;
+          previous = undefined;
+          if (!document.hidden) {
+            if (!fold.painted) paintWatchdog = window.setTimeout(onVisualFailure, 8000);
+            else if (fold.elapsed < duration) frame = window.requestAnimationFrame(tick);
+            else release();
           }
         }
-
-        const clearTimer = () => {
-          window.clearTimeout(timer);
-          timer = undefined;
-        };
-
-        const clearAnimation = () => {
-          if (rafId) {
-            window.cancelAnimationFrame(rafId);
-            rafId = undefined;
-          }
-          animationRunning = false;
-        };
-
-        const showLaunchAnimation = () => {
-          launchAnimation.hidden = false;
-          launchAnimation.classList.remove('is-leaving');
-          visibleAt = performance.now();
-          animationStartTime = visibleAt;
-          animationRunning = true;
-
-          if (!launchRenderer) {
-            launchRenderer = new LaunchRenderer(canvas);
-            window.addEventListener('resize', () => {
-              if (launchRenderer) launchRenderer.resize();
-            });
-          }
-
-          const animate = () => {
-            const elapsed = performance.now() - animationStartTime;
-            const duration = 2300; // Total animation duration
-            const progress = Math.min(elapsed / duration, 1);
-
-            launchRenderer.render(progress);
-
-            if (progress < 1) {
-              rafId = window.requestAnimationFrame(animate);
-            } else {
-              clearAnimation();
-            }
-          };
-
-          animate();
-        };
-
-        const hideLaunchAnimation = () => {
-          clearAnimation();
-          launchAnimation.setAttribute('aria-hidden', 'true');
-          launchAnimation.classList.add('is-leaving');
-          launchAnimation.addEventListener(
-            'transitionend',
-            () => {
-              clearTimer();
-              launchAnimation.hidden = true;
-              launchAnimation.remove();
-            },
-            { once: true },
+        function onMotionChange() {
+          if (!motion.matches) return;
+          removeIntro();
+          if (ready) signal.remove();
+        }
+        function onVisualFailure() {
+          if (!fold.active) return;
+          console.warn(
+            'Stellar Fold is unavailable; revealing the portfolio without the cinematic delay.',
           );
-          clearTimer();
-          timer = window.setTimeout(() => {
-            if (launchAnimation.isConnected) {
-              launchAnimation.hidden = true;
-              launchAnimation.remove();
-            }
-          }, 180);
-        };
-
-        const showSignal = () => {
-          signal.hidden = false;
-          visibleAt = performance.now();
-        };
-
-        const removeSignal = () => {
-          clearTimer();
-          clearAnimation();
-          motion.removeEventListener('change', onMotionChange);
-          signal.removeEventListener('transitionend', removeSignal);
-          signal.remove();
-        };
-
-        const release = () => {
-          clearTimer();
-          if (!ready || leaving) return;
-
-          if (motion.matches) {
-            removeSignal();
-            if (launchAnimation.isConnected) launchAnimation.remove();
-            return;
-          }
-
-          if (signal.hidden && launchAnimation.isConnected) {
-            // Launch animation is showing
-            const remaining = 2300 - (performance.now() - visibleAt);
-            if (remaining > 0) {
-              timer = window.setTimeout(release, remaining);
-              return;
-            }
-            leaving = true;
-            hideLaunchAnimation();
-            return;
-          }
-
-          if (!launchAnimation.hidden) {
-            // Still showing launch animation
-            const remaining = 2300 - (performance.now() - visibleAt);
-            if (remaining > 0) {
-              timer = window.setTimeout(release, remaining);
-              return;
-            }
-            leaving = true;
-            hideLaunchAnimation();
-            return;
-          }
-
-          // Fallback signal timing
-          const remaining = 2000 - (performance.now() - visibleAt);
-          if (remaining > 0) {
-            timer = window.setTimeout(release, remaining);
-            return;
-          }
-
-          leaving = true;
-          signal.setAttribute('aria-hidden', 'true');
-          signal.classList.add('is-leaving');
-          signal.addEventListener('transitionend', removeSignal, { once: true });
-          timer = window.setTimeout(removeSignal, 180);
-        };
-
-        const onMotionChange = () => {
-          if (motion.matches) {
-            clearTimer();
-            clearAnimation();
-            if (launchAnimation.isConnected) launchAnimation.remove();
-            if (ready) removeSignal();
-            else signal.hidden = true;
-          } else if (!ready && signal.hidden && !signal.dataset.failed) {
-            if (!launchAnimation.isConnected) {
-              showSignal();
-            } else {
-              showLaunchAnimation();
-            }
-          }
-        };
-
-        const removeListeners = () => {
+          removeIntro();
+          if (ready) signal.remove();
+        }
+        const removeFailureListeners = () => {
           window.removeEventListener('error', onError, true);
           window.removeEventListener('unhandledrejection', onRejection);
         };
-
         const fail = () => {
-          if (ready) return;
-          clearTimer();
-          clearAnimation();
-          removeListeners();
-          motion.removeEventListener('change', onMotionChange);
-          if (launchAnimation.isConnected) launchAnimation.remove();
+          if (ready || failed) return;
+          failed = true;
+          window.clearTimeout(watchdog);
+          removeIntro();
+          removeFailureListeners();
           signal.hidden = false;
           signal.dataset.failed = 'true';
           signal.setAttribute('role', 'alert');
@@ -688,8 +276,7 @@
             'Please reload to try again, or return when your connection is available.';
           signal.querySelector('.signal-reload').hidden = false;
         };
-
-        const onError = (event) => {
+        function onError(event) {
           if (
             event.error ||
             (event.target?.tagName === 'SCRIPT' && event.target.type === 'module')
@@ -697,28 +284,33 @@
             console.error('Portfolio startup failed.', event.error || event);
             fail();
           }
-        };
-
-        const onRejection = (event) => {
+        }
+        function onRejection(event) {
           console.error('Portfolio startup failed.', event.reason);
           fail();
-        };
-
+        }
         window.addEventListener('error', onError, true);
         window.addEventListener('unhandledrejection', onRejection);
-        motion.addEventListener('change', onMotionChange);
-
-        if (!motion.matches) {
-          showLaunchAnimation();
-        } else {
-          showSignal();
-        }
-
+        watchdog = window.setTimeout(() => {
+          console.error('Portfolio startup timed out before the critical hero became ready.');
+          fail();
+        }, 30000);
+        if (fold.active) {
+          launch.hidden = false;
+          document.body.dataset.cosmicIntro = 'active';
+          document.addEventListener('visibilitychange', onVisibilityChange);
+          window.addEventListener('stellar-fold-painted', onPainted);
+          window.addEventListener('stellar-fold-failed', onVisualFailure);
+          window.addEventListener('stellar-fold-settled', release);
+          motion.addEventListener('change', onMotionChange);
+          if (!document.hidden) paintWatchdog = window.setTimeout(onVisualFailure, 8000);
+        } else launch.remove();
         window.__PORTFOLIO_STARTUP__ = {
           ready() {
-            if (ready) return;
+            if (ready || failed) return;
             ready = true;
-            removeListeners();
+            window.clearTimeout(watchdog);
+            removeFailureListeners();
             release();
           },
           fail,

@@ -1,276 +1,170 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import './Starfield.css';
 import { useSystemReducedMotion } from '../../../hooks/useSystemReducedMotion';
 import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
 import { useEnvironment } from '../EnvironmentContext';
-import { DEPTH_LAYERS, calculateLayerTransform, getCSSTransform } from '../VirtualCamera';
+import { calculateRenderingProfile } from '../VirtualCamera';
+import { ParticleUniverse, createSkyTextures } from './universe-particles';
 
-export type Star = {
-  x: number;
-  y: number;
-  radius: number;
-  alpha: number;
-  phase: number;
-  twinkleSpeed: number;
-  depth: number;
-  velocityX: number;
-  velocityY: number;
-};
+export { advanceStars } from './universe-particles';
+export type { Star } from './universe-particles';
 
-type NavigatorWithConnection = Navigator & {
-  connection?: {
-    saveData?: boolean;
-    addEventListener?: (type: 'change', listener: EventListener) => void;
-    removeEventListener?: (type: 'change', listener: EventListener) => void;
-  };
-};
-
-function getMobileLitePreference(): boolean {
-  // Only enable lite mode for devices explicitly using data-saver
-  // Do not disable animations based on viewport size alone
-  return Boolean((navigator as NavigatorWithConnection).connection?.saveData);
-}
-
-function getResponsiveStarCount(): number {
-  // Scale particle count based on viewport area for better performance
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  const area = width * height;
-
-  if (area < 100000) return 50; // ~360px mobile
-  if (area < 300000) return 80; // ~600px mobile/tablet
-  if (area < 1000000) return 120; // ~900px tablet
-  return 210; // Desktop
-}
-
-function seededValue(index: number, salt: number): number {
-  const value = Math.sin((index + 1) * 127.1 + (salt + 1) * 311.7) * 43758.5453;
-  return value - Math.floor(value);
-}
-
-function createStar(index: number, width: number, height: number): Star {
-  const depth = 0.12 + seededValue(index, 0) * 0.88;
-  return {
-    x: seededValue(index, 1) * width,
-    y: seededValue(index, 2) * height,
-    radius: 0.35 + depth * 1.15,
-    alpha: 0.2 + depth * 0.44,
-    phase: seededValue(index, 3) * Math.PI * 2,
-    twinkleSpeed: 0.4 + seededValue(index, 4) * 0.8,
-    depth,
-    velocityX: -(2 + depth * 8),
-    velocityY: (seededValue(index, 5) * 2 - 1) * (0.35 + depth * 1.1),
-  };
-}
-
-export function advanceStars(
-  stars: Star[],
-  deltaSeconds: number,
-  width: number,
-  height: number,
-): void {
-  if (deltaSeconds <= 0 || width <= 0 || height <= 0) return;
-
-  for (const star of stars) {
-    star.x =
-      ((((star.x + star.velocityX * deltaSeconds + 2) % (width + 4)) + width + 4) % (width + 4)) -
-      2;
-    star.y =
-      ((((star.y + star.velocityY * deltaSeconds + 2) % (height + 4)) + height + 4) %
-        (height + 4)) -
-      2;
-  }
-}
-
-type StarfieldProps = {
-  paused?: boolean;
-};
+type StarfieldProps = { paused?: boolean };
 
 export default function Starfield({ paused = false }: StarfieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const reducedEffects = useSystemReducedMotion();
-  const environment = useEnvironment();
-  const layerTransform = calculateLayerTransform(
-    DEPTH_LAYERS.MID_SPACE_STARS,
-    environment.cameraState,
-    window.innerWidth,
-    window.innerHeight,
-  );
-  const [mobileLite, setMobileLite] = useState(getMobileLitePreference);
-  const [tabVisible, setTabVisible] = useState(() => !document.hidden);
-
-  useEffect(() => {
-    const mobileQuery =
-      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 740px)') : null;
-    const connection = (navigator as NavigatorWithConnection).connection;
-    const updateMobileLite = () =>
-      setMobileLite(Boolean(mobileQuery?.matches || connection?.saveData));
-
-    mobileQuery?.addEventListener('change', updateMobileLite);
-    connection?.addEventListener?.('change', updateMobileLite);
-    const updateVisibility = () => setTabVisible(!document.hidden);
-    document.addEventListener('visibilitychange', updateVisibility);
-    return () => {
-      mobileQuery?.removeEventListener('change', updateMobileLite);
-      connection?.removeEventListener?.('change', updateMobileLite);
-      document.removeEventListener('visibilitychange', updateVisibility);
-    };
-  }, []);
+  const reducedMotion = useSystemReducedMotion();
+  const { cameraRef } = useEnvironment();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    delete canvas.dataset.static;
     const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
-
-    const mobileQuery =
-      typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 768px)') : null;
-    let mobile = Boolean(mobileQuery?.matches);
-    const isStaticFrame = () => reducedEffects || paused;
+    if (!ctx) {
+      canvas.dataset.static = 'true';
+      console.warn('Cosmic particle Canvas is unavailable; using the static sky.');
+      window.dispatchEvent(new Event('stellar-fold-failed'));
+      return;
+    }
+    let textures: ReturnType<typeof createSkyTextures>;
+    try {
+      textures = createSkyTextures();
+    } catch (error) {
+      canvas.dataset.static = 'true';
+      console.warn('Cosmic particle textures failed; using the static sky.', error);
+      window.dispatchEvent(new Event('stellar-fold-failed'));
+      return;
+    }
+    delete canvas.dataset.static;
     let width = 0;
     let height = 0;
+    let universe: ParticleUniverse;
+    let profileWidth = 0;
     let raf = 0;
     let lastFrameAt = 0;
-    let animationStarted = false;
-    let cancelScheduledStart: (() => void) | undefined;
-    const stars: Star[] = [];
-    let starCount = getResponsiveStarCount();
-
+    let lastDrawAt = 0;
+    let lastPaintAt = 0;
+    let running = false;
+    let slowFrames = 0;
+    let thinningSteps = 0;
+    let frameTarget = 60;
+    let cancelIdle: (() => void) | undefined;
+    let disposed = false;
+    const isStatic = () => paused || reducedMotion;
+    const holding = () =>
+      Boolean(window.__STELLAR_FOLD__?.active && window.__STELLAR_FOLD__.elapsed >= 3200);
+    const draw = (seconds: number) => {
+      const fold = window.__STELLAR_FOLD__;
+      if (!isStatic() && !fold?.active) universe.advance(seconds, cameraRef.current);
+      universe.draw(
+        ctx,
+        textures.glow,
+        textures.tail,
+        textures.structures,
+        isStatic(),
+        fold?.active ? fold.elapsed : 3200,
+      );
+      if (fold?.active && fold.elapsed >= 3200 && !(fold.settled & 2)) {
+        fold.settled |= 2;
+        window.dispatchEvent(new Event('stellar-fold-settled'));
+      }
+      const events = String(universe.meteorEvents);
+      if (canvas.dataset.events !== events) {
+        canvas.dataset.events = events;
+      }
+      let active = 0;
+      for (const meteor of universe.meteors) if (meteor.active) active++;
+      const trails = String(active);
+      if (canvas.dataset.trails !== trails) canvas.dataset.trails = trails;
+    };
     const resize = () => {
       const nextWidth = document.documentElement.clientWidth || window.innerWidth;
       const nextHeight = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.7);
-      if (width && height) {
-        const scaleX = nextWidth / width;
-        const scaleY = nextHeight / height;
-        for (const star of stars) {
-          star.x *= scaleX;
-          star.y *= scaleY;
-        }
-      }
+      const mobile = window.innerWidth < 768;
+      const breakpoint = mobile ? 0 : window.innerWidth < 1024 ? 1 : 2;
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.5);
+      canvas.width = Math.max(1, Math.round(nextWidth * dpr));
+      canvas.height = Math.max(1, Math.round(nextHeight * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       width = nextWidth;
       height = nextHeight;
-      canvas.width = Math.max(1, Math.floor(width * dpr));
-      canvas.height = Math.max(1, Math.floor(height * dpr));
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    const drawStars = (now: number) => {
-      ctx.clearRect(0, 0, width, height);
-      for (let index = 0; index < starCount; index += 1) {
-        const star = stars[index];
-        const twinkle = isStaticFrame()
-          ? 0.82
-          : 0.76 + Math.sin(now * 0.001 * star.twinkleSpeed + star.phase) * 0.2;
-        const brightness = star.alpha * twinkle;
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(225, 235, 255, ${brightness})`;
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    };
-
-    const handleFrame = (now: number) => {
-      const deltaSeconds = Math.min(Math.max((now - lastFrameAt) / 1000, 0), 0.08);
-      lastFrameAt = now;
-      if (!isStaticFrame()) {
-        advanceStars(stars, deltaSeconds, width, height);
-      }
-      drawStars(now);
-    };
-
-    const start = () => {
-      cancelScheduledStart?.();
-      cancelScheduledStart = undefined;
-      window.cancelAnimationFrame(raf);
-      lastFrameAt = performance.now();
-      if (!isStaticFrame() && !document.hidden) {
-        animationStarted = true;
-        raf = window.requestAnimationFrame(tick);
+      if (!universe || profileWidth !== breakpoint) {
+        const profile = calculateRenderingProfile({ width: window.innerWidth, height }, dpr, false);
+        universe = new ParticleUniverse(width, height, profile);
+        frameTarget = profile.frameRateTarget;
+        profileWidth = breakpoint;
+        canvas.dataset.stars = String(profile.starCount);
+        canvas.dataset.profile = mobile ? 'mobile' : breakpoint === 1 ? 'tablet' : 'desktop';
       } else {
-        handleFrame(lastFrameAt);
+        universe.resize(width, height);
       }
+      draw(0);
     };
-
-    const scheduleStart = () => {
-      if (animationStarted || isStaticFrame() || document.hidden) return;
-      cancelScheduledStart = scheduleAfterIdle(
-        () => {
-          animationStarted = true;
-          start();
-        },
-        { timeout: 1200, fallbackDelay: 100 },
-      );
-    };
-
     const tick = (now: number) => {
-      handleFrame(now);
-      if (!isStaticFrame() && !document.hidden) raf = window.requestAnimationFrame(tick);
-    };
-
-    resize();
-    for (let index = 0; index < starCount; index += 1) stars.push(createStar(index, width, height));
-    handleFrame(performance.now());
-
-    const onResize = () => {
-      mobile = mobileQuery?.matches ?? window.innerWidth <= 768;
-      const newStarCount = getResponsiveStarCount();
-      // If star count changed, regenerate stars
-      if (newStarCount !== starCount) {
-        starCount = newStarCount;
-        stars.length = 0;
-        for (let index = 0; index < starCount; index += 1) {
-          stars.push(createStar(index, width, height));
+      if (disposed || document.hidden || isStatic()) {
+        running = false;
+        return;
+      }
+      const delta = now - lastFrameAt;
+      lastFrameAt = now;
+      const interval = 1000 / frameTarget;
+      if (delta > interval * 1.7) {
+        if (++slowFrames >= 16) {
+          universe.reduceDensity();
+          if (++thinningSteps >= 3 && frameTarget > 30) frameTarget = 30;
+          slowFrames = 0;
+        }
+      } else slowFrames = Math.max(0, slowFrames - 1);
+      const elapsed = now - lastDrawAt;
+      if (elapsed >= interval - 0.5) {
+        lastDrawAt += Math.max(1, Math.floor((elapsed + 0.5) / interval)) * interval;
+        draw(Math.min((now - lastPaintAt) / 1000, 0.08));
+        lastPaintAt = now;
+        if (holding()) {
+          running = false;
+          return;
         }
       }
-      resize();
-      if (isStaticFrame()) start();
-      else scheduleStart();
+      raf = window.requestAnimationFrame(tick);
     };
-
-    const onVisibilityChange = () => {
-      if (animationStarted) start();
-      else scheduleStart();
-    };
-
-    window.addEventListener('resize', onResize);
-    mobileQuery?.addEventListener('change', onResize);
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    scheduleStart();
-
-    return () => {
-      cancelScheduledStart?.();
+    const start = () => {
+      if (disposed) return;
+      cancelIdle?.();
+      cancelIdle = undefined;
       window.cancelAnimationFrame(raf);
-      window.removeEventListener('resize', onResize);
-      mobileQuery?.removeEventListener('change', onResize);
+      lastFrameAt = lastDrawAt = lastPaintAt = performance.now();
+      running = !isStatic() && !document.hidden && !holding();
+      if (running) raf = window.requestAnimationFrame(tick);
+    };
+    const scheduleStart = () => {
+      if (disposed || running || cancelIdle || isStatic() || document.hidden) return;
+      if (window.__STELLAR_FOLD__?.active) {
+        start();
+        return;
+      }
+      cancelIdle = scheduleAfterIdle(start, { timeout: 1200, fallbackDelay: 100 });
+    };
+    const onVisibilityChange = () => {
+      window.cancelAnimationFrame(raf);
+      running = false;
+      cancelIdle?.();
+      cancelIdle = undefined;
+      if (!document.hidden) start();
+    };
+    resize();
+    scheduleStart();
+    window.addEventListener('resize', resize);
+    window.addEventListener('cosmic-intro-complete', scheduleStart);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      disposed = true;
+      cancelIdle?.();
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('cosmic-intro-complete', scheduleStart);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [mobileLite, paused, reducedEffects]);
+  }, [cameraRef, paused, reducedMotion]);
 
-  return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="starfield"
-        style={{
-          transform: getCSSTransform(layerTransform),
-          opacity: layerTransform.opacity,
-        }}
-        aria-hidden="true"
-      />
-      <div
-        className="shooting-stars"
-        data-running={!paused && !reducedEffects && tabVisible}
-        aria-hidden="true"
-      >
-        <span className="shooting-star" />
-        <span className="shooting-star" />
-        <span className="shooting-star" />
-      </div>
-    </>
-  );
+  return <canvas ref={canvasRef} className="starfield" aria-hidden="true" />;
 }

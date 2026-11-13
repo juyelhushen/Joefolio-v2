@@ -5,9 +5,44 @@ import { EnvironmentProvider } from '../EnvironmentContext';
 
 afterEach(() => {
   cleanup();
+  delete document.body.dataset.cosmicIntro;
+  Reflect.deleteProperty(window, '__STELLAR_FOLD__');
   Reflect.deleteProperty(navigator, 'connection');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+
+it('initializes the same WebGL environment during the intro and ignores duplicate handoffs', () => {
+  document.body.dataset.cosmicIntro = 'active';
+  window.__STELLAR_FOLD__ = { active: true, elapsed: 0, painted: false, settled: 0 };
+  const callbacks = mockIdleCallback();
+  const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  const { unmount } = renderWithEnvironment(<CosmicMeshBackground />);
+  expect(callbacks).toHaveLength(0);
+  expect(getContext).toHaveBeenCalledTimes(1);
+
+  delete document.body.dataset.cosmicIntro;
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  expect(callbacks).toHaveLength(0);
+  expect(getContext).toHaveBeenCalledTimes(1);
+  unmount();
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  expect(callbacks).toHaveLength(0);
+});
+
+it('does not acquire another context after unmount during the intro', () => {
+  document.body.dataset.cosmicIntro = 'active';
+  window.__STELLAR_FOLD__ = { active: true, elapsed: 0, painted: false, settled: 0 };
+  const callbacks = mockIdleCallback();
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  const { unmount } = renderWithEnvironment(<CosmicMeshBackground />);
+  unmount();
+  delete document.body.dataset.cosmicIntro;
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  expect(callbacks).toHaveLength(0);
 });
 
 function mockIdleCallback() {
@@ -44,8 +79,14 @@ it('waits for idle time before acquiring WebGL resources', () => {
   expect(getContext).toHaveBeenCalledTimes(1);
 });
 
-it('initializes WebGL on mobile with responsive quality settings', () => {
+it('initializes mobile WebGL and restores a lost context without deleting invalid handles', () => {
   const callbacks = mockIdleCallback();
+  const frames: FrameRequestCallback[] = [];
+  vi.stubGlobal(
+    'requestAnimationFrame',
+    vi.fn((callback: FrameRequestCallback) => frames.push(callback)),
+  );
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
   vi.stubGlobal(
     'matchMedia',
     vi.fn((media: string) => ({
@@ -98,7 +139,7 @@ it('initializes WebGL on mobile with responsive quality settings', () => {
     .mockReturnValue(mockGLContext as unknown as WebGLRenderingContext);
   vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-  const { container } = renderWithEnvironment(<CosmicMeshBackground />);
+  const { container, unmount } = renderWithEnvironment(<CosmicMeshBackground />);
 
   expect(container.querySelector('.cosmic-mesh-background')?.getAttribute('data-mode')).toBe(
     'static',
@@ -108,6 +149,30 @@ it('initializes WebGL on mobile with responsive quality settings', () => {
   // After idle callback, WebGL should be initialized
   act(() => callbacks[0]());
   expect(getContext).toHaveBeenCalled();
+
+  const canvas = container.querySelector('canvas');
+  window.__STELLAR_FOLD__ = { active: true, elapsed: 500, painted: true, settled: 0 };
+  const animate = frames.find((callback) => callback.name === 'animate')!;
+  const originalQuality = Number(canvas?.dataset.quality);
+  act(() => {
+    for (let index = 1; index <= 9; index++) animate(index * 45);
+  });
+  expect(Number(canvas?.dataset.quality)).toBeLessThan(originalQuality);
+  window.__STELLAR_FOLD__.active = false;
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  act(() => animate(500));
+  expect(Number(canvas?.dataset.quality)).toBe(originalQuality);
+  act(() => canvas?.dispatchEvent(new Event('webglcontextlost', { cancelable: true })));
+  expect(canvas?.dataset.ready).toBe('fallback');
+  act(() => canvas?.dispatchEvent(new Event('webglcontextrestored')));
+  expect(getContext).toHaveBeenCalledTimes(2);
+  expect(canvas?.dataset.ready).toBe('true');
+  expect(mockGLContext.deleteBuffer).not.toHaveBeenCalled();
+  expect(mockGLContext.deleteProgram).not.toHaveBeenCalled();
+
+  unmount();
+  expect(mockGLContext.deleteBuffer).toHaveBeenCalledTimes(1);
+  expect(mockGLContext.deleteProgram).toHaveBeenCalledTimes(1);
 });
 
 it('can fall back to CSS mesh when the connection requests data saving', () => {
@@ -128,6 +193,10 @@ it('can fall back to CSS mesh when the connection requests data saving', () => {
   // After idle, if WebGL fails, should fall back gracefully
   act(() => callbacks[0]());
   expect(getContext).toHaveBeenCalled();
+  expect(container.querySelector('.cosmic-mesh-background')?.getAttribute('data-mode')).toBe(
+    'fallback',
+  );
+  expect(container.querySelector('canvas')?.getAttribute('data-ready')).toBe('fallback');
 });
 
 it('cancels the pending WebGL initialization when unmounted', () => {

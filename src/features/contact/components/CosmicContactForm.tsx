@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent, type FormEvent, type RefObject } from 'react';
-import { LoaderCircle, Send } from 'lucide-react';
-import { m } from 'motion/react';
+import { Mail } from 'lucide-react';
+import Button from '../../../components/common/Button';
 import type { ContactMessage, ContactStatus } from '../types';
 import './CosmicContactForm.css';
 
@@ -17,25 +17,6 @@ type CosmicContactFormProps = {
 
 const initialFields: ContactFields = { name: '', email: '', subject: '', message: '' };
 const fieldNames: FieldName[] = ['name', 'email', 'subject', 'message'];
-
-function ButtonEnvelope({ sealed }: { sealed: boolean }) {
-  return (
-    <m.span
-      className={`contact-button-envelope${sealed ? ' is-sealed' : ''}`}
-      initial={sealed ? { scale: 0.86 } : false}
-      animate={{ scale: 1 }}
-      transition={{ duration: 0.22, ease: 'easeOut' }}
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 28 22">
-        <rect x="2" y="5" width="24" height="15" rx="3" />
-        <path className="envelope-flap-open" d="m3.5 6 10.5 8L24.5 6" />
-        <path className="envelope-flap-closed" d="m3.5 6 10.5 9L24.5 6" />
-        {sealed && <path className="button-envelope-seal" d="m14 11 3 3-3 3-3-3z" />}
-      </svg>
-    </m.span>
-  );
-}
 
 export default function CosmicContactForm({
   status,
@@ -228,31 +209,18 @@ export default function CosmicContactForm({
         </div>
       )}
 
-      <button
+      <Button
         ref={submitButtonRef}
-        className="button button-primary contact-submit"
+        className="contact-submit"
+        variant="primary"
         type="submit"
-        disabled={busy}
+        state={busy ? 'loading' : status === 'success' ? 'success' : 'idle'}
+        loadingLabel={status === 'flying' ? 'In transit…' : 'Sending…'}
+        successLabel="Send another message"
       >
-        {status === 'pending' ? (
-          <ButtonEnvelope sealed />
-        ) : status === 'flying' ? (
-          <LoaderCircle className="contact-spinner" size={17} aria-hidden="true" />
-        ) : status === 'success' ? (
-          <Send size={16} aria-hidden="true" />
-        ) : (
-          <ButtonEnvelope sealed={false} />
-        )}
-        {status === 'pending'
-          ? 'Sending…'
-          : status === 'flying'
-            ? 'In transit…'
-            : status === 'error'
-              ? 'Retry message'
-              : status === 'success'
-                ? 'Send another message'
-                : 'Launch message'}
-      </button>
+        <Mail aria-hidden="true" />
+        {status === 'error' ? 'Retry message' : 'Launch message'}
+      </Button>
     </form>
   );
 }

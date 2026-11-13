@@ -64,9 +64,13 @@
   font-size: var(--type-readable);
   cursor: pointer;
 }
-.command-option[aria-selected='true'] {
+.command-option[aria-selected='true'],
+.command-option:is(:hover, :focus-visible) {
   background: var(--color-accent-soft);
   border-color: var(--color-accent-primary);
+}
+.command-option:active {
+  background: var(--color-secondary-soft);
 }
 .command-panel :focus-visible {
   outline: 2px solid var(--focus-ring);

@@ -4,14 +4,17 @@ React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
 
 ## Included
 
-Startup shows a minimal JH constellation signal for at least 2000ms, measured from first visibility.
-It releases when both that duration and shell/hero readiness are satisfied, while React and assets
-continue loading underneath. It never waits for backend checks or below-fold assets.
-Reduced motion bypasses the signal and timed hold. Lazy section failures
-show local reload states; optional visual failures preserve their lightweight fallback.
+Startup opens with **Stellar Fold**, a 3200ms gravitational anomaly, spacetime distortion,
+galactic formation and dimension reveal. It uses the portfolio's persistent WebGL atmosphere and
+four-depth particle Canvas, not a separate loader scene. The visibility clock starts after the
+environment paints; hidden tabs pause it. Both renderers retain their exact final frame if the
+critical hero is late, then continue without replacing the sky. App initialization is independent;
+backend checks and below-fold assets never gate release. Reduced motion skips the cinematic and
+delay, retaining a static cosmic background. Visual failures bypass the intro; entry failures
+offer a readable reload state.
 
 - Responsive cosmic hero and navigation
-- Canvas starfield with occasional shooting stars
+- Persistent Infinite Universe: four stellar depths, near-space dust, event-driven meteors and WebGL nebula
 - CSS-rendered planet/orbit layers
 - Evidence-backed project cards linked to public repositories
 - On-demand case-study architecture sequences with Replay and a static mobile/reduced-effects view
@@ -90,7 +93,10 @@ the available legacy portfolio copy does not provide a project repository or a v
 Experience entries support optional summaries, highlights and technology stacks; these fields are
 currently unused until their content is verified.
 
-The mobile navigation uses a disclosure menu with Escape, backdrop and focus-leave dismissal.
+Orbit Navigation uses a floating desktop dock with a moving section marker and a compact scroll
+state. At 1100px and below, the capsule opens a numbered exploration dialog with native focus
+containment, scroll locking, Escape/backdrop dismissal and focus restoration. Its search action
+hands focus ownership to the existing command palette. Motion is disabled by the OS preference.
 About, Experience, Skills, Projects, AI Lab, Contact and Footer load near the viewport; their native
 section anchors remain available for direct hash navigation. The configured assistant and the animated
 background render after browser idle time, with the CSS cosmic gradient visible first.
@@ -99,9 +105,15 @@ mobile/data-saving/reduced-motion hero copy is visible immediately without an en
 Three.js and the Earth texture remain deferred until the contact globe approaches the viewport.
 Changing reduced-motion preferences pauses/resumes the existing renderer without recreating GPU
 resources or reloading its texture.
-At widths up to 740px or when data saving/OS reduced motion is active, the background stays lightweight:
-the mesh uses its CSS gradient and the starfield is a static CSS pattern with no canvas or animation
-loop.
+The same moving universe runs on mobile and coarse-pointer devices. Particle budgets are 620
+desktop / 400 tablet / 230 mobile stars plus 12 / 8 / 6 near particles. Shooting-star events use
+random 2–4s / 3–5s / 4–6s gaps, with occasional companion trails and bounded 3 / 2 / 2 concurrency.
+Tune these budgets in `UNIVERSE_PROFILES` in `VirtualCamera.ts`. Canvas targets 60 FPS desktop and
+30 FPS tablet/mobile; the slow nebula updates at 24 / 20 FPS with reduced pixel density.
+Sustained slow frames thin particles gradually, then allow desktop rendering to fall back to 30 FPS.
+Only OS reduced motion stops travel and shooting stars: it retains a layered static Canvas sky and
+static atmospheric gradients. Canvas/WebGL failures select visible fallbacks. Hidden tabs pause
+both rendering and the event clock; resume never emits a backlog of meteors.
 
 Skills are grouped from technologies documented in the linked projects; they are not proficiency
 ratings or claims about employment.
@@ -171,22 +183,33 @@ mobile without cropping. Native keyboard focus and the heading focus target rema
 CTA hover/focus states provide a light sweep, border illumination, lift and tactile press.
 
 Typography reuses locally bundled Space Grotesk headings and Inter body/navigation/button text.
-Shared tokens in `src/styles/tokens.css` now carry the hero direction through the portfolio:
-navy `#090D19`, ivory `#F1F0EA`, lime `#C5F477`, lavender `#A99AF6` and supporting `#AAB2C2`.
-Lime identifies actions and selected states; lavender is reserved for secondary detail.
-`src/styles/utilities.css` owns the three action variants: `.button-primary` (solid lime),
-`.button-secondary` (neutral bordered surface) and `.button-tertiary` (text-only lime).
+Shared tokens in `src/styles/tokens.css` carry Cosmic Aurora through the portfolio:
+midnight `#080D1B`, deep blue `#111D35`, cyan `#62DDF5`, royal blue `#668BFF`,
+violet `#A995FF`, ice white `#F0F4FF` and supporting text `#A7B5CE`.
+Cosmic Pulse uses cyan for interactions, violet for secondary illumination and blue for depth.
+`src/styles/utilities.css` owns three action variants: `.button-primary` (Cosmic Energy),
+`.button-secondary` (Orbital Glass) and `.button-tertiary` (Signal Link).
 Use `.button` with exactly one variant; `.button-icon` preserves the same 48px target for icon
 controls. Shared padding, 10px control radius, 18px icons, 240ms transitions, focus, press and
-disabled states apply everywhere. Primary sweeps activate only on hover/focus, not continuously.
+disabled states apply everywhere. `.button-compact` provides a 44px target for compact controls.
+Primary reflections and secondary edge signals play once on desktop hover or keyboard focus,
+never continuously. Only directional icons move; tertiary underlines expand without a filled surface.
+Touch uses tactile press feedback, and OS reduced motion removes nonessential movement.
+The native `Button` component composes these same classes for contact and assistant async actions.
+Its `state` is caller-controlled (`idle`, `loading`, `success`); loading disables activation and
+sets `aria-busy`. Overlapping label tracks reserve dimensions across states. Success is shown only
+after a confirmed result. Navigation and download actions remain native anchors.
+Specialized command rows and skill planets share `.pulse-control` focus/press feedback without
+losing their shapes or keyboard semantics. Cursor magnification does not add a competing scale
+effect to shared controls.
 Shared `.form-control` styling covers contact, search and assistant fields with visible focus
 and semantic invalid/disabled states. Cards use shared 16px radii, fine borders and navy surfaces.
 Composite controls (skill planets, timeline markers, search options and navigation items)
 keep their specialized geometry and keyboard semantics, using the same focus/selected palette.
 There are no feature-local action palettes. The core and 42-second satellite pause
-offscreen or in hidden tabs, with static mobile-lite/reduced-motion fallbacks. The existing starfield
-owns three occasional CSS shooting stars in the outer gutters, replacing its canvas meteors.
-No new frame loop, timer, dependency or font request is added. The satellite is hidden on mobile,
+offscreen or in hidden tabs, with static mobile-lite/reduced-motion fallbacks. The persistent particle
+Canvas owns stars, close particles and randomized shooting stars across every section, behind content.
+No new dependency or font request is added. The satellite is hidden on mobile,
 and OS reduced motion disables continuous animation without hiding the meaningful node links.
 
 ## Follow-up work

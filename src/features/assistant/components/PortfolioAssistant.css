@@ -127,7 +127,6 @@
 }
 .assistant-suggestions .button {
   text-align: left;
-  font-weight: 400;
 }
 .assistant-composer {
   display: flex;
@@ -140,9 +139,6 @@
   flex: 0 0 auto;
   margin: 0;
   padding: 0 var(--space-4) var(--space-3);
-}
-.assistant-launcher {
-  box-shadow: var(--shadow-panel);
 }
 .assistant-launcher-icon {
   display: grid;

@@ -3,7 +3,6 @@ import './CosmicMeshBackground.css';
 import { useSystemReducedMotion } from '../../../hooks/useSystemReducedMotion';
 import { scheduleAfterIdle } from '../../../lib/scheduleAfterIdle';
 import { useEnvironment } from '../EnvironmentContext';
-import { DEPTH_LAYERS, calculateLayerTransform, getCSSTransform } from '../VirtualCamera';
 
 const vertexShaderSource = `
   attribute vec2 a_position;
@@ -21,6 +20,8 @@ const fragmentShaderSource = `
   varying vec2 v_uv;
   uniform vec2 u_resolution;
   uniform float u_time;
+  uniform vec2 u_camera;
+  uniform float u_fold;
 
   float hash(vec2 p) {
     p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -49,35 +50,89 @@ const fragmentShaderSource = `
     return value;
   }
 
+  vec3 atmosphere(vec2 p, float t) {
+    vec2 drift = vec2(t * 0.012, -t * 0.009);
+    float warp = fbm(p * 1.8 + drift);
+    vec2 warped = p + vec2(warp - 0.4, sin(p.x * 2.1 + t * 0.025) * 0.11);
+    float clouds = fbm(warped * 3.2 - drift * 0.65);
+    float veil = fbm(warped * 2.1 + vec2(5.2, 1.8) + drift.yx);
+    float filaments = fbm(warped * 6.0 + vec2(clouds, veil));
+    float bandDistance = (p.y + sin(p.x * 1.7) * 0.24) * 2.5;
+    float band = exp(-bandDistance * bandDistance);
+    float density = smoothstep(0.24, 0.72, clouds) * band;
+    float violet = smoothstep(0.28, 0.7, veil) * (0.4 + band * 0.6);
+    float cyan = smoothstep(0.46, 0.73, filaments) * density;
+    float dustLane = smoothstep(0.34, 0.66, filaments) * density;
+    vec3 color = vec3(0.0314, 0.051, 0.106);
+    color += vec3(0.12, 0.21, 0.51) * density * 0.48;
+    color += vec3(0.32, 0.20, 0.49) * violet * 0.2;
+    color += vec3(0.20, 0.62, 0.72) * cyan * 0.24;
+    color *= 1.0 - dustLane * 0.25;
+    return color;
+  }
+
   void main() {
     vec2 uv = v_uv;
-    vec2 p = (uv - 0.5) * vec2(u_resolution.x / u_resolution.y, 1.0);
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 screen = (uv - 0.5) * vec2(aspect, 1.0);
+    vec2 center = vec2(aspect < 0.9 ? -0.015 : 0.12, 0.04);
+    vec2 relative = screen - center;
+    float formation = smoothstep(1.5, 2.4, u_fold);
+    float opening = smoothstep(2.4, 3.2, u_fold);
+    float gravity = smoothstep(0.0, 0.7, u_fold) * (1.0 - opening);
+    float radius = length(relative);
+    // Deflect the sampled sky, not a circle painted on top of it.
+    vec2 lensAxis = relative * vec2(0.85, 1.3);
+    vec2 deflection = (relative * vec2(1.0, 0.72) + vec2(0.025, -0.008)) /
+      (dot(lensAxis, lensAxis) + 0.035);
+    vec2 p = screen + u_camera + deflection * gravity * 0.035;
     float t = u_time;
-    vec2 slowDrift = vec2(t * 0.032, -t * 0.024);
-    float warpA = fbm(p * 1.25 + slowDrift);
-    float warpB = fbm(p * 1.7 - slowDrift.yx + vec2(4.3, -2.1));
-    vec2 warped = p + (vec2(warpA, warpB) - 0.5) * 0.72;
-
-    float indigo = fbm(warped * 1.55 + vec2(-0.42, 0.12) + slowDrift * 0.8);
-    float cyanField = fbm(warped * 1.9 + vec2(0.56, -0.2) - slowDrift.yx * 1.1);
-    float violetField = fbm(warped * 1.35 + vec2(0.05, 0.58) + slowDrift.yx * 0.7);
-    float blueField = fbm(warped * 2.1 + vec2(-0.12, -0.62) + slowDrift * 0.45);
-
-    vec3 color = vec3(0.032, 0.051, 0.106);
-    float edgeFade = 1.0 - smoothstep(0.18, 0.95, length((uv - 0.5) * vec2(1.05, 0.9)));
-    float indigoStrength = smoothstep(0.43, 0.79, indigo) * 0.64 * edgeFade;
-    float cyan = smoothstep(0.57, 0.88, cyanField) * 0.26 * edgeFade;
-    float violet = smoothstep(0.53, 0.83, violetField) * 0.35 * edgeFade;
-    float blue = smoothstep(0.72, 0.94, blueField) * 0.12 * edgeFade;
-
-    color += vec3(0.15, 0.22, 0.52) * indigoStrength;
-    color += vec3(0.38, 0.87, 0.96) * cyan;
-    color += vec3(0.40, 0.37, 0.73) * violet;
-    color += vec3(0.20, 0.35, 0.66) * blue;
-
-    float luminance = max(max(color.r, color.g), color.b);
-    float alpha = clamp(luminance * 2.4, 0.0, 0.62);
-    gl_FragColor = vec4(color, alpha);
+    vec3 color = vec3(0.0314, 0.051, 0.106);
+    float atmosphereReveal = smoothstep(1.9, 2.5, u_fold);
+    if (atmosphereReveal > 0.0) {
+      color = mix(color, atmosphere(p, t), atmosphereReveal);
+    }
+    float vignette = smoothstep(0.2, 1.0, length((uv - 0.5) * vec2(0.9, 0.7)));
+    color = mix(color, vec3(0.0314, 0.051, 0.106), vignette * 0.45);
+    if (u_fold < 3.2) {
+      color = mix(vec3(0.0314, 0.051, 0.106), color, 0.12 + opening * 0.88);
+      float travel = smoothstep(0.7, 2.4, u_fold);
+      float scale = mix(0.48, aspect < 0.9 ? 2.5 : 3.6, formation);
+      vec3 origin = vec3(0.14 * travel, -0.08 * travel, 2.8 - travel * 0.9);
+      vec3 ray = normalize(vec3(relative * 2.0, -1.65));
+      ray.xy -= deflection * gravity * 0.04;
+      ray = normalize(ray);
+      vec3 emission = vec3(0.0);
+      vec3 normal = vec3(0.3198, -0.7098, 0.62);
+      float incidence = min(-0.08, dot(ray, normal));
+      float intersection = -dot(origin, normal) / incidence;
+      // Eight stratified depth slices of a tilted, corrugated spiral volume.
+      // No textures, dynamic loops, or additional render passes.
+      for (int i = 0; i < 8; i++) {
+        float distance = intersection + (float(i) - 3.5) * 0.075 * scale;
+        vec3 point = (origin + ray * distance) / scale;
+        point.xy = mat2(0.91, -0.41, 0.41, 0.91) * point.xy;
+        point.yz = mat2(0.62, -0.78, 0.78, 0.62) * point.yz;
+        float r = length(point.xy) + 0.035;
+        float angle = atan(point.y, point.x);
+        float spiral = angle * 2.0 + log(r) * 5.2 - travel * 1.7;
+        float arm = pow(0.5 + 0.5 * sin(spiral), 7.0);
+        float corrugation = sin(angle * 3.0 + r * 9.0 - t * 0.4) * 0.055;
+        float slab = exp(-abs(point.z + corrugation) * 8.0);
+        float grain = 0.72 + 0.28 * sin(r * 65.0 + angle * 11.0 + float(i) * 1.7);
+        float envelope = exp(-r * 1.6) * smoothstep(0.07, 0.24, r);
+        float density = slab * envelope * (0.12 + arm * 1.5) * grain;
+        float nearSide = 0.65 + smoothstep(-0.4, 0.7, point.x) * 0.7;
+        vec3 light = mix(vec3(0.48, 0.29, 0.72), vec3(0.22, 0.4, 0.8),
+          0.5 + 0.3 * sin(angle * 1.6 + point.z * 4.0));
+        light = mix(light, vec3(0.38, 0.86, 0.96), pow(arm, 4.0) * 0.16);
+        emission += light * density * nearSide * 0.55;
+      }
+      float shadow = exp(-radius * radius / (0.003 + formation * 0.013));
+      color *= 1.0 - shadow * gravity * (1.0 - formation) * 0.85;
+      color += emission * gravity * (1.0 - opening);
+    }
+    gl_FragColor = vec4(color, 1.0);
   }
 `;
 
@@ -102,23 +157,19 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
   const backgroundRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedEffects = useSystemReducedMotion();
-  const environment = useEnvironment();
-  const layerTransform = calculateLayerTransform(
-    DEPTH_LAYERS.GALACTIC_ATMOSPHERE,
-    environment.cameraState,
-    window.innerWidth,
-    window.innerHeight,
-  );
+  const { cameraRef } = useEnvironment();
   const [readyGeneration, setReadyGeneration] = useState(0);
   const generationRef = useRef(0);
 
   useEffect(() => {
-    // Note: mobileLite state tracking has been removed - mobile devices now render with full animation
-    // potential, allowing WebGL initialization and CSS fallback animations on all viewport sizes.
-    return () => {
-      // Cleanup for any future listeners if needed
+    const updateVisibility = () => {
+      if (backgroundRef.current)
+        backgroundRef.current.dataset.paused = String(paused || reducedEffects || document.hidden);
     };
-  }, []);
+    updateVisibility();
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => document.removeEventListener('visibilitychange', updateVisibility);
+  }, [paused, reducedEffects]);
 
   useEffect(() => {
     const generation = ++generationRef.current;
@@ -132,18 +183,24 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
     }
 
     let active = true;
-    const cancelScheduledInitialization = scheduleAfterIdle(
-      () => {
-        if (active) setReadyGeneration(generation);
-      },
-      {
-        timeout: 1400,
-        fallbackDelay: 180,
-      },
-    );
+    let cancelScheduledInitialization: (() => void) | undefined;
+    const scheduleInitialization = () => {
+      if (!active || cancelScheduledInitialization) return;
+      if (window.__STELLAR_FOLD__?.active) {
+        setReadyGeneration(generation);
+        return;
+      }
+      cancelScheduledInitialization = scheduleAfterIdle(
+        () => {
+          if (active) setReadyGeneration(generation);
+        },
+        { timeout: 1400, fallbackDelay: 180 },
+      );
+    };
+    scheduleInitialization();
     return () => {
       active = false;
-      cancelScheduledInitialization();
+      cancelScheduledInitialization?.();
     };
   }, [paused, reducedEffects]);
 
@@ -207,7 +264,7 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       gl.uniform2f(gl.getUniformLocation(program, 'u_resolution'), 1, 1);
       gl.clearColor(0, 0, 0, 0);
     } catch (error) {
-      if (gl) console.warn('Cosmic mesh WebGL setup failed; using its CSS background.', error);
+      console.warn('Cosmic mesh WebGL setup failed; using its CSS background.', error);
       if (vertexShader && gl) gl.deleteShader(vertexShader);
       if (fragmentShader && gl) gl.deleteShader(fragmentShader);
       if (program && gl) gl.deleteProgram(program);
@@ -215,12 +272,24 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       const mode = reducedMotion ? 'static' : 'fallback';
       canvas.dataset.ready = mode;
       if (backgroundRef.current) backgroundRef.current.dataset.mode = mode;
+      window.dispatchEvent(new Event('stellar-fold-failed'));
       return;
     }
 
     const context = gl;
     const shaderProgram = program;
     const geometry = buffer;
+    const resolutionUniform = context.getUniformLocation(shaderProgram, 'u_resolution');
+    const timeUniform = context.getUniformLocation(shaderProgram, 'u_time');
+    const cameraUniform = context.getUniformLocation(shaderProgram, 'u_camera');
+    const foldUniform = context.getUniformLocation(shaderProgram, 'u_fold');
+    let cameraX = 0;
+    let cameraY = 0;
+    let lastDrawAt = 0;
+    let painted = false;
+    let qualityScale = 1;
+    let framePressure = 0;
+    let lastTickAt = 0;
 
     const resize = () => {
       if (disposed || contextLost) return;
@@ -229,44 +298,85 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
         typeof window.matchMedia === 'function'
           ? window.matchMedia('(max-width: 768px)').matches
           : false;
-      const quality = mobile ? 0.64 : 0.72;
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.35) * quality;
+      const quality = mobile ? 0.6 : 0.65;
+      const pixelRatio =
+        Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.25) * quality * qualityScale;
       canvas.width = Math.max(1, Math.round(bounds.width * pixelRatio));
       canvas.height = Math.max(1, Math.round(bounds.height * pixelRatio));
+      canvas.dataset.quality = pixelRatio.toFixed(2);
       context.viewport(0, 0, canvas.width, canvas.height);
-      context.uniform2f(
-        context.getUniformLocation(shaderProgram, 'u_resolution'),
-        canvas.width,
-        canvas.height,
-      );
+      context.uniform2f(resolutionUniform, canvas.width, canvas.height);
       context.clear(context.COLOR_BUFFER_BIT);
     };
 
     const render = () => {
       if (disposed || contextLost || document.hidden || reducedMotion) return;
       context.clear(context.COLOR_BUFFER_BIT);
-      context.uniform1f(context.getUniformLocation(shaderProgram, 'u_time'), elapsed);
+      context.uniform1f(timeUniform, elapsed);
+      context.uniform1f(
+        foldUniform,
+        window.__STELLAR_FOLD__?.active ? window.__STELLAR_FOLD__.elapsed / 1000 : 3.2,
+      );
+      cameraX += (cameraRef.current.parallaxOffsetX * 0.7 - cameraX) * 0.08;
+      cameraY +=
+        (cameraRef.current.scrollProgress * 0.14 + cameraRef.current.parallaxOffsetY - cameraY) *
+        0.06;
+      context.uniform2f(cameraUniform, cameraX, cameraY);
       context.drawArrays(context.TRIANGLES, 0, 3);
       canvas.dataset.ready = 'true';
+      if (!painted) {
+        painted = true;
+        window.dispatchEvent(new Event('stellar-fold-painted'));
+      }
+      const fold = window.__STELLAR_FOLD__;
+      if (fold?.active && fold.elapsed >= 3200 && !(fold.settled & 1)) {
+        fold.settled |= 1;
+        window.dispatchEvent(new Event('stellar-fold-settled'));
+      }
     };
 
     const animate = (now: number) => {
       if (disposed || contextLost || document.hidden || reducedMotion) return;
       const mobile = window.innerWidth <= 768;
-      const targetFrameTime = mobile ? 33 : 16; // 30 FPS mobile, 60 FPS desktop
-      if (previousFrame && now - previousFrame < targetFrameTime) {
+      const fold = window.__STELLAR_FOLD__;
+      let resized = false;
+      if (fold?.active && lastTickAt) {
+        framePressure =
+          now - lastTickAt > 26 ? framePressure + 1 : Math.max(0, framePressure - 0.5);
+        if (framePressure >= 6 && qualityScale > 0.6) {
+          qualityScale = Math.max(0.6, qualityScale * 0.8);
+          framePressure = 0;
+          resize();
+          resized = true;
+        }
+      } else if (!fold?.active && qualityScale < 1) {
+        qualityScale = 1;
+        resize();
+        resized = true;
+      }
+      lastTickAt = now;
+      const targetFrameTime = 1000 / (fold?.active ? 30 : mobile ? 20 : 24);
+      const delta = now - previousFrame;
+      if (!resized && previousFrame && delta < targetFrameTime - 0.5) {
         frame = window.requestAnimationFrame(animate);
         return;
       }
-      if (previousFrame) elapsed += Math.min(now - previousFrame, 50) / 1000;
-      previousFrame = now;
+      if (fold?.active) elapsed = fold.elapsed / 1000;
+      else if (lastDrawAt) elapsed += Math.min(now - lastDrawAt, 100) / 1000;
+      lastDrawAt = now;
+      previousFrame = previousFrame
+        ? previousFrame + Math.max(1, Math.floor((delta + 0.5) / targetFrameTime)) * targetFrameTime
+        : now;
       render();
+      if (fold?.active && fold.elapsed >= 3200) return;
       frame = window.requestAnimationFrame(animate);
     };
 
     const start = () => {
       window.cancelAnimationFrame(frame);
       previousFrame = 0;
+      lastDrawAt = 0;
+      lastTickAt = 0;
       if (!reducedMotion && !document.hidden && !contextLost && inViewport) {
         frame = window.requestAnimationFrame(animate);
       }
@@ -279,10 +389,11 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       window.cancelAnimationFrame(frame);
       canvas.dataset.ready = 'fallback';
       if (backgroundRef.current) backgroundRef.current.dataset.mode = 'fallback';
+      console.warn('Cosmic mesh context was lost; using the CSS sky until restoration.');
+      window.dispatchEvent(new Event('stellar-fold-failed'));
     };
     const onContextRestored = () => {
-      contextLost = true;
-      canvas.dataset.ready = 'fallback';
+      if (!disposed) setReadyGeneration(++generationRef.current);
     };
 
     const resizeObserver =
@@ -301,6 +412,7 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
     intersectionObserver?.observe(canvas);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('cosmic-intro-complete', start);
     canvas.addEventListener('webglcontextlost', onContextLost);
     canvas.addEventListener('webglcontextrestored', onContextRestored);
     resize();
@@ -316,23 +428,23 @@ export default function CosmicMeshBackground({ paused = false }: CosmicMeshBackg
       resizeObserver?.disconnect();
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('cosmic-intro-complete', start);
       intersectionObserver?.disconnect();
       canvas.removeEventListener('webglcontextlost', onContextLost);
       canvas.removeEventListener('webglcontextrestored', onContextRestored);
-      context.deleteBuffer(geometry);
-      context.deleteProgram(shaderProgram);
+      // Context loss already invalidates these handles, even after restoration.
+      if (!contextLost) {
+        context.deleteBuffer(geometry);
+        context.deleteProgram(shaderProgram);
+      }
     };
-  }, [paused, reducedEffects, readyGeneration]);
+  }, [cameraRef, paused, reducedEffects, readyGeneration]);
 
   return (
     <div
       ref={backgroundRef}
       className="cosmic-mesh-background"
       data-mode="static"
-      style={{
-        transform: getCSSTransform(layerTransform),
-        opacity: layerTransform.opacity,
-      }}
       aria-hidden="true"
     >
       <div className="cosmic-mesh-fallback" />

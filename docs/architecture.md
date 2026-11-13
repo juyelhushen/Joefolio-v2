@@ -77,17 +77,106 @@ src/
 
 ## Initial startup and lazy loading
 
-The initial document contains the lightweight JH Signal Acquisition markup, critical styles and
-controller so feedback does not depend on React or another network request. It is shown immediately
-unless reduced motion is enabled, and remains visible for at least 2000ms from first visibility.
-App's layout effect records shell and immediately visible hero readiness. Both readiness and the
-minimum duration must be satisfied before the overlay becomes noninteractive and fades over 160ms.
-React and asset loading continue underneath; fonts, Motion features, backend health, assistant and
-lazy sections never gate release. Reduced motion bypasses the timed hold, including when enabled
-during loading. A single timer is cleared on release/failure, duplicate readiness calls are ignored,
-and transition completion clears its removal fallback. Critical entry failures show a reload
-message, and a root LoadBoundary handles render failures. JavaScript-disabled visitors get a GitHub
-alternative. The former session intro and its replay query are no longer used.
+The initial document owns Stellar Fold's critical midnight cover and readiness/visibility clock;
+it contains no separate graphics renderer. React mounts the existing environment while application
+initialization proceeds independently. The single persistent WebGL atmosphere initializes
+immediately during the cinematic (otherwise it uses the usual idle scheduling). The clock starts
+only after its first rendered frame. Scene boundaries are 0–700ms gravitational anomaly,
+700–1500ms spacetime distortion, 1500–2400ms galactic formation and 2400–3200ms dimension reveal.
+The opening before the application bundle mounts is intentionally midnight, not a second sky.
+
+The shader deflects sky sampling and traces eight depth slices around a tilted spiral volume's
+ray/plane intersection. Corrugation, asymmetric lighting, blue-violet emission, selected cyan
+filaments and forward camera travel provide spatial detail without assets, another context or
+render passes. A portrait-specific origin/expansion keeps the anomaly in view. At 3200ms the
+cinematic branch and deflection vanish exactly, leaving the ordinary live atmospheric shader.
+The cinematic atmosphere targets 30 updates/sec at the existing capped resolution; the persistent
+particle Canvas uses its desktop/mobile profiles below. Frame targets are not measured FPS claims.
+Sustained RAF pressure lowers cinematic render resolution in bounded steps to a 60% floor, without
+recompiling shaders or changing the sequence. Normal atmospheric resolution is restored inside
+the first live draw, never as a separately cleared visible frame.
+The four full noise fields are skipped during the dark opening and blended in from 1900–2500ms;
+the ordinary shader does not evaluate the cinematic volume after completion.
+
+`window.__STELLAR_FOLD__` is a mutable clock/handshake, not React frame state. The same stellar
+arrays receive depth-dependent perspective, curved lens paths and finite trails. Reused scratch
+points avoid per-star frame allocations; the projection becomes the exact identity at 3200ms.
+Dust and cached distant structures emerge into their ordinary positions. Meteor clocks and the
+underlying stellar simulation wait until the cinematic finishes. No star distribution restarts.
+Both renderers acknowledge their actual final draw through a two-bit settled mask (1 atmosphere,
+2 particles), then stop RAF while critical readiness is late. Content is uncovered on the next
+paint only when both final frames and the hero are ready; the background is never replaced.
+`cosmic-intro-complete` resumes those same renderers. Only content opacity transitions.
+
+Reduced motion bypasses the sequence and delay, including runtime preference changes. Hidden
+tabs pause drawing and visible time without replay or hidden-time catch-up. Repeated readiness
+and painted events are idempotent. WebGL/Canvas failures log and bypass the cinematic; a missing
+initial frame has an eight-second visible-attempt fallback; a stalled final-frame acknowledgement
+has a two-second fallback. Critical entry failures or a
+30-second readiness timeout offer a logged reload message, and a root LoadBoundary handles render
+failures. Backend health, the assistant and below-fold assets never gate the intro. JavaScript-disabled
+visitors get a GitHub alternative. Active WebGL stops the CSS fallback; static fallbacks have no
+fullscreen blur or motion during the intro.
+
+## Orbit Navigation
+
+`Navbar` presents six section destinations in a floating dock above 1100px; the brand remains the
+Home destination. The existing `useActiveSection` scroll listener also supplies the compact dock
+state (64px on / 24px off). Section activation uses a 12px dead band, while explicit clicks and
+history targets activate immediately. A single measured underline responds to active targets,
+font readiness and navigation resize. The header reserves a constant height as its inner dock
+contracts, preserving surrounding layout.
+
+At 1100px and below, the compact brand/menu capsule opens a native modal exploration dialog.
+The browser supplies focus containment and background isolation; the component owns scroll
+locking, initial active-link focus, Escape/backdrop dismissal, breakpoint cleanup and trigger
+restoration. Search closes the dialog and focuses the trigger before invoking the existing
+palette, so its opener remains visible after dismissal. CSS opening/closing transitions use the
+shared 240ms duration and respect system reduced motion. No additional scroll observers,
+animation library, profile destinations or backend behavior are introduced.
+
+## Infinite Universe environment
+
+One persistent `Starfield` Canvas renders all four depth tiers, mixed ice-white/cyan/lavender stars,
+clustered distributions, radial approach, lateral drift, near-camera dust and event-based meteors.
+`ParticleUniverse` owns time, reusable particles and a bounded meteor pool; it has no React state,
+independent timer or DOM animation. Small generated glow/trail/distant-galaxy textures are cached.
+The distant sky also contains a faint constellation; all layers stay fixed behind content.
+
+`UNIVERSE_PROFILES` in `VirtualCamera.ts` is the tuning source:
+
+| Profile | Stars | Near particles | Main event gap | Maximum trails | Particle FPS target |
+| --- | ---: | ---: | --- | ---: | ---: |
+| Desktop (1024px+) | 620 | 12 | 2–4s | 3 | 60 |
+| Tablet (768–1023px) | 400 | 8 | 3–5s | 2 | 30 |
+| Mobile (below 768px) | 230 | 6 | 4–6s | 2 | 30 |
+
+Occasional companions follow a main event by 0.4–0.9s (28% desktop, 16% tablet/mobile).
+Events vary angle, side, speed, brightness, length and lifetime (1.3–2.45s); cached tapered tails
+have bright heads. All effects remain behind text and controls. Four depth tiers survive adaptive
+thinning to a 55% floor. Sustained slow RAF delivery reduces density in 15% steps before permitting
+desktop's 30 FPS fallback. Canvas DPR caps are 1.5 desktop/tablet and 1.15 mobile.
+
+The existing single WebGL mesh uses four three-octave noise fields for warped cloud bands,
+filaments and dark dust lanes, rather than six fields at heavily attenuated opacity. Its updates
+target 24 FPS above 768px and 20 FPS at 768px and below; resolution scales by 0.65 / 0.6 with DPR caps
+1.25 / 1 at the same breakpoint. Shader uniform locations are cached. Context loss selects CSS atmosphere; restoration
+rebuilds the same renderer's GPU resources. Fallbacks have no fullscreen blur.
+
+`EnvironmentProvider` exposes a camera ref, not frame-by-frame React state. Motion smooths scroll
+progress; Canvas and shader interpolate that shared target at depth-appropriate scales.
+Fine-pointer desktop input changes the target only, with no mouse/orientation tracking dependency
+on mobile. Autonomous drift and forward stellar motion continue without scrolling. Reduced motion
+stops camera travel, twinkle, dust movement and meteor clocks, retaining the full static sky.
+Visibility changes cancel RAF; resume resets timestamps without catching up hidden time.
+Stellar Fold uses these same renderers through its 3200ms visibility/readiness gate.
+
+Section-local fake starfields are removed from the timeline/contact atmosphere. A shared
+`--cosmic-panel` provides local navy contrast without expensive backdrop blur. Hero copy has a
+local contrast wash; cards, skills, timeline and contact use translucent surfaces. Project
+illustrations share the cyan, royal-blue and violet accent tokens instead of warm or green lighting.
+Dialogs, inputs, mobile navigation and the assistant retain their stronger readability layers
+and existing behavior.
 
 Below-fold sections retain their existing viewport/hash activation and minimum-height reservations.
 Only pending activated imports show static skeletons. LoadBoundary isolates rejected section imports
@@ -168,24 +257,34 @@ preserving all node text and actions. Its grid stacks below 740px. No per-frame 
 new provider, dependency or timer is introduced. The old hero-only planet, rings, satellite
 tracks and nebula styles were removed. H1 entrance, heading ref and focus target remain intact.
 
-`Starfield` retains its existing drifting-star canvas but replaces canvas meteors with three
-CSS streaks. The fixed, aria-hidden pointer-transparent layer stays in the outer 2vw gutters,
-below content and beneath navigation, with 17/23/29-second cycles and distinct delays.
-Only transforms/opacity animate; most of each cycle is invisible. Its running attribute honors
-intro pause, OS reduced motion, mobile-lite/data saving and document visibility. Mobile/reduced
-motion also disable CSS animations and hide the layer. No additional background renderer,
-timer, observer or frame loop is introduced.
+The global particle renderer described above replaces the former three gutter-only CSS streaks.
+It remains aria-hidden and pointer-transparent, independent of hero visibility or active section.
 The shared `ResumeDownload` reads Vite's typed `__HAS_RESUME__` build-time flag, computed with
 `fs.existsSync` against `public/resume.pdf`; it omits the link when the asset is absent. Tests
 can stub the global flag for both branches. Adding or replacing the real PDF requires a rebuild.
 
-Shared primary CTAs use a single transform-only hover/focus sweep. Secondary actions illuminate
-their neutral border; tertiary actions are text-only lime. All use `.button` plus exactly one
-variant from `utilities.css`, sharing 48px targets, 10px radii, 18px icons and 240ms lift/press
-feedback. Icon-only controls add `.button-icon`. Feature CSS owns layout, not button palettes.
-Contact, assistant and search fields share `.form-control`. Composite controls retain their
-specialized geometry and keyboard behavior. Focus-visible
-outlines remain independent of the decoration. OS reduced motion disables all button movement.
+Cosmic Pulse extends the existing `.button` utilities rather than introducing a separate theme:
+Cosmic Energy uses a cyan surface and one-shot reflection; Orbital Glass uses a translucent
+blue surface, a masked cyan/violet edge and a one-shot travelling edge signal; Signal Link
+uses cyan text and a drawing underline. Shared targets remain 48px with 10px radii, 18px icons
+and 240ms transitions. `.button-compact` uses 44px targets, and `.button-icon` retains square
+geometry. Directional Lucide icons move along their indicated direction; other icons stay fixed.
+Sweeps last 560ms once per hover/focus entry. Only hover-capable fine pointers receive hover
+travel, while touch retains press feedback. No pointer tracking or new animation dependency is used.
+
+`components/common/Button.tsx` adds native-button async presentation on these same utilities.
+Its caller-controlled `state` drives loading or confirmed success; it never infers success.
+Loading disables the native control and sets `aria-busy`. Idle, loading and success content
+occupy the same CSS grid cell so the widest label reserves space without runtime measurement.
+The loading indicator rotates only while pending and becomes static under OS reduced motion.
+Contact retains its existing submission/flight lifecycle and live announcements; the assistant
+retains its duplicate-request guard. Links, including downloads, remain native anchors.
+
+Feature CSS owns layout, not button palettes. `.pulse-control` shares focus and tactile press
+with composite command rows, timeline markers and skill planets while preserving their geometry and semantics.
+The custom cursor no longer adds competing magnification to these controls. Focus outlines
+remain independent of decoration. OS reduced motion disables sweeps, icon travel and control
+transforms, retaining static edge illumination and readable states.
 
 The public email is used only as the `mailto:` destination derived from `PUBLIC_EMAIL`, in
 `footer-social-links` immediately after GitHub. Its visible and accessible label is “Gmail”,
@@ -239,9 +338,9 @@ one to four entries it reveals once, then animates numeric MotionValues; reduced
 IntersectionObserver or observer initialization failure show final values directly. Animated
 digits are hidden from assistive technology while final values and labels remain accessible.
 
-- `App` composes the page. `useUniverseIntro` owns per-tab intro policy; its presentation is lazy
-  and skipped at widths up to 740px or when data saving/OS reduced motion is active. The hero remains
-  visible beneath the optional desktop overlay. `useActiveSection` owns scroll/hash/history
+- `App` composes the page. The inline startup controller owns Stellar Fold, its 3200ms
+  minimum and the shell/hero readiness gate on all viewport sizes. Only OS reduced motion skips
+  the cinematic. `useActiveSection` owns scroll/hash/history
   tracking. Pending explicit navigation remains authoritative until scrolling settles or user
   scrolling resumes. Scheduled history measurements are canceled on replacement and unmount.
 - `PortfolioAssistant` owns panel presentation, focus trapping/restoration, Escape handling, and
@@ -256,14 +355,14 @@ digits are hidden from assistive technology while final values and labels remain
   Shared reveals, cursor, scroll beam, backgrounds and intro use the same OS-only helper; CSS
   safeguards use `prefers-reduced-motion: reduce`. The subscription is cleaned up on unmount.
   There is no manual toggle, storage access, user preference hook or document preference
-  attribute. At widths up to 740px, with data saving enabled, or when
-  OS reduced motion is enabled, the mesh stays on its CSS gradient and does not initialize WebGL; the
-  starfield uses a small CSS-only static pattern without creating a canvas or animation loop.
+  attribute. OS reduced motion keeps the mesh on static CSS atmosphere and the starfield on one
+  fully layered static Canvas frame. Mobile and data-saving modes do not disable the universe.
   The cursor, scroll beam, intro and continuous CSS flourishes are also disabled when effects
   are reduced by the system.
 - `scheduleAfterIdle` uses `requestIdleCallback` with a bounded timeout and a timer fallback.
-  On eligible desktop configurations, starfield animation and WebGL mesh setup wait until idle;
-  CSS gradients provide the initial background. Backend health warm-up and the configured assistant are also
+  Outside the cinematic, initial starfield animation and WebGL setup wait until idle;
+  Stellar Fold starts the same renderers immediately and resumes them without reacquisition.
+  Backend health warm-up and the configured assistant are also
   deferred so they cannot compete with initial rendering. The animated starfield and mesh pause
   when the document is hidden or the mesh leaves the viewport, and all idle callbacks are canceled
   on cleanup.
@@ -364,8 +463,8 @@ without reduced effects. It keeps the native cursor and focus rings, has `pointe
 and `aria-hidden`, and uses Motion values/springs rather than pointer-driven React state.
 The lens and small radial spotlight do not sample or enlarge arbitrary underlying pixels.
 Actual magnification applies to targeted elements: project cards 1.035, project visuals 1.10,
-ordinary links/buttons 1.04, and unselected skill planets 1.05. Existing selected-planet emphasis
-is retained.
+ordinary links/buttons outside Cosmic Pulse 1.04. Cosmic Pulse actions and skill planets are
+excluded from cursor magnification; their own focus/press and selected-state styling is retained.
 
 The Artifact Scanner combines an outer orbit, segmented ring, satellites, glass lens, four
 targeting brackets, star/crosshair reticle, inspection beam, spotlight and two independently
