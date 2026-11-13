@@ -11,145 +11,19 @@
 }
 .starfield[data-static='true'] {
   background-image:
-    radial-gradient(circle at 6% 14%, rgba(225, 235, 255, 0.7) 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 18% 72%, rgba(225, 235, 255, 0.45) 0 0.8px, transparent 1.7px),
-    radial-gradient(circle at 28% 32%, rgba(225, 235, 255, 0.55) 0 0.7px, transparent 1.6px),
-    radial-gradient(circle at 41% 86%, rgba(225, 235, 255, 0.6) 0 0.8px, transparent 1.7px),
-    radial-gradient(circle at 53% 19%, rgba(225, 235, 255, 0.5) 0 0.8px, transparent 1.7px),
-    radial-gradient(circle at 64% 59%, rgba(225, 235, 255, 0.7) 0 0.7px, transparent 1.6px),
-    radial-gradient(circle at 77% 27%, rgba(225, 235, 255, 0.5) 0 0.8px, transparent 1.7px),
-    radial-gradient(circle at 88% 78%, rgba(225, 235, 255, 0.6) 0 0.7px, transparent 1.5px),
-    radial-gradient(circle at 96% 42%, rgba(225, 235, 255, 0.45) 0 0.7px, transparent 1.6px);
+    radial-gradient(ellipse at 82% 24%, rgba(169, 149, 255, 0.1), transparent 28%),
+    radial-gradient(circle at 6% 14%, #f0f4ff 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 18% 72%, #a995ff 0 0.8px, transparent 1.7px),
+    radial-gradient(circle at 28% 32%, #62ddf5 0 0.7px, transparent 1.6px),
+    radial-gradient(circle at 41% 86%, #f0f4ff 0 0.8px, transparent 1.7px),
+    radial-gradient(circle at 53% 19%, #a995ff 0 0.8px, transparent 1.7px),
+    radial-gradient(circle at 64% 59%, #f0f4ff 0 0.7px, transparent 1.6px),
+    radial-gradient(circle at 77% 27%, #62ddf5 0 0.7px, transparent 1.6px),
+    radial-gradient(circle at 88% 78%, #f0f4ff 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 96% 42%, #a995ff 0 0.7px, transparent 1.6px);
 }
 .space-grain {
   z-index: -1;
-  opacity: 0.2;
+  opacity: 0.08;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E");
-}
-@media (prefers-reduced-motion: reduce) {
-  .starfield {
-    opacity: 0.7;
-  }
-}
-
-.shooting-stars {
-  position: fixed;
-  z-index: -2;
-  inset: 120px 0 0;
-  overflow: clip;
-  pointer-events: none;
-}
-
-.shooting-star {
-  position: absolute;
-  top: 8%;
-  left: 0;
-  width: 2vw;
-  height: 170px;
-  overflow: clip;
-}
-
-.shooting-star::before {
-  position: absolute;
-  width: 42px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-accent-primary), #eaf2ff);
-  box-shadow: 0 0 5px rgba(114, 231, 255, 0.3);
-  opacity: 0;
-  content: '';
-  animation: cosmic-shooting-star 17s linear infinite paused;
-  animation-delay: 4s;
-}
-
-.shooting-star:nth-child(2) {
-  top: 34%;
-  right: 0;
-  left: auto;
-}
-
-.shooting-star:nth-child(2)::before {
-  animation-duration: 23s;
-  animation-delay: 10s;
-}
-
-.shooting-star:nth-child(3) {
-  top: 64%;
-}
-
-.shooting-star:nth-child(3)::before {
-  animation-duration: 29s;
-  animation-delay: 17s;
-}
-
-.shooting-stars[data-running='true'] .shooting-star::before {
-  animation-play-state: running;
-}
-
-.shooting-stars[data-running='false'] {
-  visibility: hidden;
-}
-
-@keyframes cosmic-shooting-star {
-  0% {
-    opacity: 0;
-    transform: translate(-36px, -10px) rotate(58deg);
-  }
-  2% {
-    opacity: 0.6;
-  }
-  7% {
-    opacity: 0;
-    transform: translate(22px, 125px) rotate(58deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(22px, 125px) rotate(58deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .shooting-stars {
-    display: none;
-  }
-  .shooting-star::before {
-    animation: none;
-  }
-}
-
-/* Mobile-specific shooting star styling */
-@media (max-width: 768px) {
-  .shooting-stars {
-    display: block;
-  }
-
-  .shooting-star::before {
-    opacity: 0;
-    animation: cosmic-shooting-star 20s linear infinite paused;
-    animation-delay: 6s;
-  }
-
-  .shooting-star:nth-child(2)::before {
-    animation-duration: 26s;
-    animation-delay: 16s;
-  }
-
-  .shooting-star:nth-child(3)::before {
-    animation-duration: 32s;
-    animation-delay: 26s;
-  }
-}
-
-/* Desktop-specific shooting star styling */
-@media (min-width: 769px) {
-  .shooting-star::before {
-    animation-delay: 4s;
-  }
-
-  .shooting-star:nth-child(2)::before {
-    animation-delay: 10s;
-  }
-
-  .shooting-star:nth-child(3)::before {
-    animation-delay: 17s;
-  }
 }

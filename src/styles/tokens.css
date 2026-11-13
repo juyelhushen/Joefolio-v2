@@ -4,6 +4,7 @@
   --color-bg-elevated: #0d1426;
   --color-surface: #111d35;
   --color-surface-raised: #182541;
+  --cosmic-panel: linear-gradient(135deg, rgba(17, 29, 53, 0.86), rgba(8, 13, 27, 0.9));
 
   /* Typography */
   --color-text-primary: #f0f4ff;
@@ -67,6 +68,7 @@
   --space-6: 32px;
   --space-section: clamp(64px, 7vw, 100px);
   --control-height: 48px;
+  --control-height-compact: 44px;
   --control-padding: 16px;
   --control-icon: 18px;
   --radius-control: 10px;
@@ -78,6 +80,9 @@
   --shadow-panel: 0 16px 48px rgba(0, 0, 0, 0.18);
   --motion-fast: 180ms;
   --motion-control: 240ms;
+  --motion-pulse: 560ms;
+  --pulse-shadow: 0 3px 12px color-mix(in srgb, var(--color-accent-secondary) 12%, transparent);
+  --pulse-glow: 0 6px 22px color-mix(in srgb, var(--color-accent-primary) 20%, transparent);
   --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
   --content-width: 1240px;
 }

@@ -141,7 +141,7 @@ export default function ExperienceTimeline({ reduceMotion }: ExperienceTimelineP
                 )}
               </article>
               <m.button
-                className="experience-marker"
+                className="pulse-control experience-marker"
                 type="button"
                 aria-label={`Highlight ${entry.employer}: ${entry.role}`}
                 aria-pressed={selected}

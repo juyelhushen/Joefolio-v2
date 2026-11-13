@@ -18,9 +18,6 @@
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 76% 45%, rgba(98, 221, 245, 0.08), transparent 40%),
-    radial-gradient(ellipse at 16% 77%, rgba(169, 149, 255, 0.06), transparent 33%);
 }
 .contact-section h2 {
   font-size: var(--type-section);

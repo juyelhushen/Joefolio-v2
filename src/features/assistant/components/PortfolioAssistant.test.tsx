@@ -177,6 +177,9 @@ it('prevents duplicate submissions while the request is pending', async () => {
   expect(screen.getByRole('status').textContent).toContain('Waiting');
   expect(adapter).toHaveBeenCalledTimes(1);
   expect(screen.getByRole('button', { name: 'Send message' }).hasAttribute('disabled')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Send message' }).getAttribute('aria-busy')).toBe(
+    'true',
+  );
 
   resolveRequest?.();
   await waitFor(() => expect(screen.getByText('A real response.')).toBeTruthy());

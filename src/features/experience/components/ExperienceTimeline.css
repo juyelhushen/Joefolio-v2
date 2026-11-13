@@ -4,13 +4,6 @@
   overflow: hidden;
   margin-top: 39px;
   padding: 24px 0;
-  background:
-    radial-gradient(ellipse at 16% 13%, rgba(102, 139, 255, 0.12), transparent 30%),
-    radial-gradient(ellipse at 86% 64%, rgba(169, 149, 255, 0.1), transparent 32%),
-    radial-gradient(circle at 6% 24%, rgba(240, 244, 255, 0.34) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 87% 16%, rgba(240, 244, 255, 0.24) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 18% 76%, rgba(240, 244, 255, 0.2) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 92% 89%, rgba(240, 244, 255, 0.22) 0 1px, transparent 1.5px);
 }
 .career-route {
   position: absolute;
@@ -70,8 +63,8 @@
   position: relative;
   z-index: 2;
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: var(--control-height-compact);
+  height: var(--control-height-compact);
   grid-column: 2;
   grid-row: 1;
   justify-self: center;
@@ -80,10 +73,10 @@
   border: 1px solid color-mix(in srgb, var(--career-accent), transparent 38%);
   border-radius: 50%;
   color: var(--career-accent);
-  background: rgba(7, 11, 23, 0.95);
+  background: var(--color-bg);
   cursor: pointer;
   transition:
-    transform var(--motion-fast) var(--ease-standard),
+    scale var(--motion-control) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard),
     background var(--motion-fast) var(--ease-standard);
 }
@@ -96,13 +89,9 @@
 }
 .experience-marker:hover,
 .experience-entry.is-selected .experience-marker {
-  transform: scale(1.04);
+  scale: 1.04;
   background: var(--color-surface-raised);
   box-shadow: 0 0 0 3px var(--color-accent-soft);
-}
-.experience-marker:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 4px;
 }
 .experience-card {
   position: relative;
@@ -113,7 +102,7 @@
   padding: 22px 24px;
   border: var(--border-subtle);
   border-radius: var(--radius-card);
-  background: var(--color-bg-elevated);
+  background: var(--cosmic-panel);
   transition:
     border-color var(--motion-fast) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard),
@@ -131,7 +120,7 @@
 .experience-entry.is-current .experience-card {
   min-height: 124px;
   border-color: color-mix(in srgb, var(--career-accent), transparent 36%);
-  background: var(--color-surface);
+  background: var(--cosmic-panel);
 }
 .career-odyssey[data-reduced-motion='true'] .experience-entry {
   animation: none;

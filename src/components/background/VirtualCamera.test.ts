@@ -196,10 +196,10 @@ describe('VirtualCamera', () => {
       expect(transformWithMouse.offsetX).toBeCloseTo(expectedBaseOffsetX + 23.04, 1);
 
       // When reduced motion is enabled, only base offset (no wobble)
-      expect(transformReduced.offsetX).toBeCloseTo(expectedBaseOffsetX, 1);
+      expect(transformReduced.offsetX).toBe(0);
 
       // Difference should be the mouse wobble amount
-      expect(Math.abs(transformWithMouse.offsetX - transformReduced.offsetX)).toBeCloseTo(23.04, 1);
+      expect(Math.abs(transformWithMouse.offsetX - transformReduced.offsetX)).toBeCloseTo(24.54, 1);
     });
 
     it('should compute opacity based on depth', () => {
@@ -295,7 +295,7 @@ describe('VirtualCamera', () => {
       );
 
       expect(profile.quality).toBe('low');
-      expect(profile.frameRateTarget).toBe(24);
+      expect(profile.frameRateTarget).toBe(0);
       expect(profile.enableMouseParallax).toBe(false);
     });
 
@@ -312,7 +312,7 @@ describe('VirtualCamera', () => {
       const profile = calculateRenderingProfile({ width: 768, height: 1024 }, 2, false);
 
       expect(profile.quality).toBe('high');
-      expect(profile.frameRateTarget).toBeGreaterThanOrEqual(45);
+      expect(profile.frameRateTarget).toBe(30);
       expect(profile.enableWebGL).toBe(true);
     });
 

@@ -42,7 +42,7 @@
   overflow: hidden;
   border: var(--border-subtle);
   border-radius: var(--radius-card);
-  background: var(--color-bg-elevated);
+  background: var(--cosmic-panel);
   transition:
     transform 220ms var(--ease-standard),
     translate 220ms var(--ease-standard),
@@ -75,7 +75,7 @@
       color-mix(in srgb, var(--project-accent) 13%, transparent),
       transparent 67%
     ),
-    linear-gradient(135deg, rgba(18, 27, 47, 0.88), rgba(7, 11, 22, 0.98));
+    linear-gradient(135deg, rgba(18, 27, 47, 0.7), rgba(7, 11, 22, 0.82));
 }
 .project-gallery-card-featured .project-gallery-cover {
   height: 276px;

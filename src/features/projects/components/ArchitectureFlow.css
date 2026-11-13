@@ -55,10 +55,6 @@
 .architecture-replay {
   margin-bottom: 16px;
 }
-.architecture-replay:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
-}
 .architecture-node-glow {
   position: absolute;
   inset: -1px;

@@ -30,6 +30,7 @@ it('keeps canonical, social sharing and structured data on the verified producti
   expect(person['@type']).toBe('Person');
   expect(person.name).toBe('Juyel Hushen');
   expect(person.url).toBe(origin);
+  expect(person.sameAs).toContain('https://www.linkedin.com/in/juyel-h-770674170/');
   expect(html).not.toMatch(/localhost|127\.0\.0\.1|noindex/i);
 });
 

@@ -27,6 +27,8 @@ afterEach(() => {
   Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
   Reflect.deleteProperty(navigator, 'connection');
   Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
@@ -59,6 +61,18 @@ class MockIntersectionObserver implements IntersectionObserver {
 }
 
 function renderApp() {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    },
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    },
+  });
   vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -158,27 +172,21 @@ it('opens and closes the mobile navigation menu', () => {
   renderApp();
 
   fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
-  expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).toContain(
-    'is-open',
-  );
-  expect(screen.getByRole('button', { name: 'Close menu' }).getAttribute('aria-expanded')).toBe(
+  expect(screen.getByRole('dialog', { name: 'Choose your orbit.' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe(
     'true',
   );
 
   expect(screen.getByRole('link', { name: 'Explore my work' }).getAttribute('href')).toBe(
     '#projects',
   );
-  fireEvent.keyDown(document, { key: 'Escape' });
-  expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).not.toContain(
-    'is-open',
-  );
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open menu' }));
 
   fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
   fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
-  expect(screen.getByRole('navigation', { name: 'Main navigation' }).className).not.toContain(
-    'is-open',
-  );
+  expect(screen.queryByRole('dialog')).toBeNull();
 });
 
 it('releases startup on shell commit without waiting for idle services or lazy sections', () => {
@@ -236,7 +244,9 @@ it('tracks the active section while scrolling down and back up', () => {
   }
 
   const currentLink = () =>
-    document.querySelector('#main-navigation a[aria-current="location"]')?.getAttribute('href');
+    document
+      .querySelector('#main-navigation a[aria-current="location"], .brand[aria-current="location"]')
+      ?.getAttribute('href');
   expect(currentLink()).toBe('#home');
 
   sectionTops.about = 100;
@@ -263,7 +273,6 @@ it('keeps each navigation target present and exposes one animated active indicat
   const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
   const links = [...navigation.querySelectorAll<HTMLAnchorElement>('a[data-nav-id]')];
   expect(links.map((link) => link.getAttribute('href'))).toEqual([
-    '#home',
     '#about',
     '#experience',
     '#skills',
@@ -275,10 +284,11 @@ it('keeps each navigation target present and exposes one animated active indicat
     expect(document.getElementById(link.dataset.navId ?? '')).toBeTruthy();
   }
   expect(navigation.querySelectorAll('.main-nav-indicator')).toHaveLength(1);
-  expect(navigation.querySelector('[aria-current="location"]')?.getAttribute('href')).toBe('#home');
+  expect(navigation.querySelector('[aria-current="location"]')).toBeNull();
+  expect(navigation.dataset.active).toBe('false');
 });
 
-it('keeps the animated JH brand link and prominent Get in Touch destination', () => {
+it('keeps the orbital JH brand link and prominent Get in Touch destination', () => {
   renderApp();
 
   const brand = document.querySelector<HTMLAnchorElement>('.site-header .brand');
@@ -286,8 +296,8 @@ it('keeps the animated JH brand link and prominent Get in Touch destination', ()
   if (!brand) throw new Error('The navbar brand link was not rendered.');
   const decoration = brand.querySelector('.brand-orbit');
   expect(brand.getAttribute('href')).toBe('#home');
-  expect(brand.textContent).toContain('JUYEL HUSHEN');
-  expect(decoration?.getAttribute('aria-hidden')).toBe('true');
+  expect(brand.textContent).toContain('JOEFOLIO');
+  expect(brand.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
   expect(decoration?.querySelector('a, button')).toBeNull();
 
   const contactCta = within(screen.getByRole('banner')).getByRole('link', { name: 'Get in Touch' });
@@ -303,7 +313,7 @@ it('immediately activates the clicked destination, closes the mobile menu, and r
 
   fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
   const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
-  fireEvent.click(within(navigation).getByRole('link', { name: 'Projects' }));
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'Projects' }));
 
   expect(screen.getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe(
     'false',
@@ -445,7 +455,7 @@ it('retains working contact destinations with secure external-link attributes', 
   const linkedin = contact.getByRole('link', { name: 'LinkedIn' });
   const github = contact.getByRole('link', { name: 'GitHub' });
 
-  expect(linkedin.getAttribute('href')).toBe('https://linkedin.com/in/juyel-hushen-770674170');
+  expect(linkedin.getAttribute('href')).toBe('https://www.linkedin.com/in/juyel-h-770674170/');
   expect(github.getAttribute('href')).toBe('https://github.com/juyelhushen');
   expect(linkedin.getAttribute('rel')).toBe('noopener noreferrer');
   expect(github.getAttribute('rel')).toBe('noopener noreferrer');

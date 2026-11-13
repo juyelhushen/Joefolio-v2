@@ -92,7 +92,7 @@ export default function SkillsSection({ reduceMotion }: SkillsSectionProps) {
                 data-orbit-duration={planet.durationSeconds}
               >
                 <m.button
-                  className={`skill-orbit-planet${selected ? ' is-selected' : ''}`}
+                  className={`pulse-control skill-orbit-planet${selected ? ' is-selected' : ''}`}
                   type="button"
                   aria-label={`Select ${planet.name} skill`}
                   aria-pressed={selected}

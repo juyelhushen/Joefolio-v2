@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: var(--control-height);
+  min-height: var(--button-height, var(--control-height));
   padding: 10px var(--control-padding);
   border: 1px solid transparent;
   border-radius: var(--radius-control);
@@ -38,91 +38,294 @@
   line-height: 1.5;
   text-align: center;
   cursor: pointer;
+  box-shadow: var(--pulse-shadow);
+  -webkit-tap-highlight-color: transparent;
   transition:
     transform var(--motion-control) var(--ease-standard),
     background var(--motion-control) var(--ease-standard),
     color var(--motion-control) var(--ease-standard),
-    border-color var(--motion-control) var(--ease-standard);
+    border-color var(--motion-control) var(--ease-standard),
+    box-shadow var(--motion-control) var(--ease-standard);
 }
 
-.button:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
+.button:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible {
   transform: translateY(-2px);
 }
 
-.button:not(:disabled, [aria-disabled='true']):active {
+.button:not(:disabled, [aria-disabled='true'], [aria-busy='true']):active {
   transform: translateY(0) scale(0.98);
+  transition-duration: 90ms;
 }
 
-.button > svg {
+.button > svg,
+.button-label > svg,
+.button-feedback > svg {
   width: var(--control-icon);
   height: var(--control-icon);
   flex-shrink: 0;
   transition: transform var(--motion-control) var(--ease-standard);
 }
 
-.button:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) > svg {
-  transform: translateX(3px);
+.button svg:is(.lucide-arrow-right, .lucide-external-link) {
+  --pulse-icon-x: 3px;
+  --pulse-icon-y: 0px;
+}
+.button svg:is(.lucide-arrow-up-right, .lucide-send) {
+  --pulse-icon-x: 2px;
+  --pulse-icon-y: -2px;
+}
+.button svg.lucide-download {
+  --pulse-icon-x: 0px;
+  --pulse-icon-y: 2px;
+}
+.button:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible
+  svg:is(
+    .lucide-arrow-right,
+    .lucide-arrow-up-right,
+    .lucide-external-link,
+    .lucide-send,
+    .lucide-download
+  ) {
+  transform: translate(var(--pulse-icon-x), var(--pulse-icon-y));
 }
 
 .button-primary {
   overflow: hidden;
   color: var(--color-on-accent);
   background: var(--color-accent-primary);
+  border-color: color-mix(in srgb, var(--color-text-primary) 32%, var(--color-accent-primary));
+  box-shadow:
+    var(--pulse-shadow),
+    inset 0 1px color-mix(in srgb, var(--color-text-primary) 32%, transparent);
 }
 
-.button-primary::before {
+.button-primary::before,
+.button-secondary::after {
   position: absolute;
   z-index: -1;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.45), transparent 80%);
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    color-mix(in srgb, var(--color-text-primary) 42%, transparent),
+    transparent 75%
+  );
   content: '';
   pointer-events: none;
-  transform: translateX(-110%);
-  transition: transform var(--motion-control) var(--ease-standard);
+  transform: translateX(-130%);
+  opacity: 0;
 }
 
-.button-primary:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible)::before {
-  transform: translateX(110%);
+.button-primary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible::before,
+.button-secondary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible::after {
+  animation: cosmic-pulse-sweep var(--motion-pulse) var(--ease-standard) both;
 }
 
 .button-secondary {
+  overflow: hidden;
   border: var(--border-control);
   color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+  background:
+    linear-gradient(125deg, var(--color-secondary-soft), var(--color-tertiary-soft)),
+    color-mix(in srgb, var(--color-surface) 86%, transparent);
 }
 
-.button-secondary:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
+.button-secondary::before {
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    var(--color-accent-primary),
+    var(--color-accent-secondary) 55%,
+    var(--color-accent-tertiary)
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-control) var(--ease-standard);
+}
+.button-secondary::after {
+  top: 0;
+  bottom: auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent-primary),
+    var(--color-accent-tertiary),
+    transparent
+  );
+}
+.button-secondary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible {
   border-color: var(--color-accent-primary);
-  background: var(--color-surface-raised);
+  box-shadow: var(--pulse-glow);
+}
+.button-secondary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible::before {
+  opacity: 1;
 }
 
 .button-tertiary {
+  padding-inline: 0;
   color: var(--color-accent-primary);
   background: transparent;
+  box-shadow: none;
+}
+.button-tertiary::after {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  content: '';
+  opacity: 0.45;
+  transform: scaleX(0.25);
+  transform-origin: left;
+  transition:
+    transform var(--motion-control) var(--ease-standard),
+    opacity var(--motion-control) var(--ease-standard);
 }
 
-.button-tertiary:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
+.button-tertiary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible {
   color: var(--color-text-primary);
-  background: var(--color-accent-soft);
   transform: none;
+}
+.button-tertiary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):focus-visible::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .button-icon {
-  flex: 0 0 var(--control-height);
-  width: var(--control-height);
+  flex: 0 0 var(--button-height, var(--control-height));
+  width: var(--button-height, var(--control-height));
   padding: 0;
 }
 
-.button.button-icon:is(:hover, :focus-visible) > svg {
-  transform: none;
+.button-compact {
+  --button-height: var(--control-height-compact);
+  padding: 8px 12px;
+}
+.button-compact.button-icon {
+  padding: 0;
 }
 
 .button:disabled,
 .button[aria-disabled='true'] {
-  opacity: 0.55;
+  opacity: 0.65;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
+}
+.button[aria-busy='true'] {
+  opacity: 1;
+  cursor: progress;
+}
+.button[data-state='success'] {
+  border-color: var(--color-success);
+}
+.button-content {
+  display: grid;
+  min-width: 0;
+}
+.button-label,
+.button-feedback {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.button-content [aria-hidden='true']:is(.button-label, .button-feedback) {
+  visibility: hidden;
+}
+.button[data-state='loading'] .button-spinner {
+  animation: cosmic-pulse-turn 900ms linear infinite;
+}
+.button:focus-visible,
+.pulse-control:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+.pulse-control {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color var(--motion-control) var(--ease-standard),
+    background var(--motion-control) var(--ease-standard),
+    scale var(--motion-control) var(--ease-standard);
+}
+.pulse-control:not(:disabled, [aria-disabled='true']):active {
+  scale: 0.98;
+}
+@media (hover: hover) and (pointer: fine) {
+  .button:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover {
+    transform: translateY(-2px);
+  }
+  .button-primary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):is(
+      :hover,
+      :focus-visible
+    ) {
+    box-shadow:
+      var(--pulse-glow),
+      inset 0 1px color-mix(in srgb, var(--color-text-primary) 32%, transparent);
+  }
+  .button-primary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover::before,
+  .button-secondary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover::after {
+    animation: cosmic-pulse-sweep var(--motion-pulse) var(--ease-standard) both;
+  }
+  .button-secondary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover {
+    border-color: var(--color-accent-primary);
+    background-color: var(--color-surface-raised);
+    box-shadow: var(--pulse-glow);
+  }
+  .button-secondary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover::before {
+    opacity: 1;
+  }
+  .button-tertiary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover {
+    color: var(--color-text-primary);
+    transform: none;
+  }
+  .button-tertiary:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  .button:not(:disabled, [aria-disabled='true'], [aria-busy='true']):hover
+    svg:is(
+      .lucide-arrow-right,
+      .lucide-arrow-up-right,
+      .lucide-external-link,
+      .lucide-send,
+      .lucide-download
+    ) {
+    transform: translate(var(--pulse-icon-x), var(--pulse-icon-y));
+  }
+  .button:not(:disabled, [aria-disabled='true'], [aria-busy='true']):active {
+    transform: scale(0.98);
+  }
+}
+@keyframes cosmic-pulse-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-130%);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(130%);
+  }
+}
+@keyframes cosmic-pulse-turn {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .form-control {
@@ -158,13 +361,18 @@
 @media (prefers-reduced-motion: reduce) {
   .button,
   .button:is(:hover, :focus-visible, :active),
-  .button:is(:hover, :focus-visible) > svg,
+  .button:is(:hover, :focus-visible) svg,
   .button-primary::before,
-  .button-primary:is(:hover, :focus-visible)::before {
+  .button-secondary::after,
+  .button-tertiary::after {
     transform: none !important;
   }
-  .button-primary::before {
+  .button-primary::before,
+  .button-secondary::after {
     display: none;
+  }
+  .pulse-control {
+    scale: none !important;
   }
 }
 

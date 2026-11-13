@@ -17,6 +17,7 @@
 .cosmic-mesh-fallback {
   overflow: hidden;
   opacity: 0.72;
+  transition: opacity 1.2s ease;
   background:
     radial-gradient(ellipse at 18% 24%, rgba(51, 102, 176, 0.32), transparent 46%),
     radial-gradient(ellipse at 76% 61%, rgba(102, 99, 196, 0.26), transparent 48%),
@@ -28,7 +29,6 @@
   inset: -22%;
   content: '';
   border-radius: 50%;
-  filter: blur(46px);
   will-change: transform;
 }
 .cosmic-mesh-fallback::before {
@@ -45,38 +45,34 @@
 }
 .cosmic-mesh-canvas {
   opacity: 0;
-  transition: opacity 1.2s ease;
 }
 .cosmic-mesh-background[data-mode='active'] .cosmic-mesh-canvas {
-  opacity: 0.82;
+  opacity: 1;
 }
 .cosmic-mesh-background[data-mode='active'] .cosmic-mesh-fallback {
   opacity: 0;
+  transition: none;
 }
 .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback,
 .cosmic-mesh-background[data-mode='fallback'] .cosmic-mesh-fallback {
   opacity: 0.72;
 }
 
-/* Desktop static mode: no animations */
-@media (min-width: 769px) {
-  .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::before,
-  .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::after {
-    animation: none;
-  }
+.cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::before,
+.cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::after,
+body[data-cosmic-intro] .cosmic-mesh-fallback::before,
+body[data-cosmic-intro] .cosmic-mesh-fallback::after {
+  animation: none;
+  filter: none;
+  will-change: auto;
 }
-
-/* Mobile static mode: enable CSS animations */
-@media (max-width: 768px) {
-  .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::before,
-  .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::after {
-    animation: cosmic-fallback-drift-a 80s ease-in-out infinite alternate;
-  }
-
-  .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-fallback::after {
-    animation-name: cosmic-fallback-drift-b;
-    animation-duration: 110s;
-  }
+.cosmic-mesh-background[data-paused='true'] .cosmic-mesh-fallback::before,
+.cosmic-mesh-background[data-paused='true'] .cosmic-mesh-fallback::after {
+  animation-play-state: paused;
+}
+.cosmic-mesh-background[data-mode='active'] .cosmic-mesh-fallback::before,
+.cosmic-mesh-background[data-mode='active'] .cosmic-mesh-fallback::after {
+  display: none;
 }
 .cosmic-mesh-background[data-mode='fallback'] .cosmic-mesh-canvas,
 .cosmic-mesh-background[data-mode='static'] .cosmic-mesh-canvas {

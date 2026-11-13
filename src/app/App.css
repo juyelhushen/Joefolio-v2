@@ -3,10 +3,18 @@
   isolation: isolate;
   overflow: clip;
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse at 78% 8%, rgba(51, 92, 155, 0.18), transparent 36%),
-    radial-gradient(ellipse at 12% 36%, rgba(102, 139, 255, 0.12), transparent 30%),
-    radial-gradient(ellipse at 70% 55%, rgba(169, 149, 255, 0.1), transparent 34%), var(--color-bg);
+  background: var(--color-bg);
+}
+.site-shell > main {
+  transition: opacity 500ms ease-out;
+}
+body[data-cosmic-intro] .site-shell > main {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-shell > main {
+    transition: none;
+  }
 }
 .lazy-section-placeholder {
   pointer-events: none;

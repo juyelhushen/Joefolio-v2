@@ -29,7 +29,7 @@ it('renders the three accessible social profiles with verified destinations', ()
   renderFooter();
 
   const expectedLinks = [
-    ['LinkedIn', 'https://linkedin.com/in/juyel-hushen-770674170'],
+    ['LinkedIn', 'https://www.linkedin.com/in/juyel-h-770674170/'],
     ['GitHub', 'https://github.com/juyelhushen'],
     ['LeetCode', 'https://leetcode.com/u/Juyel/'],
   ];

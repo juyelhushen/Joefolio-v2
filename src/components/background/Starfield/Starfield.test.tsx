@@ -1,282 +1,172 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import Starfield, { advanceStars, type Star } from './Starfield';
+import Starfield from './Starfield';
 import { EnvironmentProvider } from '../EnvironmentContext';
 
 afterEach(() => {
   cleanup();
-  Reflect.deleteProperty(navigator, 'connection');
+  delete document.body.dataset.cosmicIntro;
+  Reflect.deleteProperty(window, '__STELLAR_FOLD__');
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
-function createStar(x: number, velocityX: number, velocityY = 0): Star {
-  return {
-    x,
-    y: 100,
-    radius: 1,
-    alpha: 0.5,
-    phase: 0,
-    twinkleSpeed: 1,
-    depth: 0.5,
-    velocityX,
-    velocityY,
-  };
-}
-
-function mockCanvasContext() {
-  return {
-    setTransform: vi.fn(),
-    clearRect: vi.fn(),
-    beginPath: vi.fn(),
-    fill: vi.fn(),
-    arc: vi.fn(),
-    moveTo: vi.fn(),
-    lineTo: vi.fn(),
-    stroke: vi.fn(),
-    createLinearGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
-  } as unknown as CanvasRenderingContext2D;
-}
-
-function mockAnimationFrames() {
-  const callbacks: FrameRequestCallback[] = [];
-  let id = 0;
+function setup(reduced = false, width = 1440) {
+  vi.stubGlobal('innerWidth', width);
+  vi.stubGlobal('devicePixelRatio', 3);
+  let preference = reduced;
+  const listeners: (() => void)[] = [];
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((media: string) => ({
+      matches: media.includes('prefers-reduced-motion') ? preference : false,
+      addEventListener: vi.fn((_event: string, callback: () => void) => {
+        if (media.includes('prefers-reduced-motion')) listeners.push(callback);
+      }),
+      removeEventListener: vi.fn(),
+    })),
+  );
+  const frames: FrameRequestCallback[] = [];
+  const idle: (() => void)[] = [];
   vi.stubGlobal(
     'requestAnimationFrame',
-    vi.fn((callback: FrameRequestCallback) => {
-      callbacks.push(callback);
-      id += 1;
-      return id;
-    }),
+    vi.fn((callback: FrameRequestCallback) => frames.push(callback)),
   );
   vi.stubGlobal('cancelAnimationFrame', vi.fn());
-  return callbacks;
-}
-
-function mockIdleCallbacks() {
-  const callbacks: (() => void)[] = [];
   vi.stubGlobal(
     'requestIdleCallback',
-    vi.fn((callback: () => void) => {
-      callbacks.push(callback);
-      return callbacks.length;
-    }),
+    vi.fn((callback: () => void) => idle.push(callback)),
   );
   vi.stubGlobal('cancelIdleCallback', vi.fn());
-  return callbacks;
-}
-
-function mockMotionPreference(reduced: boolean, mobile = false) {
-  let currentPreference = reduced;
-  const changeListeners: { media: string; listener: EventListener }[] = [];
-  const removedListeners = vi.fn();
-  const matchMedia = vi.fn((media: string) => ({
-    matches:
-      (media.includes('prefers-reduced-motion') && currentPreference) ||
-      (media.includes('(max-width: 740px)') && mobile),
-    media,
-    addEventListener: vi.fn(
-      (_type: string, listener: EventListenerOrEventListenerObject | null) => {
-        if (listener && typeof listener === 'function') changeListeners.push({ media, listener });
-      },
-    ),
-    removeEventListener: vi.fn(
-      (_type: string, listener: EventListenerOrEventListenerObject | null) => {
-        removedListeners(listener);
-      },
-    ),
-  }));
-  vi.stubGlobal('matchMedia', matchMedia);
-  const setReducedPreference = (next: boolean) => {
-    currentPreference = next;
-    for (const { media, listener } of changeListeners) {
-      if (media.includes('prefers-reduced-motion'))
-        listener(Object.assign(new Event('change'), { matches: next }));
-    }
-  };
-  return { matchMedia, changeListeners, removedListeners, setReducedPreference };
-}
-
-function renderWithEnvironment(component: React.ReactElement) {
-  return render(<EnvironmentProvider>{component}</EnvironmentProvider>);
-}
-
-it('moves different depths at distinct time-based speeds and wraps at viewport edges', () => {
-  const distant = createStar(100, -2, 0.5);
-  const nearby = createStar(100, -10, -1);
-  const edge = createStar(1, -10);
-
-  advanceStars([distant, nearby, edge], 0.5, 1000, 600);
-
-  expect(distant.x).toBe(99);
-  expect(distant.y).toBe(100.25);
-  expect(nearby.x).toBe(95);
-  expect(nearby.y).toBe(99.5);
-  expect(edge.x).toBe(1000);
-});
-
-it('does not change positions when time or viewport dimensions are invalid', () => {
-  const star = createStar(100, -8);
-
-  advanceStars([star], -1, 1000, 600);
-  advanceStars([star], 1, 0, 600);
-
-  expect(star.x).toBe(100);
-});
-
-it('schedules canvas animation when motion is enabled and cancels it on unmount', () => {
-  const idleCallbacks = mockIdleCallbacks();
-  const callbacks = mockAnimationFrames();
-  mockMotionPreference(false);
-  const context = mockCanvasContext();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-
-  const { container, unmount } = renderWithEnvironment(<Starfield />);
-  const canvas = container.querySelector('canvas');
-
-  expect(callbacks).toHaveLength(0);
-  expect(idleCallbacks).toHaveLength(1);
-  act(() => idleCallbacks[0]());
-  expect(callbacks.length).toBeGreaterThan(0);
-  expect(canvas?.getAttribute('aria-hidden')).toBe('true');
-  expect(canvas?.className).toBe('starfield');
-  unmount();
-  expect(cancelAnimationFrame).toHaveBeenCalled();
-});
-
-it('draws a stable canvas without scheduling frames for reduced motion', () => {
-  const idleCallbacks = mockIdleCallbacks();
-  const callbacks = mockAnimationFrames();
-  mockMotionPreference(true);
-  const context = mockCanvasContext();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-
-  renderWithEnvironment(<Starfield />);
-
-  expect(callbacks).toHaveLength(0);
-  expect(idleCallbacks).toHaveLength(0);
-  expect(context.clearRect).toHaveBeenCalled();
-});
-
-it('draws an animated starfield on mobile with responsive particle count', () => {
-  const idleCallbacks = mockIdleCallbacks();
-  const callbacks = mockAnimationFrames();
-  mockMotionPreference(false, true);
-  const context = mockCanvasContext();
+  const context = {
+    setTransform: vi.fn(),
+    clearRect: vi.fn(),
+    fillRect: vi.fn(),
+    drawImage: vi.fn(),
+    beginPath: vi.fn(),
+    arc: vi.fn(),
+    ellipse: vi.fn(),
+    fill: vi.fn(),
+    stroke: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    quadraticCurveTo: vi.fn(),
+    closePath: vi.fn(),
+    save: vi.fn(),
+    restore: vi.fn(),
+    translate: vi.fn(),
+    rotate: vi.fn(),
+    scale: vi.fn(),
+    createLinearGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+    createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+  } as unknown as CanvasRenderingContext2D;
   const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-
-  const { container } = renderWithEnvironment(<Starfield />);
-
-  // Should initialize canvas with context
-  expect(getContext).toHaveBeenCalledWith('2d', { alpha: true });
-  // Should schedule animation start
-  expect(idleCallbacks).toHaveLength(1);
-  // Should trigger animation after idle callback
-  act(() => idleCallbacks[0]());
-  expect(callbacks).toHaveLength(1);
-  // Canvas should not have static dataset
-  expect(container.querySelector('canvas')?.dataset.static).toBeUndefined();
-});
-
-it('keeps the starfield animated when the connection requests data saving', () => {
-  const idleCallbacks = mockIdleCallbacks();
-  const callbacks = mockAnimationFrames();
-  mockMotionPreference(false);
-  Object.defineProperty(navigator, 'connection', {
-    configurable: true,
-    value: {
-      saveData: true,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
+  return {
+    frames,
+    idle,
+    context,
+    getContext,
+    reduce() {
+      preference = true;
+      act(() => listeners.forEach((callback) => callback()));
     },
-  });
-  const context = mockCanvasContext();
-  const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
+  };
+}
 
-  const { container } = renderWithEnvironment(<Starfield />);
+function mount(paused = false) {
+  return render(
+    <EnvironmentProvider>
+      <Starfield paused={paused} />
+    </EnvironmentProvider>,
+  );
+}
 
-  // Should initialize canvas
-  expect(getContext).toHaveBeenCalledWith('2d', { alpha: true });
-  // Should schedule animation even with saveData: true
-  expect(idleCallbacks).toHaveLength(1);
-  act(() => idleCallbacks[0]());
-  expect(callbacks).toHaveLength(1);
-  expect(container.querySelector('canvas')?.dataset.static).toBeUndefined();
-});
-
-it('stops animation when reduced motion is enabled at runtime and removes preference listeners', () => {
-  const idleCallbacks = mockIdleCallbacks();
-  const callbacks = mockAnimationFrames();
-  const preference = mockMotionPreference(false);
-  const context = mockCanvasContext();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-  const { unmount } = renderWithEnvironment(<Starfield />);
-  act(() => idleCallbacks[0]());
-
-  act(() => preference.setReducedPreference(true));
-
-  expect(callbacks).toHaveLength(1);
-  expect(context.clearRect).toHaveBeenCalledTimes(2);
+it('warps the persistent sky during the intro without replacing its Canvas at handoff', () => {
+  const { idle, frames, context, getContext } = setup();
+  document.body.dataset.cosmicIntro = 'active';
+  window.__STELLAR_FOLD__ = { active: true, elapsed: 900, painted: true, settled: 0 };
+  const { container, unmount } = mount();
+  expect(context.clearRect).toHaveBeenCalledTimes(1);
+  expect(idle).toHaveLength(0);
+  expect(frames).toHaveLength(1);
+  expect(context.quadraticCurveTo).toHaveBeenCalled();
+  const acquisitions = getContext.mock.calls.length;
+  delete document.body.dataset.cosmicIntro;
+  window.__STELLAR_FOLD__.active = false;
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  expect(idle).toHaveLength(0);
+  expect(frames).toHaveLength(1);
+  expect(getContext).toHaveBeenCalledTimes(acquisitions);
+  expect(container.querySelectorAll('canvas')).toHaveLength(1);
+  expect(container.querySelector('.shooting-stars')).toBeNull();
   unmount();
-  expect(preference.removedListeners).toHaveBeenCalled();
-});
-
-it('pauses while the document is hidden and resumes when it becomes visible', () => {
-  const idleCallbacks = mockIdleCallbacks();
-  mockAnimationFrames();
-  mockMotionPreference(false);
-  const context = mockCanvasContext();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-  const { container } = renderWithEnvironment(<Starfield />);
-  act(() => idleCallbacks[0]());
-
-  Object.defineProperty(document, 'hidden', { configurable: true, value: true });
-  act(() => document.dispatchEvent(new Event('visibilitychange')));
+  act(() => window.dispatchEvent(new Event('cosmic-intro-complete')));
+  expect(idle).toHaveLength(0);
   expect(cancelAnimationFrame).toHaveBeenCalled();
-  expect(container.querySelector('.shooting-stars')?.getAttribute('data-running')).toBe('false');
-
-  Object.defineProperty(document, 'hidden', { configurable: true, value: false });
-  act(() => document.dispatchEvent(new Event('visibilitychange')));
-  expect(requestAnimationFrame).toHaveBeenCalledTimes(2);
-  expect(container.querySelector('.shooting-stars')?.getAttribute('data-running')).toBe('true');
 });
 
 it.each([
-  { reduced: false, mobile: false, paused: false, running: 'true' },
-  { reduced: true, mobile: false, paused: false, running: 'false' },
-  { reduced: false, mobile: true, paused: false, running: 'true' },
-  { reduced: false, mobile: false, paused: true, running: 'false' },
-])('gates three decorative CSS shooting stars: %j', ({ reduced, mobile, paused, running }) => {
-  mockIdleCallbacks();
-  mockAnimationFrames();
-  mockMotionPreference(reduced, mobile);
-  const context = mockCanvasContext();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-  const { container, rerender } = renderWithEnvironment(<Starfield paused={paused} />);
-  const layer = container.querySelector('.shooting-stars');
-  expect(layer?.getAttribute('aria-hidden')).toBe('true');
-  expect(layer?.getAttribute('data-running')).toBe(running);
-  expect(layer?.children).toHaveLength(3);
-  expect(context.createLinearGradient).not.toHaveBeenCalled();
-  rerender(
-    <EnvironmentProvider>
-      <Starfield paused />
-    </EnvironmentProvider>,
-  );
-  expect(layer?.getAttribute('data-running')).toBe('false');
+  [1440, '620', 1.5],
+  [768, '400', 1.5],
+  [390, '230', 1.15],
+  [360, '230', 1.15],
+])('keeps multiple moving particle layers at %ipx without a fine pointer', (width, stars, dpr) => {
+  const { idle, frames, context } = setup(false, Number(width));
+  const { container } = mount();
+  expect(container.querySelector('canvas')?.dataset.stars).toBe(stars);
+  expect(context.setTransform).toHaveBeenCalledWith(dpr, 0, 0, dpr, 0, 0);
+  act(() => idle[0]());
+  expect(frames).toHaveLength(1);
 });
 
-it('resizes the backing canvas to valid dimensions and applies a capped pixel ratio', () => {
-  mockIdleCallbacks();
-  mockAnimationFrames();
-  mockMotionPreference(false);
-  const context = mockCanvasContext();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context);
-  Object.defineProperty(window, 'devicePixelRatio', { configurable: true, value: 3 });
-  const { container } = renderWithEnvironment(<Starfield />);
-  const canvas = container.querySelector('canvas');
+it('retains the full static sky without scheduling frames or events for reduced motion', () => {
+  const { idle, frames, context } = setup(true, 390);
+  const { container } = mount();
+  expect(context.arc).toHaveBeenCalledTimes(230);
+  expect(container.querySelector('canvas')?.dataset.events).toBe('0');
+  expect(container.querySelector('canvas')?.dataset.trails).toBe('0');
+  expect(idle).toHaveLength(0);
+  expect(frames).toHaveLength(0);
+});
 
-  expect(canvas?.width).toBeGreaterThan(0);
-  expect(canvas?.height).toBeGreaterThan(0);
-  expect(context.setTransform).toHaveBeenCalledWith(1.7, 0, 0, 1.7, 0, 0);
+it('stops active animation immediately when reduced motion changes at runtime', () => {
+  const { idle, frames, reduce } = setup();
+  mount();
+  act(() => idle[0]());
+  reduce();
+  expect(frames).toHaveLength(1);
+  expect(cancelAnimationFrame).toHaveBeenCalled();
+});
+
+it('pauses while hidden, then resumes one existing renderer without reacquiring contexts', () => {
+  const { idle, frames, getContext } = setup();
+  mount();
+  act(() => idle[0]());
+  const acquisitions = getContext.mock.calls.length;
+  vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
+  expect(cancelAnimationFrame).toHaveBeenCalled();
+  vi.spyOn(document, 'hidden', 'get').mockReturnValue(false);
+  act(() => document.dispatchEvent(new Event('visibilitychange')));
+  expect(frames).toHaveLength(2);
+  expect(getContext).toHaveBeenCalledTimes(acquisitions);
+});
+
+it('selects a visible static fallback when Canvas acquisition fails', () => {
+  const { getContext, idle } = setup();
+  getContext.mockReturnValue(null);
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  const { container } = mount();
+  expect(container.querySelector('canvas')?.dataset.static).toBe('true');
+  expect(idle).toHaveLength(0);
+  expect(console.warn).toHaveBeenCalled();
+});
+
+it('cancels pending idle work and never starts after unmount', () => {
+  const { frames, idle } = setup();
+  const { unmount } = mount();
+  unmount();
+  act(() => idle[0]());
+  expect(frames).toHaveLength(0);
 });

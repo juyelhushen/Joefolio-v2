@@ -236,12 +236,16 @@ it('blocks duplicate sends while the Axios request is pending', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
   const pendingButton = screen.getByRole('button', { name: 'Sending…' });
   expect(pendingButton.hasAttribute('disabled')).toBe(true);
-  expect(document.querySelector('.contact-button-envelope.is-sealed')).toBeTruthy();
+  expect(pendingButton.getAttribute('aria-busy')).toBe('true');
+  expect(pendingButton.querySelector('.button-spinner')).toBeTruthy();
   fireEvent.click(pendingButton);
   expect(requestCount).toBe(1);
   expect(resolveResponse).toBeTypeOf('function');
   resolveResponse?.();
   await waitFor(() => expect(screen.getByText(/Message launched successfully/)).toBeTruthy());
+  expect(screen.getByRole('button', { name: 'Send another message' }).dataset.state).toBe(
+    'success',
+  );
 });
 
 it('keeps character limits, accessible labels, and the honeypot out of keyboard navigation', () => {
