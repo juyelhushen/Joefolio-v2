@@ -31,6 +31,19 @@ function contrast(first: string, second: string) {
   return (values[0] + 0.05) / (values[1] + 0.05);
 }
 
+function tint(accent: string, background: string, percentage: number) {
+  const channel = (hex: string, index: number) => Number.parseInt(hex.slice(index, index + 2), 16);
+  return `#${[1, 3, 5]
+    .map((index) =>
+      Math.round(
+        channel(accent, index) * percentage + channel(background, index) * (1 - percentage),
+      )
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`;
+}
+
 it('keeps every accent above WCAG AA text contrast on both themes and surfaces', () => {
   const dark = block(':root');
   const light = block(":root[data-theme='light']");
@@ -44,6 +57,11 @@ it('keeps every accent above WCAG AA text contrast on both themes and surfaces',
     const backgrounds = [color(theme.values, 'color-bg'), color(theme.values, 'color-surface')];
     for (const accent of accents) {
       const foreground = color(theme.values, `accent-${accent}`);
+      const tintBackground = tint(foreground, backgrounds[0], 0.07);
+      expect(
+        contrast(foreground, tintBackground),
+        `${accent} ${theme.name} tint`,
+      ).toBeGreaterThanOrEqual(4.5);
       for (const background of backgrounds) {
         expect(
           contrast(foreground, background),
@@ -52,4 +70,5 @@ it('keeps every accent above WCAG AA text contrast on both themes and surfaces',
       }
     }
   }
+  expect(dark).toContain('var(--color-accent-primary) 7%, var(--color-bg)');
 });

@@ -1,5 +1,22 @@
 @import './tokens.css';
 
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial');
+  size-adjust: 107.64%;
+  ascent-override: 90.2%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -32,12 +49,19 @@ a {
   text-underline-offset: 0.2em;
   transition:
     color var(--motion-fast) ease,
-    text-decoration-color var(--motion-fast) ease;
+    text-decoration-color var(--motion-fast) ease,
+    text-underline-offset 150ms ease;
 }
 
 a:hover {
   color: var(--color-accent-primary);
   text-decoration-color: currentColor;
+  text-underline-offset: 0.3em;
+}
+
+::selection {
+  color: var(--color-bg);
+  background: var(--color-accent-primary);
 }
 
 h1,
@@ -77,8 +101,20 @@ h3 {
   outline-offset: 3px;
 }
 
-section[id] {
+section[id],
+h2[id] {
   scroll-margin-top: 88px;
+}
+
+@media (min-width: 981px) {
+  html {
+    scroll-padding-top: 0;
+  }
+
+  section[id],
+  h2[id] {
+    scroll-margin-top: 64px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

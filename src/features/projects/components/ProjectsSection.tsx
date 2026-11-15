@@ -40,20 +40,25 @@ export default function ProjectsSection() {
       <ol className="project-list">
         {projects.map((project) => (
           <li className="project-row" key={project.id}>
-            <h3>
-              <a href={`#projects/${project.id}`}>{project.name}</a>
-            </h3>
-            <p className="project-summary">{project.summary}</p>
-            <p className="project-tags" aria-label={`${project.name} tags`}>
-              {[...(isAiProject(project.technologies) ? ['AI'] : []), ...project.technologies].join(
-                ' · ',
+            <div className="project-details">
+              <h3>
+                <a href={`#projects/${project.id}`}>{project.name}</a>
+              </h3>
+              <p className="project-summary">{project.summary}</p>
+              <p className="project-category">{project.category}</p>
+              <div className="project-links">
+                <a href={`#projects/${project.id}`}>Case study</a>
+                <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer">
+                  Repository
+                </a>
+              </div>
+            </div>
+            <div className="project-tags" aria-label={`${project.name} tags`}>
+              {[...(isAiProject(project.technologies) ? ['AI'] : []), ...project.technologies].map(
+                (technology) => (
+                  <span key={technology}>#{technology.toLowerCase().replace(/\s+/g, '-')}</span>
+                ),
               )}
-            </p>
-            <div className="project-links">
-              <a href={`#projects/${project.id}`}>Case study</a>
-              <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer">
-                Repository
-              </a>
             </div>
           </li>
         ))}

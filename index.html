@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#080d1b" />
-    <meta
-      name="description"
-      content="Juyel Hushen is a software engineer building reliable backend systems."
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2"
     />
+    <meta name="description" content="Software Engineer building reliable backend systems." />
     <title>Juyel Hushen | Software Engineer</title>
     <link rel="canonical" href="https://juyel.vercel.app/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -17,21 +21,28 @@
     <meta property="og:title" content="Juyel Hushen | Software Engineer" />
     <meta
       property="og:description"
-      content="Juyel Hushen is a software engineer building reliable backend systems."
+      content="Software Engineer building reliable backend systems."
     />
     <meta property="og:url" content="https://juyel.vercel.app/" />
     <meta property="og:image" content="https://juyel.vercel.app/images/social-preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:alt" content="Joefolio — Juyel Hushen, software engineer" />
+    <meta
+      property="og:image:alt"
+      content="Juyel Hushen — Software Engineer building reliable backend systems."
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Juyel Hushen | Software Engineer" />
     <meta
       name="twitter:description"
-      content="Juyel Hushen is a software engineer building reliable backend systems."
+      content="Software Engineer building reliable backend systems."
     />
     <meta name="twitter:image" content="https://juyel.vercel.app/images/social-preview.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Juyel Hushen — Software Engineer building reliable backend systems."
+    />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -61,6 +72,9 @@
           root.dataset.theme = 'dark';
           root.dataset.accent = 'cyan';
         }
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute('content', root.dataset.theme === 'light' ? '#fcfcfd' : '#080d1b');
       })();
     </script>
     <script>

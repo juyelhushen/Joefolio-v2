@@ -1,3 +1,5 @@
+import { apiClient } from './client';
+
 export type BackendHealthStatus = 'UP' | 'UNAVAILABLE';
 
 // Retain the settled result too: a page visit initiates only one warm-up, not polling.
@@ -5,11 +7,9 @@ let warmUpPromise: Promise<BackendHealthStatus> | undefined;
 
 const checkBackendHealth = async (): Promise<BackendHealthStatus> => {
   try {
-    const { apiClient } = await import('./client');
     const response = await apiClient.get<unknown>('/actuator/health', {
       timeout: 90_000,
       headers: { 'Cache-Control': 'no-cache, no-store' },
-      withCredentials: false,
     });
     if (
       response.status === 200 &&

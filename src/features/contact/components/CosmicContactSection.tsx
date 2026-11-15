@@ -19,7 +19,7 @@ export default function CosmicContactSection({
       <p className="contact-intro">Have a project or opportunity in mind? Send me a message.</p>
       {backendStatus === 'UNAVAILABLE' && (
         <p className="contact-service-note" role="status">
-          The form may take a moment or be offline. You can use the email link in the footer.
+          The form may take a moment or be offline. You can use the email link in the social links.
         </p>
       )}
       <CosmicContactForm

@@ -1,44 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
-  <defs>
-    <linearGradient id="background" x1="66" y1="38" x2="1118" y2="656" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0C1830"/>
-      <stop offset=".55" stop-color="#070B16"/>
-      <stop offset="1" stop-color="#11102A"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(360 0 0 300 936 288)" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#4F74B5" stop-opacity=".32"/>
-      <stop offset="1" stop-color="#4F74B5" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="planet" cx="0" cy="0" r="1" gradientTransform="matrix(86 105 -105 86 858 176)" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A9B6D1"/>
-      <stop offset=".48" stop-color="#465474"/>
-      <stop offset="1" stop-color="#0A1020"/>
-    </radialGradient>
-    <linearGradient id="ring" x1="774" y1="258" x2="1128" y2="326" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#65E7F2" stop-opacity=".1"/>
-      <stop offset=".52" stop-color="#A99BFF" stop-opacity=".82"/>
-      <stop offset="1" stop-color="#FFB86C" stop-opacity=".74"/>
-    </linearGradient>
-    <pattern id="stars" width="118" height="102" patternUnits="userSpaceOnUse">
-      <circle cx="16" cy="18" r="1.2" fill="#E8F0FF" fill-opacity=".72"/>
-      <circle cx="76" cy="54" r=".8" fill="#9EC5FF" fill-opacity=".55"/>
-      <circle cx="42" cy="87" r=".7" fill="#D9D3FF" fill-opacity=".55"/>
-      <circle cx="108" cy="12" r=".6" fill="#E8F0FF" fill-opacity=".42"/>
-    </pattern>
-  </defs>
-  <rect width="1200" height="630" rx="30" fill="url(#background)"/>
-  <rect width="1200" height="630" rx="30" fill="url(#glow)"/>
-  <rect width="1200" height="630" rx="30" fill="url(#stars)"/>
-  <circle cx="990" cy="240" r="90" fill="url(#planet)"/>
-  <ellipse cx="990" cy="240" rx="145" ry="40" transform="rotate(-17 990 240)" stroke="url(#ring)" stroke-width="6"/>
-  <circle cx="1080" cy="145" r="5" fill="#65E7F2"/>
-  <rect x="78" y="72" width="54" height="54" rx="17" fill="#101A30" stroke="#65E7F2" stroke-opacity=".55"/>
-  <text x="105" y="108" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="-2" text-anchor="middle">JH</text>
-  <circle cx="136" cy="77" r="4" fill="#FFB86C"/>
-  <text x="154" y="108" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="3">JOEFOLIO</text>
-  <text x="78" y="280" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="78" font-weight="700" letter-spacing="-2">Juyel Hushen</text>
-  <text x="82" y="348" fill="#65E7F2" font-family="Arial,sans-serif" font-size="38" font-weight="700">Software Engineer</text>
-  <path d="M82 410h1036" stroke="#BAC5D8" stroke-opacity=".3"/>
-  <text x="82" y="478" fill="#F3F6FF" font-family="Arial,sans-serif" font-size="32">Backend systems · Full-stack software · Practical AI</text>
-  <text x="82" y="549" fill="#BAC5D8" font-family="Arial,sans-serif" font-size="24" letter-spacing="1">JAVA · SPRING BOOT · REACT · TYPESCRIPT · LANGGRAPH · RAG</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#080d1b"/>
+  <rect x="96" y="130" width="80" height="6" rx="3" fill="#62ddf5"/>
+  <text x="96" y="270" fill="#f0f4ff" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="700">Juyel Hushen</text>
+  <text x="96" y="353" fill="#b6c1d4" font-family="Inter, Arial, sans-serif" font-size="34">Software Engineer building reliable</text>
+  <text x="96" y="400" fill="#b6c1d4" font-family="Inter, Arial, sans-serif" font-size="34">backend systems.</text>
+  <text x="96" y="522" fill="#62ddf5" font-family="Inter, Arial, sans-serif" font-size="24">juyel.vercel.app</text>
 </svg>

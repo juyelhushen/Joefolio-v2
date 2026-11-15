@@ -1,18 +1,18 @@
 # Juyel Hushen — Portfolio
 
-A calm, text-first portfolio built with React, Vite, and TypeScript. The single-page layout uses a
-narrow reading column, a dark navy and cyan default theme, and a light theme with five accessible
-accent choices.
+A calm, text-first portfolio built with React, Vite, and TypeScript. A fixed desktop sidebar
+accompanies the reading column; smaller screens use a top bar and disclosure menu. The default
+theme is dark navy and cyan, with a light theme and five accessible accent choices.
 
 ## Features
 
 - Intro, experience and toolbox, project list, contact form, and a compact footer
-- Responsive sticky navigation, including a disclosure menu on small screens
+- Fixed desktop sidebar and responsive top bar with a disclosure menu on smaller screens
 - Search palette with the Ctrl/Cmd+K shortcut
 - Project case studies opened from `#projects/<project-id>` links
 - Theme and accent preferences saved in local storage and applied before first paint
 - Contact form connected to the existing backend API client
-- Optional lazy-loaded portfolio assistant and build-flag-gated résumé link
+- On-demand portfolio assistant (in the header on mobile) and build-flag-gated résumé link
 - Keyboard skip link, visible focus, reduced-motion support, and Bengaluru local time
 
 ## Run locally
@@ -30,6 +30,9 @@ environment. See the [contact API guide](./docs/contact-email.md).
 The assistant is available only when `VITE_AI_ASSISTANT_API_URL` points to a compatible service.
 See the [assistant API contract](./docs/ai-assistant-api.md). Vite environment values are public;
 never put provider credentials or backend secrets in them.
+
+The shared fetch client applies request timeouts and normalizes API errors. Inter's Latin variable
+font is preloaded with a metric-adjusted fallback; dates and small labels use system monospace.
 
 ## Project structure
 
@@ -54,5 +57,6 @@ npm run test
 npm run build
 ```
 
-The résumé link appears only when `public/resume.pdf` exists at build time. The footer's Email link
-is the sole on-page destination for the public contact address.
+The résumé link appears only when `public/resume.pdf` exists at build time. One social row moves
+between the desktop sidebar and mobile footer; its Email link is the sole on-page destination for
+the public contact address.

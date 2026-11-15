@@ -8,13 +8,14 @@
   --color-border: #29364b;
   --color-danger: #ff9aab;
   --color-success: #79e2a6;
+  --color-accent-tint: color-mix(in srgb, var(--color-accent-primary) 7%, var(--color-bg));
   --accent-cyan: #62ddf5;
   --accent-violet: #c1aaff;
   --accent-green: #7de6a8;
   --accent-amber: #ffda7a;
   --accent-rose: #ffa2b8;
-  --font-body: 'Inter Variable', Inter, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  --font-body: 'Inter Variable', 'Inter Fallback', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
   --type-hero: clamp(2.5rem, 8vw, 3.5rem);
   --type-section: clamp(1.5rem, 4vw, 1.8rem);
   --type-heading: 1.125rem;
@@ -31,7 +32,7 @@
   --border-subtle: 1px solid var(--color-border);
   --focus-ring: var(--color-accent-primary);
   --motion-fast: 120ms;
-  --content-width: 700px;
+  --content-width: 680px;
 }
 
 :root[data-theme='dark'] {

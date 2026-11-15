@@ -16,7 +16,7 @@ function renderFooter() {
       <h1 ref={homeHeadingRef} tabIndex={-1}>
         Portfolio home
       </h1>
-      <CosmicFooter homeHeadingRef={homeHeadingRef} />
+      <CosmicFooter homeHeadingRef={homeHeadingRef} showSocial />
     </>,
   );
 }
@@ -27,8 +27,8 @@ it('renders social destinations in order and keeps the address only in the label
   expect(
     within(navigation)
       .getAllByRole('link')
-      .map((link) => link.textContent?.trim()),
-  ).toEqual(['LinkedIn', 'GitHub', 'Email', 'LeetCode']);
+      .map((link) => link.getAttribute('aria-label')),
+  ).toEqual(['GitHub', 'Email', 'LinkedIn', 'LeetCode']);
   expect(screen.getByRole('link', { name: 'LinkedIn' }).getAttribute('href')).toBe(
     PROFILE_LINKS.linkedin,
   );

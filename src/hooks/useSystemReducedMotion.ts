@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from 'react';
-import { useReducedMotion } from 'motion/react';
 
 const QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -10,11 +9,9 @@ function subscribe(notify: () => void) {
 }
 
 function snapshot() {
-  return typeof window.matchMedia === 'function' ? window.matchMedia(QUERY).matches : null;
+  return typeof window.matchMedia === 'function' ? window.matchMedia(QUERY).matches : false;
 }
 
 export function useSystemReducedMotion() {
-  const initialPreference = useReducedMotion() ?? false;
-  // Motion currently snapshots the OS setting; subscribe as well for live changes.
-  return useSyncExternalStore(subscribe, snapshot, () => null) ?? initialPreference;
+  return useSyncExternalStore(subscribe, snapshot, () => false);
 }

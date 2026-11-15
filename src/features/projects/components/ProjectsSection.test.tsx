@@ -36,6 +36,8 @@ it('renders each project as a plain list entry with a case-study and repository 
     const title = within(row).getByRole('heading', { level: 3, name: project.name });
     expect(title.querySelector('a')?.getAttribute('href')).toBe(`#projects/${project.id}`);
     expect(within(row).getByText(project.summary)).toBeTruthy();
+    expect(within(row).getByText(project.category)).toBeTruthy();
+    expect(row.querySelectorAll('.project-tags span').length).toBeGreaterThan(0);
     expect(within(row).getByRole('link', { name: 'Case study' }).getAttribute('href')).toBe(
       `#projects/${project.id}`,
     );

@@ -1,7 +1,12 @@
 .page-column {
-  width: min(var(--content-width), calc(100% - 40px));
-  max-width: 68ch;
+  width: min(860px, calc(100% - 128px));
   margin-inline: auto;
+}
+
+@media (max-width: 980px) {
+  .page-column {
+    width: min(860px, calc(100% - 40px));
+  }
 }
 
 .skip-link {

@@ -200,7 +200,7 @@ export default function CosmicContactForm({
       {status === 'error' && (
         <div className="contact-error" role="alert">
           <p>{error} Your message is still here—please retry.</p>
-          <p>You can also use the email link in the footer.</p>
+          <p>You can also use the email link in the social links.</p>
         </div>
       )}
 

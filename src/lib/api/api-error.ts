@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { HttpError } from './client';
 
 const statusMessages: Record<number, string> = {
   400: 'Please check the information in the form and try again.',
@@ -59,23 +59,18 @@ function getSafeResponseMessage(data: unknown): string | undefined {
 export function normalizeApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
 
-  if (axios.isAxiosError(error)) {
-    const status = error.response?.status;
+  if (error instanceof HttpError) {
+    const status = error.status;
     if (status !== undefined) {
       const message =
         status >= 500
           ? (statusMessages[status] ??
             'The contact service is temporarily unavailable. Please try again later.')
-          : (getSafeResponseMessage(error.response?.data) ??
-            statusMessages[status] ??
-            UNKNOWN_ERROR_MESSAGE);
+          : (getSafeResponseMessage(error.data) ?? statusMessages[status] ?? UNKNOWN_ERROR_MESSAGE);
       return new ApiError(message, status, error.code);
     }
 
-    const message =
-      error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT'
-        ? TIMEOUT_ERROR_MESSAGE
-        : NETWORK_ERROR_MESSAGE;
+    const message = error.code === 'timeout' ? TIMEOUT_ERROR_MESSAGE : NETWORK_ERROR_MESSAGE;
     return new ApiError(message, undefined, error.code);
   }
 

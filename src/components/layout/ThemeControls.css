@@ -6,10 +6,27 @@
   gap: var(--space-1);
 }
 
-.theme-toggle svg,
-.accent-trigger svg {
+.site-header .theme-toggle,
+.site-header .accent-trigger {
+  width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0;
+  border-color: transparent;
+}
+
+.theme-toggle svg {
   width: 16px;
   height: 16px;
+}
+
+.accent-dot {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-accent-primary);
 }
 
 .accent-popover {
@@ -24,8 +41,29 @@
 }
 
 .accent-options {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
   gap: 4px;
+}
+
+@media (max-width: 980px) {
+  .site-header .theme-toggle,
+  .site-header .accent-trigger {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    height: 44px;
+  }
+
+  .accent-options {
+    grid-template-columns: repeat(5, 44px);
+  }
+
+  .accent-popover {
+    position: fixed;
+    top: 64px;
+    right: 12px;
+  }
 }
 
 .accent-swatch {

@@ -51,6 +51,10 @@ it('focuses the combobox, locks scroll and restores opener focus and scroll on u
   const original = document.body.style.overflow;
   const view = show();
   const input = screen.getByRole('combobox');
+  expect(input.getAttribute('placeholder')).toBe('Search sections and projects');
+  expect(screen.getByRole('combobox', { name: 'Search sections, projects and actions' })).toBe(
+    input,
+  );
   expect(document.activeElement).toBe(input);
   expect(input.getAttribute('aria-expanded')).toBe('true');
   expect(input.getAttribute('aria-controls')).toBe(screen.getByRole('listbox').id);
@@ -74,6 +78,7 @@ it('supports arrows, Home, End and Enter without moving focus out of the input',
   fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(input.getAttribute('aria-activedescendant')).toBe(options.at(-1)?.id);
   fireEvent.keyDown(input, { key: 'Home' });
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   fireEvent.keyDown(input, { key: 'ArrowDown' });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(view.onNavigate).toHaveBeenCalledWith('projects');

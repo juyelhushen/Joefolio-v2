@@ -1,40 +1,25 @@
-import { AxiosError, AxiosHeaders, type AxiosAdapter, type AxiosResponse } from 'axios';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiClient } from '../../../lib/api/client';
 import CosmicContactSection from './CosmicContactSection';
-
-const originalAdapter = apiClient.defaults.adapter;
 
 afterEach(() => {
   cleanup();
-  apiClient.defaults.adapter = originalAdapter;
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 function installResponseAdapter(status: number, data: unknown) {
   const requests: Array<{ url: string | undefined; data: unknown }> = [];
-  apiClient.defaults.adapter = (async (config) => {
-    requests.push({
-      url: config.url,
-      data: typeof config.data === 'string' ? JSON.parse(config.data) : config.data,
-    });
-    const response: AxiosResponse<unknown> = {
-      data,
-      status,
-      statusText: '',
-      headers: new AxiosHeaders(),
-      config,
-    };
-    if (config.validateStatus?.(status) ?? (status >= 200 && status < 300)) return response;
-    throw new AxiosError(
-      `Request failed with status code ${status}`,
-      status >= 500 ? AxiosError.ERR_BAD_RESPONSE : AxiosError.ERR_BAD_REQUEST,
-      config,
-      undefined,
-      response,
-    );
-  }) satisfies AxiosAdapter;
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url: string, config: RequestInit) => {
+      requests.push({
+        url: new URL(url).pathname,
+        data: typeof config.body === 'string' ? JSON.parse(config.body) : config.body,
+      });
+      return new Response(JSON.stringify(data), { status });
+    }),
+  );
   return requests;
 }
 
@@ -80,9 +65,7 @@ it('submits the existing backend payload and renders the success state', async (
 });
 
 it('keeps form values and shows an explicit error when the service fails', async () => {
-  apiClient.defaults.adapter = (async () => {
-    throw new AxiosError('Network Error', AxiosError.ERR_NETWORK);
-  }) satisfies AxiosAdapter;
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Network Error')));
   render(<CosmicContactSection />);
   fillForm();
 
@@ -95,6 +78,6 @@ it('keeps form values and shows an explicit error when the service fails', async
 
 it('announces backend availability without disabling the form', () => {
   render(<CosmicContactSection backendStatus="UNAVAILABLE" />);
-  expect(screen.getByRole('status').textContent).toContain('email link in the footer');
+  expect(screen.getByRole('status').textContent).toContain('email link in the social links');
   expect(screen.getByRole('button', { name: 'Send message' }).hasAttribute('disabled')).toBe(false);
 });

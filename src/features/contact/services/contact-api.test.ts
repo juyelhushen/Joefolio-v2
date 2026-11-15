@@ -1,9 +1,6 @@
-import { AxiosHeaders, type AxiosAdapter } from 'axios';
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiClient } from '../../../lib/api/client';
 import { sendContactMessage } from './contact-api';
 
-const originalAdapter = apiClient.defaults.adapter;
 const message = {
   name: 'Casey Developer',
   email: 'casey@example.com',
@@ -12,25 +9,16 @@ const message = {
   website: '',
 };
 
-afterEach(() => {
-  apiClient.defaults.adapter = originalAdapter;
-});
+afterEach(() => vi.unstubAllGlobals());
 
-it('posts the exact mapped payload to Render and forwards the honeypot unchanged', async () => {
-  const adapter = vi.fn<AxiosAdapter>(async (config) => ({
-    config,
-    headers: new AxiosHeaders(),
-    status: 202,
-    statusText: 'Accepted',
-    data: { message: 'Your message has been sent.' },
-  }));
-  apiClient.defaults.adapter = adapter;
-
+it('posts the mapped payload and preserves the honeypot', async () => {
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValue(new Response('{"message":"Accepted."}', { status: 202 }));
+  vi.stubGlobal('fetch', fetchMock);
   await sendContactMessage({ ...message, website: 'honeypot-value' });
-  const config = adapter.mock.calls[0][0];
-  expect(config.method).toBe('post');
-  expect(apiClient.getUri(config)).toBe('https://joefolio-backend.onrender.com/api/v1/contact');
-  expect(JSON.parse(config.data)).toEqual({
+  expect(fetchMock.mock.calls[0][0]).toBe('https://joefolio-backend.onrender.com/api/v1/contact');
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
     name: message.name,
     email: message.email,
     subject: message.subject,
@@ -42,14 +30,10 @@ it('posts the exact mapped payload to Render and forwards the honeypot unchanged
 it.each([null, {}, { message: '' }, { message: '   ' }, { message: 42 }])(
   'rejects HTTP 202 when the response message is invalid',
   async (data) => {
-    apiClient.defaults.adapter = async (config) => ({
-      config,
-      headers: new AxiosHeaders(),
-      status: 202,
-      statusText: 'Accepted',
-      data,
-    });
-
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify(data), { status: 202 })),
+    );
     await expect(sendContactMessage(message)).rejects.toThrow('unexpected response');
   },
 );

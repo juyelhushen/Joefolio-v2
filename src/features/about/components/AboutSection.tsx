@@ -4,21 +4,23 @@ import './AboutSection.css';
 
 export default function AboutSection() {
   return (
-    <section className="about-section page-column" id="about" aria-labelledby="experience-title">
-      <h2 id="experience-title">Experience</h2>
+    <section className="about-section page-column" id="about" aria-labelledby="experience">
+      <h2 id="experience">Experience</h2>
       <ol className="experience-list">
         {experience.map((entry) => (
           <li className="experience-row" key={entry.id}>
-            <span className="experience-dates">{entry.dates ?? ''}</span>
-            <span>
-              {entry.role}, {entry.employer}
-              {entry.current && <span className="current-role">Current</span>}
-            </span>
+            <div>
+              <strong>
+                {entry.role}, {entry.employer}
+              </strong>
+              {entry.dates && <span className="experience-dates">{entry.dates}</span>}
+            </div>
+            {entry.current && <span className="current-role">Current</span>}
           </li>
         ))}
       </ol>
-      <h2 id="toolbox-title">Toolbox</h2>
-      <ul className="toolbox-list" aria-labelledby="toolbox-title">
+      <h2 id="skills">Toolbox</h2>
+      <ul className="toolbox-list" aria-labelledby="skills">
         {skillGroups.map((group) => (
           <li key={group.id}>
             <span>{group.name}</span>

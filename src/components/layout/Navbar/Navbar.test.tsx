@@ -7,16 +7,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-it('shows only About, Work and Contact in the minimal desktop navigation', () => {
+it('shows primary links and marks the active section', () => {
   render(<Navbar activeSection="about" onNavigate={vi.fn()} />);
-  const links = within(screen.getByRole('navigation', { name: 'Main navigation' }))
+  const nav = screen.getByRole('navigation', { name: 'Primary' });
+  const links = within(nav)
     .getAllByRole('link')
     .map((link) => [link.textContent, link.getAttribute('href')]);
   expect(links).toEqual([
+    ['Home', '#home'],
     ['About', '#about'],
     ['Work', '#projects'],
     ['Contact', '#contact'],
   ]);
+  expect(within(nav).getByRole('link', { name: 'About' }).getAttribute('aria-current')).toBe(
+    'location',
+  );
   expect(screen.getByRole('link', { name: 'Juyel Hushen' }).getAttribute('href')).toBe('#home');
 });
 
@@ -29,7 +34,7 @@ it('opens a disclosure menu with backdrop, Escape return-focus and no scroll loc
   const mobileMenu = document.getElementById('mobile-menu');
   expect(mobileMenu).toBeTruthy();
   expect(document.activeElement).toBe(
-    within(mobileMenu as HTMLElement).getByRole('link', { name: 'About' }),
+    within(mobileMenu as HTMLElement).getByRole('link', { name: 'Home' }),
   );
   expect(toggle.getAttribute('aria-expanded')).toBe('true');
   expect(document.body.style.overflow).toBe(initialOverflow);

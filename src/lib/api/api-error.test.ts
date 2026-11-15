@@ -1,12 +1,9 @@
 import { expect, it } from 'vitest';
 import { normalizeApiError } from './api-error';
+import { HttpError } from './client';
 
 function axiosResponseError(status: number, data: unknown) {
-  return {
-    isAxiosError: true,
-    code: 'ERR_BAD_RESPONSE',
-    response: { status, data },
-  };
+  return new HttpError('http', status, data);
 }
 
 it('reads Spring ProblemDetail and regular API response messages', () => {
@@ -55,12 +52,8 @@ it('does not expose server internals or provider details', () => {
 });
 
 it('normalizes network, timeout, and unexpected errors', () => {
-  expect(normalizeApiError({ isAxiosError: true, code: 'ERR_NETWORK' }).message).toContain(
-    'Could not reach',
-  );
-  expect(normalizeApiError({ isAxiosError: true, code: 'ECONNABORTED' }).message).toContain(
-    'too long',
-  );
+  expect(normalizeApiError(new HttpError('network')).message).toContain('Could not reach');
+  expect(normalizeApiError(new HttpError('timeout')).message).toContain('too long');
   expect(normalizeApiError(new Error('private details')).message).toContain(
     'contact service is unavailable',
   );

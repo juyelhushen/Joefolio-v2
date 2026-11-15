@@ -18,7 +18,7 @@ export const useActiveSection = () => {
   const scrollLegacyHash = () => {
     const hashId = window.location.hash.replace(/^#/, '').split('/')[0];
     if (!['experience', 'skills', 'ai-lab'].includes(hashId)) return;
-    const target = getNavigationTarget(window.location.hash);
+    const target = hashId === 'ai-lab' ? 'projects' : hashId;
     if (target) document.getElementById(target)?.scrollIntoView({ block: 'start' });
   };
   const updateActiveSection = useCallback(() => {
@@ -28,8 +28,9 @@ export const useActiveSection = () => {
       return;
     }
     const header = document.querySelector<HTMLElement>('.site-header');
-    const activationLine =
-      (header?.getBoundingClientRect().bottom ?? 0) + 16 + Math.min(140, window.innerHeight * 0.2);
+    const headerBottom =
+      window.innerWidth <= 980 ? (header?.getBoundingClientRect().bottom ?? 0) : 0;
+    const activationLine = headerBottom + 16 + Math.min(140, window.innerHeight * 0.2);
     // Keep an explicit navigation target active until scrolling settles or the user scrolls again.
     if (pendingNavigationRef.current) return;
 

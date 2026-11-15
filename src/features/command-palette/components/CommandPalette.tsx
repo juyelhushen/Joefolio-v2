@@ -104,6 +104,7 @@ export default function CommandPalette({
           ref={inputRef}
           id="command-query"
           type="search"
+          placeholder="Search sections and projects"
           role="combobox"
           autoComplete="off"
           aria-autocomplete="list"

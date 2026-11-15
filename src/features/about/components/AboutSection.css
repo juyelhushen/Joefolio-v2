@@ -1,5 +1,6 @@
 .about-section {
   padding-block: var(--space-section);
+  border-bottom: var(--border-subtle);
 }
 
 .experience-list,
@@ -10,21 +11,26 @@
 }
 
 .experience-row {
-  display: grid;
-  grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: var(--space-3);
-  padding-block: 10px;
+  padding-block: 14px;
   border-bottom: var(--border-subtle);
 }
 
 .experience-dates {
+  display: block;
   color: var(--color-text-muted);
   font: 500 0.875rem/1.7 var(--font-mono);
 }
 
 .current-role {
-  margin-left: var(--space-2);
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 999px;
   color: var(--color-accent-primary);
+  background: var(--color-accent-tint);
   font-size: 0.875rem;
 }
 
@@ -41,15 +47,4 @@
 
 .toolbox-skills {
   color: var(--color-text-secondary);
-}
-
-@media (max-width: 520px) {
-  .experience-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .experience-dates:empty {
-    display: none;
-  }
 }

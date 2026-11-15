@@ -14,6 +14,35 @@ it('keeps Projects active for case-study hashes on load and history changes', ()
   expect(result.current.activeSection).toBe('projects');
 });
 
+it.each([
+  ['experience', 'experience', 'about'],
+  ['skills', 'skills', 'about'],
+  ['ai-lab', 'projects', 'projects'],
+] as const)(
+  'scrolls #%s to the correct heading and retains the section state',
+  (hash, target, active) => {
+    const element = document.createElement('div');
+    element.id = target;
+    element.scrollIntoView = vi.fn();
+    document.body.append(element);
+    history.replaceState(null, '', `#${hash}`);
+    const callbacks: FrameRequestCallback[] = [];
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn((callback: FrameRequestCallback) => {
+        callbacks.push(callback);
+        return callbacks.length;
+      }),
+    );
+    const { result, unmount } = renderHook(() => useActiveSection());
+    act(() => callbacks[0](0));
+    expect(element.scrollIntoView).toHaveBeenCalledWith({ block: 'start' });
+    expect(result.current.activeSection).toBe(active);
+    unmount();
+    element.remove();
+  },
+);
+
 afterEach(() => {
   cleanup();
   window.history.replaceState(null, '', '/');
@@ -63,6 +92,27 @@ it('keeps adjacent sections stable inside a twelve-pixel activation dead band', 
   unmount();
   home.remove();
   about.remove();
+});
+
+it('does not use the full-height sidebar as the scroll-spy offset', () => {
+  vi.stubGlobal('innerWidth', 1280);
+  const header = document.createElement('header');
+  header.className = 'site-header';
+  const home = document.createElement('section');
+  const projects = document.createElement('section');
+  home.id = 'home';
+  projects.id = 'projects';
+  document.body.append(header, home, projects);
+  vi.spyOn(header, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 260, 800));
+  vi.spyOn(home, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, -500, 500, 400));
+  vi.spyOn(projects, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 64, 500, 400));
+  const { result, unmount } = renderHook(() => useActiveSection());
+  act(() => window.dispatchEvent(new Event('scroll')));
+  expect(result.current.activeSection).toBe('projects');
+  unmount();
+  header.remove();
+  home.remove();
+  projects.remove();
 });
 
 it('cancels pending history measurements when a newer measurement arrives and on unmount', () => {

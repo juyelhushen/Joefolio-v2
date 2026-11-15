@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, HttpError } from '../../../lib/api/client';
 
 export type AssistantCitation = {
   title: string;
@@ -151,15 +150,15 @@ export async function sendAssistantMessage(
     );
     payload = response.data;
   } catch (error) {
-    if (signal?.aborted || axios.isCancel(error)) {
+    if (signal?.aborted || (error instanceof HttpError && error.code === 'aborted')) {
       throw new AssistantApiError('aborted', 'The request was cancelled.');
     }
 
-    if (axios.isAxiosError(error) && error.response) {
+    if (error instanceof HttpError && error.status !== undefined) {
       throw new AssistantApiError(
         'http',
-        `The assistant service returned an error (${error.response.status}). Please try again later.`,
-        error.response.status,
+        `The assistant service returned an error (${error.status}). Please try again later.`,
+        error.status,
       );
     }
 

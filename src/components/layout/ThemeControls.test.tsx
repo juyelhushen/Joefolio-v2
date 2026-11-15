@@ -10,6 +10,9 @@ afterEach(() => {
 });
 
 it('toggles and persists the theme through the accessible pressed button', () => {
+  const meta = document.createElement('meta');
+  meta.name = 'theme-color';
+  document.head.append(meta);
   const setItem = vi.spyOn(Storage.prototype, 'setItem');
   render(<ThemeControls />);
 
@@ -20,6 +23,8 @@ it('toggles and persists the theme through the accessible pressed button', () =>
     screen.getByRole('button', { name: 'Switch to dark theme' }).getAttribute('aria-pressed'),
   ).toBe('true');
   expect(setItem).toHaveBeenCalledWith('portfolio-theme', 'light');
+  expect(meta.content).toBe('#fcfcfd');
+  meta.remove();
 });
 
 it('applies and persists a selected accent from the radio group', () => {
@@ -57,4 +62,19 @@ it('keeps theme changes usable if local storage throws', () => {
   render(<ThemeControls />);
   fireEvent.click(screen.getByRole('button', { name: 'Switch to light theme' }));
   expect(document.documentElement.dataset.theme).toBe('light');
+});
+
+it('keeps simultaneous desktop and mobile controls synchronized', () => {
+  render(
+    <>
+      <ThemeControls />
+      <ThemeControls />
+    </>,
+  );
+  fireEvent.click(screen.getAllByRole('button', { name: 'Switch to light theme' })[1]);
+  expect(screen.getAllByRole('button', { name: 'Switch to dark theme' })).toHaveLength(2);
+  fireEvent.click(screen.getAllByRole('button', { name: 'Choose accent colour' })[1]);
+  fireEvent.click(screen.getByRole('radio', { name: 'Violet' }));
+  fireEvent.click(screen.getAllByRole('button', { name: 'Choose accent colour' })[0]);
+  expect(screen.getByRole('radio', { name: 'Violet' }).getAttribute('aria-checked')).toBe('true');
 });

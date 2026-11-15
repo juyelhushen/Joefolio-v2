@@ -23,18 +23,4 @@ export default defineConfig(({ mode }) => ({
     },
   },
   preview: { proxy: {} },
-  build: {
-    rolldownOptions: {
-      output: {
-        codeSplitting: {
-          groups: [
-            {
-              name: 'motion-react',
-              test: /node_modules[\\/]motion[\\/]dist[\\/]es[\\/]react\.mjs$/,
-            },
-          ],
-        },
-      },
-    },
-  },
 }));

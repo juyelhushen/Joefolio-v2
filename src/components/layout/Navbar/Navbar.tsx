@@ -1,17 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
-import { Menu, Search, X } from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { Briefcase, Home, Menu, Search, Send, User, X } from 'lucide-react';
 import { navItems } from './navItems';
 import ThemeControls from '../ThemeControls';
+import ResumeDownload from '../../common/ResumeDownload';
 import './Navbar.css';
 
 type NavigationId = (typeof navItems)[number]['id'];
+const icons = { home: Home, about: User, projects: Briefcase, contact: Send };
 
 type NavbarProps = {
-  activeSection: NavigationId | 'home';
-  scrolled?: boolean;
-  onNavigate: (id: NavigationId | 'home') => void;
+  activeSection: NavigationId;
+  onNavigate: (id: NavigationId) => void;
   onSearch?: () => void;
   onSearchIntent?: () => void;
+  assistantButton?: ReactNode;
+  socialLinks?: ReactNode;
+  homeHeadingRef?: RefObject<HTMLHeadingElement | null>;
 };
 
 export default function Navbar({
@@ -19,6 +23,9 @@ export default function Navbar({
   onNavigate,
   onSearch,
   onSearchIntent,
+  assistantButton,
+  socialLinks,
+  homeHeadingRef,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -34,10 +41,7 @@ export default function Navbar({
     if (!menuOpen) return;
     firstLinkRef.current?.focus();
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setMenuOpen(false);
-        toggleRef.current?.focus();
-      }
+      if (event.key === 'Escape') setMenuOpen(false);
     };
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
@@ -65,59 +69,43 @@ export default function Navbar({
     return () => document.removeEventListener('keydown', shortcut);
   }, [menuOpen, onSearch]);
 
-  const navigate = (id: NavigationId | 'home') => {
+  const navigate = (id: NavigationId) => {
     if (menuOpen) toggleRef.current?.focus({ preventScroll: true });
     setMenuOpen(false);
     onNavigate(id);
   };
-  const search = () => {
-    if (menuOpen) toggleRef.current?.focus({ preventScroll: true });
-    setMenuOpen(false);
-    onSearch?.();
-  };
-  const links = (
-    <nav className="main-nav" id="main-navigation" aria-label="Main navigation">
-      {navItems.map(({ label, id }, index) => (
-        <a
-          ref={index === 0 ? firstLinkRef : undefined}
-          key={id}
-          href={`#${id}`}
-          aria-current={activeSection === id ? 'location' : undefined}
-          onClick={() => navigate(id)}
-        >
-          {label}
-        </a>
-      ))}
+  const links = (mobile: boolean) => (
+    <nav className="main-nav" aria-label="Primary">
+      {navItems.map(({ label, id }, index) => {
+        const Icon = icons[id];
+        return (
+          <a
+            ref={mobile && index === 0 ? firstLinkRef : undefined}
+            key={id}
+            href={`#${id}`}
+            aria-current={activeSection === id ? 'location' : undefined}
+            onClick={() => navigate(id)}
+          >
+            <Icon aria-hidden="true" size={20} strokeWidth={1.75} />
+            {label}
+          </a>
+        );
+      })}
     </nav>
-  );
-  const controls = (
-    <div className="header-controls">
-      <button
-        type="button"
-        className="button header-search"
-        aria-label="Search"
-        aria-keyshortcuts="Control+k Meta+k"
-        onMouseEnter={onSearchIntent}
-        onFocus={onSearchIntent}
-        onClick={search}
-      >
-        <Search aria-hidden="true" />
-        <span>Search</span>
-        <kbd>Ctrl K</kbd>
-      </button>
-      <ThemeControls />
-    </div>
   );
 
   return (
     <>
       <header className="site-header">
-        <div className="header-inner page-column">
+        <div className="header-top">
           <a className="brand" href="#home" onClick={() => navigate('home')}>
-            Juyel Hushen
+            <span className="brand-mark" aria-hidden="true">
+              JH
+            </span>
+            <span>Juyel Hushen</span>
           </a>
-          {links}
-          {controls}
+          <ThemeControls />
+          {assistantButton}
           <button
             ref={toggleRef}
             className="button mobile-menu-toggle"
@@ -130,6 +118,37 @@ export default function Navbar({
             {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </button>
         </div>
+        <p className="sidebar-bio">
+          I&apos;m <span>Juyel</span>, a software engineer building reliable backend systems.
+        </p>
+        <button
+          type="button"
+          className="button header-search"
+          aria-label="Search"
+          aria-keyshortcuts="Control+k Meta+k"
+          onMouseEnter={onSearchIntent}
+          onFocus={onSearchIntent}
+          onClick={onSearch}
+        >
+          <Search aria-hidden="true" />
+          <span>Search portfolio…</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <div className="desktop-nav">{links(false)}</div>
+        {socialLinks && (
+          <div className="sidebar-bottom">
+            {socialLinks}
+            <div className="sidebar-small-links">
+              <a
+                href="#home"
+                onClick={() => homeHeadingRef?.current?.focus({ preventScroll: true })}
+              >
+                Back to top
+              </a>
+              <ResumeDownload />
+            </div>
+          </div>
+        )}
       </header>
       {menuOpen && (
         <div className="mobile-menu-layer">
@@ -137,14 +156,10 @@ export default function Navbar({
             type="button"
             className="mobile-menu-backdrop"
             aria-label="Dismiss mobile menu"
-            onClick={() => {
-              setMenuOpen(false);
-              toggleRef.current?.focus();
-            }}
+            onClick={() => setMenuOpen(false)}
           />
-          <div className="mobile-menu page-column" id="mobile-menu">
-            {links}
-            {controls}
+          <div className="mobile-menu" id="mobile-menu">
+            {links(true)}
           </div>
         </div>
       )}

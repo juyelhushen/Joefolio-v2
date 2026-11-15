@@ -1,206 +1,107 @@
-import { AxiosError, AxiosHeaders, CanceledError, type AxiosAdapter } from 'axios';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { useState } from 'react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiClient } from '../../../lib/api/client';
 import PortfolioAssistant from './PortfolioAssistant';
-
-const originalAdapter = apiClient.defaults.adapter;
 
 afterEach(() => {
   cleanup();
-  apiClient.defaults.adapter = originalAdapter;
   vi.unstubAllGlobals();
 });
 
-function respondWith(data: unknown, status = 200) {
-  const adapter = vi.fn<AxiosAdapter>(async (config) => {
-    const response = { config, data, status, statusText: '', headers: new AxiosHeaders() };
-    if (status >= 400) {
-      throw new AxiosError(
-        'Request failed',
-        AxiosError.ERR_BAD_RESPONSE,
-        config,
-        undefined,
-        response,
-      );
-    }
-    return response;
-  });
-  apiClient.defaults.adapter = adapter;
-  return adapter;
+function Widget({ apiBaseUrl = '' }: { apiBaseUrl?: string }) {
+  const [opener, setOpener] = useState<HTMLButtonElement | null>(null);
+  return (
+    <>
+      <button type="button" onClick={(event) => setOpener(event.currentTarget)}>
+        Open assistant
+      </button>
+      {opener && (
+        <PortfolioAssistant
+          apiBaseUrl={apiBaseUrl}
+          opener={opener}
+          onClose={() => setOpener(null)}
+        />
+      )}
+    </>
+  );
 }
 
-function openAssistant(apiBaseUrl = '') {
-  render(<PortfolioAssistant apiBaseUrl={apiBaseUrl} reduceMotion={false} />);
-  const launcher = screen.getByRole('button', { name: 'Open portfolio assistant' });
-  fireEvent.click(launcher);
-  // Wait for the panel to appear with animation
-  return {
-    launcher,
-    async getPanel() {
-      return await screen.findByRole('region', { name: 'Portfolio assistant' });
-    },
-  };
-}
-
-it('stays unavailable and does not call the API without a configured URL', async () => {
-  const adapter = respondWith({});
-  const { getPanel } = openAssistant();
-  const panel = await getPanel();
-
-  expect(panel.textContent).toContain('A backend service must be configured');
-  expect(
-    screen.getByRole('textbox', { name: "Ask about Juyel's portfolio" }).hasAttribute('disabled'),
-  ).toBe(true);
-  expect(adapter).not.toHaveBeenCalled();
-});
-
-it('keeps the floating launcher icon-only with an accessible label', () => {
-  render(<PortfolioAssistant apiBaseUrl="" reduceMotion={false} />);
-
-  const launcher = screen.getByRole('button', { name: 'Open portfolio assistant' });
-  expect(launcher.querySelector('svg')).toBeTruthy();
-  expect(launcher.textContent).toBe('');
-});
-
-it('opens, closes with Escape, and restores focus to the launcher', async () => {
-  const { launcher, getPanel } = openAssistant();
-
-  await getPanel();
-  expect(screen.getByRole('region', { name: 'Portfolio assistant' })).toBeTruthy();
+it('opens an unavailable panel, closes with Escape, and restores focus', async () => {
+  const fetchMock = vi.fn();
+  vi.stubGlobal('fetch', fetchMock);
+  render(<Widget />);
+  const opener = screen.getByRole('button', { name: 'Open assistant' });
+  fireEvent.click(opener);
+  expect(screen.getByRole('region', { name: 'Portfolio assistant' }).textContent).toContain(
+    'A backend service must be configured',
+  );
+  expect(screen.getByRole('textbox').hasAttribute('disabled')).toBe(true);
+  expect(fetchMock).not.toHaveBeenCalled();
   fireEvent.keyDown(document, { key: 'Escape' });
-  // Wait for the panel to disappear with animation
-  await waitFor(() => {
-    expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull();
-  });
-  expect(document.activeElement).toBe(launcher);
-
-  fireEvent.click(launcher);
-  const panel = await getPanel();
-  fireEvent.click(
-    within(panel).getByRole('button', {
-      name: 'Close portfolio assistant',
-    }),
+  await waitFor(() =>
+    expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull(),
   );
-  // Wait for the panel to disappear with animation
-  await waitFor(() => {
-    expect(screen.queryByRole('region', { name: 'Portfolio assistant' })).toBeNull();
-  });
+  expect(document.activeElement).toBe(opener);
 });
 
-it('sends a valid message and displays the response and safe citation link', async () => {
-  const adapter = respondWith({
-    conversationId: 'conversation-1',
-    answer: 'The assistant documents PDF retrieval.',
-    citations: [
-      {
-        title: 'Knowledge Assistant repository',
-        url: 'https://github.com/juyelhushen/enterprise-knowledge-assistant',
-      },
-    ],
-  });
-  const { getPanel } = openAssistant('https://assistant.example.test');
-  await getPanel();
-
-  const input = screen.getByRole('textbox', { name: "Ask about Juyel's portfolio" });
-  fireEvent.change(input, { target: { value: '  Which projects use RAG?  ' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
-
-  expect(await screen.findByText('The assistant documents PDF retrieval.')).toBeTruthy();
-  const citation = screen.getByRole('link', { name: 'Knowledge Assistant repository' });
-  expect(citation.getAttribute('href')).toBe(
-    'https://github.com/juyelhushen/enterprise-knowledge-assistant',
+it('sends a message and renders a safe citation without interpreting HTML', async () => {
+  const fetchMock = vi.fn().mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        conversationId: 'conversation-1',
+        answer: '<img src=x onerror=alert(1)>',
+        citations: [{ title: 'Project', url: 'https://example.test/project' }],
+      }),
+    ),
   );
-  expect(citation.getAttribute('rel')).toBe('noopener noreferrer');
-  const config = adapter.mock.calls[0][0];
-  expect(apiClient.getUri(config)).toBe('https://assistant.example.test/api/chat');
-  expect(config.method).toBe('post');
-  expect(JSON.parse(config.data)).toEqual({ message: 'Which projects use RAG?' });
-});
-
-it('renders response text without interpreting HTML', async () => {
-  respondWith({
-    conversationId: 'conversation-1',
-    answer: '<img src=x onerror=alert(1)>',
-  });
-  const { getPanel } = openAssistant('https://assistant.example.test');
-  await getPanel();
-  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
+  vi.stubGlobal('fetch', fetchMock);
+  render(<Widget apiBaseUrl="https://assistant.example.test" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open assistant' }));
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: '  Question  ' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
-
   expect(await screen.findByText('<img src=x onerror=alert(1)>')).toBeTruthy();
   expect(document.querySelector('.assistant-message-assistant img')).toBeNull();
+  expect(screen.getByRole('link', { name: 'Project' }).getAttribute('rel')).toBe(
+    'noopener noreferrer',
+  );
+  expect(fetchMock.mock.calls[0][0]).toBe('https://assistant.example.test/api/chat');
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ message: 'Question' });
 });
 
-it('reports network and HTTP failures without showing an assistant answer', async () => {
-  apiClient.defaults.adapter = async () => {
-    throw new AxiosError('offline', AxiosError.ERR_NETWORK);
-  };
-  let { getPanel } = openAssistant('https://assistant.example.test');
-  await getPanel();
+it('shows HTTP and network errors without inventing an answer', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')));
+  const view = render(<Widget apiBaseUrl="https://assistant.example.test" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open assistant' }));
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
-
-  expect((await screen.findByRole('alert')).textContent).toContain('Could not reach the assistant');
-  expect(document.querySelector('.assistant-message-assistant')).toBeNull();
-
-  cleanup();
-  respondWith('failure', 503);
-  ({ getPanel } = openAssistant('https://assistant.example.test'));
-  await getPanel();
-  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Another question' } });
+  expect((await screen.findByRole('alert')).textContent).toContain('Could not reach');
+  view.unmount();
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('failure', { status: 503 })));
+  render(<Widget apiBaseUrl="https://assistant.example.test" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open assistant' }));
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
   expect((await screen.findByRole('alert')).textContent).toContain('error (503)');
 });
 
-it('prevents duplicate submissions while the request is pending', async () => {
-  let resolveRequest: (() => void) | undefined;
-  const adapter = vi.fn<AxiosAdapter>(
-    (config) =>
-      new Promise((resolve) => {
-        resolveRequest = () =>
-          resolve({
-            config,
-            status: 200,
-            statusText: '',
-            headers: new AxiosHeaders(),
-            data: { conversationId: 'conversation-1', answer: 'A real response.' },
-          });
+it('prevents duplicate submissions and aborts when closed', async () => {
+  let requestSignal: AbortSignal | undefined;
+  const fetchMock = vi.fn(
+    (_url: string, init: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        requestSignal = init.signal ?? undefined;
+        requestSignal?.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError')),
+        );
       }),
   );
-  apiClient.defaults.adapter = adapter;
-  const { getPanel } = openAssistant('https://assistant.example.test');
-  await getPanel();
+  vi.stubGlobal('fetch', fetchMock);
+  render(<Widget apiBaseUrl="https://assistant.example.test" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open assistant' }));
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
   fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
-
-  expect(screen.getByRole('status').textContent).toContain('Waiting');
-  expect(adapter).toHaveBeenCalledTimes(1);
+  expect(fetchMock).toHaveBeenCalledOnce();
   expect(screen.getByRole('button', { name: 'Send message' }).hasAttribute('disabled')).toBe(true);
-  expect(screen.getByRole('button', { name: 'Send message' }).getAttribute('aria-busy')).toBe(
-    'true',
-  );
-
-  resolveRequest?.();
-  await waitFor(() => expect(screen.getByText('A real response.')).toBeTruthy());
-});
-
-it('aborts a pending request when the widget unmounts', () => {
-  const adapter = vi.fn<AxiosAdapter>((config) => {
-    return new Promise((_, reject) => {
-      config.signal?.addEventListener?.('abort', () => reject(new CanceledError('cancelled')));
-    });
-  });
-  apiClient.defaults.adapter = adapter;
-  const view = render(
-    <PortfolioAssistant apiBaseUrl="https://assistant.example.test" reduceMotion={false} />,
-  );
-  fireEvent.click(screen.getByRole('button', { name: 'Open portfolio assistant' }));
-  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Question' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
-
-  expect(adapter).toHaveBeenCalledTimes(1);
-  const requestSignal = adapter.mock.calls[0][0].signal;
-  view.unmount();
+  fireEvent.click(screen.getByRole('button', { name: 'Close portfolio assistant' }));
   expect(requestSignal?.aborted).toBe(true);
 });

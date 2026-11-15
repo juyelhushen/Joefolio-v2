@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Moon, Palette, Sun } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import './ThemeControls.css';
 
 const accents = [
@@ -32,6 +32,17 @@ export default function ThemeControls() {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const syncAppearance = () => {
+      setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+      setAccent(
+        accents.find(({ id }) => id === document.documentElement.dataset.accent)?.id ?? 'cyan',
+      );
+    };
+    window.addEventListener('portfolio-appearance-change', syncAppearance);
+    return () => window.removeEventListener('portfolio-appearance-change', syncAppearance);
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -47,13 +58,18 @@ export default function ThemeControls() {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
     document.documentElement.dataset.theme = next;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', next === 'light' ? '#fcfcfd' : '#080d1b');
     store('portfolio-theme', next);
+    window.dispatchEvent(new Event('portfolio-appearance-change'));
   };
 
   const applyAccent = (next: Accent) => {
     setAccent(next);
     document.documentElement.dataset.accent = next;
     store('portfolio-accent', next);
+    window.dispatchEvent(new Event('portfolio-appearance-change'));
   };
 
   const selectAccent = (next: Accent) => {
@@ -64,16 +80,6 @@ export default function ThemeControls() {
 
   return (
     <div className="theme-controls">
-      <button
-        className="button theme-toggle"
-        type="button"
-        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-        aria-pressed={theme === 'light'}
-        onClick={toggleTheme}
-      >
-        {theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
-        <span>Theme</span>
-      </button>
       <div className="accent-control">
         <button
           ref={triggerRef}
@@ -85,8 +91,7 @@ export default function ThemeControls() {
           aria-controls="accent-options"
           onClick={() => setOpen((value) => !value)}
         >
-          <Palette aria-hidden="true" />
-          <span>Colour</span>
+          <span className="accent-dot" aria-hidden="true" />
         </button>
         {open && (
           <div className="accent-popover" id="accent-options">
@@ -143,6 +148,15 @@ export default function ThemeControls() {
           </div>
         )}
       </div>
+      <button
+        className="button theme-toggle"
+        type="button"
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+        aria-pressed={theme === 'light'}
+        onClick={toggleTheme}
+      >
+        {theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+      </button>
     </div>
   );
 }

@@ -1,16 +1,11 @@
 import { StrictMode } from 'react';
-import { AxiosHeaders, type AxiosAdapter, type AxiosResponse } from 'axios';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiClient } from '../lib/api/client';
 import App from './App';
 import { useBackendHealth } from './hooks/useBackendHealth';
 
-const originalAdapter = apiClient.defaults.adapter;
-
 afterEach(() => {
   cleanup();
-  apiClient.defaults.adapter = originalAdapter;
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -47,14 +42,14 @@ it('warms on application opening without blocking rendering or duplicating acros
       disconnect() {}
     },
   );
-  let resolveResponse: ((response: AxiosResponse<unknown>) => void) | undefined;
-  const adapter = vi.fn<AxiosAdapter>(
+  let resolveResponse: ((response: Response) => void) | undefined;
+  const adapter = vi.fn<(url: string) => Promise<Response>>(
     () =>
       new Promise((resolve) => {
         resolveResponse = resolve;
       }),
   );
-  apiClient.defaults.adapter = adapter;
+  vi.stubGlobal('fetch', adapter);
   const view = render(
     <StrictMode>
       <App />
@@ -64,7 +59,7 @@ it('warms on application opening without blocking rendering or duplicating acros
   expect(screen.getByRole('heading', { level: 1 })).toBeTruthy();
   runIdleCallbacks();
   await waitFor(() => expect(adapter).toHaveBeenCalledTimes(1));
-  expect(adapter.mock.calls[0][0].url).toBe('/actuator/health');
+  expect(adapter.mock.calls[0][0]).toContain('/actuator/health');
 
   view.rerender(
     <StrictMode>
@@ -76,13 +71,7 @@ it('warms on application opening without blocking rendering or duplicating acros
   runIdleCallbacks();
   expect(adapter).toHaveBeenCalledTimes(1);
   expect(resolveResponse).toBeDefined();
-  resolveResponse?.({
-    config: adapter.mock.calls[0][0],
-    status: 200,
-    statusText: 'OK',
-    headers: new AxiosHeaders(),
-    data: { status: 'UP' },
-  });
+  resolveResponse?.(new Response('{"status":"UP"}', { status: 200 }));
   await waitFor(() => expect(screen.getByLabelText('Test backend status').textContent).toBe('UP'));
   view.unmount();
   render(

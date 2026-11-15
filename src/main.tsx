@@ -1,7 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource-variable/inter/opsz.css';
-import '@fontsource-variable/jetbrains-mono/wght.css';
 import App from './app/App';
 import LoadBoundary from './components/common/LoadBoundary';
 import './styles/global.css';
