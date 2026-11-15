@@ -1,35 +1,19 @@
-# Juyel Hushen — Cosmic Portfolio
+# Juyel Hushen — Portfolio
 
-React + Vite + TypeScript starter for the planned cosmic engineering portfolio.
+A calm, text-first portfolio built with React, Vite, and TypeScript. The single-page layout uses a
+narrow reading column, a dark navy and cyan default theme, and a light theme with five accessible
+accent choices.
 
-## Included
+## Features
 
-Startup opens with **Stellar Fold**, a 3200ms gravitational anomaly, spacetime distortion,
-galactic formation and dimension reveal. It uses the portfolio's persistent WebGL atmosphere and
-four-depth particle Canvas, not a separate loader scene. The visibility clock starts after the
-environment paints; hidden tabs pause it. Both renderers retain their exact final frame if the
-critical hero is late, then continue without replacing the sky. App initialization is independent;
-backend checks and below-fold assets never gate release. Reduced motion skips the cinematic and
-delay, retaining a static cosmic background. Visual failures bypass the intro; entry failures
-offer a readable reload state.
-
-- Responsive cosmic hero and navigation
-- Persistent Infinite Universe: four stellar depths, near-space dust, event-driven meteors and WebGL nebula
-- CSS-rendered planet/orbit layers
-- Evidence-backed project cards linked to public repositories
-- On-demand case-study architecture sequences with Replay and a static mobile/reduced-effects view
-- Engineering introduction, professional experience timeline, and project-backed skills
-- AI Lab with documented project case studies and a contact form with server-side email delivery
-- AI Lab case studies grounded in the public Sentinel and Enterprise Knowledge Assistant documentation
-- Portfolio assistant interface with an optional, typed `/api/chat` integration boundary
-- Keyboard-accessible mobile navigation and a skip-to-content link
-- On-demand command palette: header Search, mobile-menu Search or Ctrl/Cmd+K; sections,
-  project case studies, profile links and résumé availability
-- Whole-line masked headings below the hero, with immediate mobile/reduced-effects fallbacks
-- A visibility-gated Bengaluru footer clock using the Asia/Kolkata time zone
-- Automatic OS reduced-motion support and lightweight mobile/data-saving backgrounds
-- Genuine viewport-triggered reveals, a cosmic scroll-progress beam, and a fine-pointer Artifact Scanner with localized hover magnification
-- Local visual concept asset at `public/images/cosmic-portfolio-concept.png`
+- Intro, experience and toolbox, project list, contact form, and a compact footer
+- Responsive sticky navigation, including a disclosure menu on small screens
+- Search palette with the Ctrl/Cmd+K shortcut
+- Project case studies opened from `#projects/<project-id>` links
+- Theme and accent preferences saved in local storage and applied before first paint
+- Contact form connected to the existing backend API client
+- Optional lazy-loaded portfolio assistant and build-flag-gated résumé link
+- Keyboard skip link, visible focus, reduced-motion support, and Bengaluru local time
 
 ## Run locally
 
@@ -38,184 +22,37 @@ npm ci
 npm run dev
 ```
 
-The assistant is intentionally unavailable until a separate backend implements the
-[assistant API contract](./docs/ai-assistant-api.md). To configure a local or deployed service,
-copy `.env.example` to `.env.local` and set `VITE_AI_ASSISTANT_API_URL` to its base URL. Leave the
-value empty to hide the unconfigured launcher and avoid downloading the assistant interface;
-no sample answers are simulated. Existing search, projects and contact remain available.
-Vite environment values are public, so never put model/provider credentials or backend secrets in
-this variable.
-
 The contact form submits to the deployed Spring Boot API. Development uses Vite's same-origin
-`/backend` proxy; production calls the configured API directly without a proxy or widened CORS.
-Set `VITE_API_BASE_URL=https://joefolio-backend.onrender.com` in `.env.local` and Vercel's build
-environment. See the [contact API guide](./docs/contact-email.md) for details.
+`/backend` proxy; production calls the configured API directly. Set
+`VITE_API_BASE_URL=https://joefolio-backend.onrender.com` in `.env.local` and in the deployment
+environment. See the [contact API guide](./docs/contact-email.md).
 
-After the browser has idle time, the portfolio initiates one silent `GET /actuator/health`
-warm-up through the shared Axios client. It does not block rendering, allows up to 90 seconds for a
-Render cold start, and does not poll or retry automatically. The backend must allow this health
-endpoint and its `Cache-Control` request header from the production frontend's origin.
+The assistant is available only when `VITE_AI_ASSISTANT_API_URL` points to a compatible service.
+See the [assistant API contract](./docs/ai-assistant-api.md). Vite environment values are public;
+never put provider credentials or backend secrets in them.
 
-## Frontend architecture and development
+## Project structure
 
-Feature-owned components, services, hooks and data live under `src/features`. Shared UI remains
-under `src/components`, and all API services use the single client under `src/lib/api`.
-See the [architecture guide](./docs/architecture.md) for module boundaries, migration decisions,
-styling responsibilities, test conventions and remaining technical debt.
+- `src/app/` composes the page and handles active section and legacy hash navigation.
+- `src/components/layout/` contains the header, theme controls, footer, and local clock.
+- `src/features/about/`, `experience/`, and `skills/` provide factual career and toolbox content.
+- `src/features/projects/` owns project data, the plain work list, and case-study dialogs.
+- `src/features/contact/` owns the accessible form and contact API integration.
+- `src/features/command-palette/` and `assistant/` implement the optional search and assistant.
+- `src/styles/` defines theme tokens, global styles, and shared utilities.
+
+See the [architecture guide](./docs/architecture.md) for the page structure, interaction
+contracts, and styling conventions.
+
+## Checks
 
 ```bash
 npm run format:check
 npm run lint
 npm run typecheck
 npm run test
-```
-
-Production build:
-
-```bash
 npm run build
 ```
 
-For versioned releases and the tag-triggered draft-release workflow, see the
-[release guide](./docs/releasing.md).
-
-## Project content notes
-
-To show the impact strip, add verified stats to `src/features/impact/data/impact.ts`.
-
-Project descriptions and technology lists are based on the linked public repositories. The author
-confirmed solo ownership of the five featured projects. Each case study separates contribution,
-engineering decisions, trade-offs, source-backed testing and unmeasured outcomes. Repository tests
-are evidence of implementation, not a claim that external project suites were run in this workspace.
-No traffic, business-impact or production-scale metrics are invented. Corban is not included because
-the available legacy portfolio copy does not provide a project repository or a verified technical stack.
-
-Experience entries support optional summaries, highlights and technology stacks; these fields are
-currently unused until their content is verified.
-
-Orbit Navigation uses a floating desktop dock with a moving section marker and a compact scroll
-state. At 1100px and below, the capsule opens a numbered exploration dialog with native focus
-containment, scroll locking, Escape/backdrop dismissal and focus restoration. Its search action
-hands focus ownership to the existing command palette. Motion is disabled by the OS preference.
-About, Experience, Skills, Projects, AI Lab, Contact and Footer load near the viewport; their native
-section anchors remain available for direct hash navigation. The configured assistant and the animated
-background render after browser idle time, with the CSS cosmic gradient visible first.
-Motion's animation features load asynchronously rather than being included in the entry module;
-mobile/data-saving/reduced-motion hero copy is visible immediately without an entrance sequence.
-Three.js and the Earth texture remain deferred until the contact globe approaches the viewport.
-Changing reduced-motion preferences pauses/resumes the existing renderer without recreating GPU
-resources or reloading its texture.
-The same moving universe runs on mobile and coarse-pointer devices. Particle budgets are 620
-desktop / 400 tablet / 230 mobile stars plus 12 / 8 / 6 near particles. Shooting-star events use
-random 2–4s / 3–5s / 4–6s gaps, with occasional companion trails and bounded 3 / 2 / 2 concurrency.
-Tune these budgets in `UNIVERSE_PROFILES` in `VirtualCamera.ts`. Canvas targets 60 FPS desktop and
-30 FPS tablet/mobile; the slow nebula updates at 24 / 20 FPS with reduced pixel density.
-Sustained slow frames thin particles gradually, then allow desktop rendering to fall back to 30 FPS.
-Only OS reduced motion stops travel and shooting stars: it retains a layered static Canvas sky and
-static atmospheric gradients. Canvas/WebGL failures select visible fallbacks. Hidden tabs pause
-both rendering and the event clock; resume never emits a backlog of meteors.
-
-Skills are grouped from technologies documented in the linked projects; they are not proficiency
-ratings or claims about employment.
-
-## Interactive project demonstrations
-
-Case studies load on demand. On desktop, visible architecture lanes light steps in sequence and
-move decorative packets between them once per open; Replay restarts the sequence. Mobile-lite,
-OS reduced motion, data saving and missing IntersectionObserver show all steps
-statically without Replay.
-
-The gallery ends after its five project cards; architecture diagrams remain inside individual
-case studies. These features add no dependencies, canvas or WebGL. Keep their code/CSS lazy, use only
-transform/opacity animations while visible, and measure five mobile Lighthouse runs before/after
-changes (median and min-max), targeting Performance >=90 and TBT <=300ms without entry-bundle
-growth beyond noise.
-
-## Search and finishing details
-
-Search code and styles are loaded with `React.lazy` on first open, or prefetched on the first
-hover/focus of a Search button, never at startup. Ctrl/Cmd+K is ignored in editable fields.
-The native dialog keeps focus in its search combobox; arrows, Home/End and Enter operate grouped
-results, Escape/backdrop dismiss it, and closing restores the opener. Navigation reuses the
-existing section handler and `#projects/<id>` case-study hashes, including unmounted destinations.
-Project, navigation and profile data remain authoritative; a missing résumé has no search action.
-
-Section heading masks reuse each heading's existing ScrollReveal observer and animate whole
-lines, not letters. They pause outside the viewport or in hidden tabs. Mobile-lite, data saving,
-OS reduced motion and missing observers show headings immediately. The footer reserves room
-for “Bengaluru · HH:MM”, formats with `Intl.DateTimeFormat`,
-and updates once per minute only while visible in an active tab, clearing timers on cleanup.
-
-The social card's source is `public/images/social-preview.svg`; regenerate
-`public/images/social-preview.png` at exactly 1200×630 after editing it. For example, with Chrome
-installed, run headless Chrome against the served SVG using `--window-size=1200,630`,
-`--force-device-scale-factor=1`, `--hide-scrollbars` and `--screenshot=<absolute PNG path>`.
-Inspect the result at half size and the vector favicon at 16px/32px. Existing Open Graph/Twitter
-URLs use the verified canonical origin `https://juyel.vercel.app/`, also used by `robots.txt`,
-`sitemap.xml` and the single Person JSON-LD record. Only the root page belongs in the sitemap:
-section and project hashes are not separate server-rendered pages. No generation dependency is
-added to the application. The obsolete `joefolio-2-0-two.vercel.app` deployment returned 404 during
-the November 3, 2026 audit; it is not used as a canonical URL.
-
-## Adding your résumé
-
-Place your current PDF at `public/resume.pdf` and rebuild with `npm run build`. Vite checks for
-the file at build time; the footer and command palette offer the download only when it exists, using
-`Juyel-Hushen-Resume.pdf` as the download filename. No placeholder PDF is supplied. Restart Vite
-if you add the file while the development server is running.
-
-The public contact address lives in `src/lib/profile.ts` and is used only as the footer's
-`mailto:` destination. The visible label is Gmail, immediately after GitHub; the actual address
-is never shown as portfolio copy. Contact offline/error messages point
-to that footer link without repeating the address; the visitor email field and submission
-contract are unchanged. There are no copy-email or manual effects controls and no persisted
-effects preference. Motion's `useReducedMotion` and CSS `prefers-reduced-motion` automatically
-honor the operating-system setting. A small OS-only media subscription supplements Motion's
-initial snapshot so mounted effects also stop immediately when the system setting changes.
-
-The hero introduces “SOFTWARE ENGINEER II · FULL-STACK · AI” with one editorial heading:
-“I turn complex ideas into reliable software.” Supporting copy connects dependable backend
-systems, thoughtful digital experiences and practical AI. Explore my work and Get in touch
-remain the two primary actions. A contained engineering constellation replaces the hero planet:
-Backend, Full-stack and AI systems nodes link to Projects, Skills and AI Lab. Fine SVG paths
-connect them to a breathing core, with one slow satellite. The visual stacks below the copy on
-mobile without cropping. Native keyboard focus and the heading focus target remain intact.
-CTA hover/focus states provide a light sweep, border illumination, lift and tactile press.
-
-Typography reuses locally bundled Space Grotesk headings and Inter body/navigation/button text.
-Shared tokens in `src/styles/tokens.css` carry Cosmic Aurora through the portfolio:
-midnight `#080D1B`, deep blue `#111D35`, cyan `#62DDF5`, royal blue `#668BFF`,
-violet `#A995FF`, ice white `#F0F4FF` and supporting text `#A7B5CE`.
-Cosmic Pulse uses cyan for interactions, violet for secondary illumination and blue for depth.
-`src/styles/utilities.css` owns three action variants: `.button-primary` (Cosmic Energy),
-`.button-secondary` (Orbital Glass) and `.button-tertiary` (Signal Link).
-Use `.button` with exactly one variant; `.button-icon` preserves the same 48px target for icon
-controls. Shared padding, 10px control radius, 18px icons, 240ms transitions, focus, press and
-disabled states apply everywhere. `.button-compact` provides a 44px target for compact controls.
-Primary reflections and secondary edge signals play once on desktop hover or keyboard focus,
-never continuously. Only directional icons move; tertiary underlines expand without a filled surface.
-Touch uses tactile press feedback, and OS reduced motion removes nonessential movement.
-The native `Button` component composes these same classes for contact and assistant async actions.
-Its `state` is caller-controlled (`idle`, `loading`, `success`); loading disables activation and
-sets `aria-busy`. Overlapping label tracks reserve dimensions across states. Success is shown only
-after a confirmed result. Navigation and download actions remain native anchors.
-Specialized command rows and skill planets share `.pulse-control` focus/press feedback without
-losing their shapes or keyboard semantics. Cursor magnification does not add a competing scale
-effect to shared controls.
-Shared `.form-control` styling covers contact, search and assistant fields with visible focus
-and semantic invalid/disabled states. Cards use shared 16px radii, fine borders and navy surfaces.
-Composite controls (skill planets, timeline markers, search options and navigation items)
-keep their specialized geometry and keyboard semantics, using the same focus/selected palette.
-There are no feature-local action palettes. The core and 42-second satellite pause
-offscreen or in hidden tabs, with static mobile-lite/reduced-motion fallbacks. The persistent particle
-Canvas owns stars, close particles and randomized shooting stars across every section, behind content.
-No new dependency or font request is added. The satellite is hidden on mobile,
-and OS reduced motion disables continuous animation without hiding the meaningful node links.
-
-## Follow-up work
-
-- Build and deploy a backend that implements the documented chat contract, portfolio grounding,
-  and server-side safety and access controls; none is included in this frontend
-- Confirm Corban details and a public project destination
-- Replace the CSS project visuals with verified screenshots or diagrams when available
-- Add a current résumé when a verified public asset is available
+The résumé link appears only when `public/resume.pdf` exists at build time. The footer's Email link
+is the sole on-page destination for the public contact address.

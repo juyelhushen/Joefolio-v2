@@ -1,0 +1,72 @@
+.theme-controls,
+.accent-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.theme-toggle svg,
+.accent-trigger svg {
+  width: 16px;
+  height: 16px;
+}
+
+.accent-popover {
+  position: absolute;
+  z-index: 15;
+  top: calc(100% + 8px);
+  right: 0;
+  padding: 8px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--color-bg);
+}
+
+.accent-options {
+  display: flex;
+  gap: 4px;
+}
+
+.accent-swatch {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+}
+
+.accent-swatch[aria-checked='true'] {
+  border-color: var(--color-text-primary);
+}
+
+.accent-swatch span {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.accent-swatch[data-accent-choice='cyan'] span {
+  background: var(--accent-cyan);
+}
+
+.accent-swatch[data-accent-choice='violet'] span {
+  background: var(--accent-violet);
+}
+
+.accent-swatch[data-accent-choice='green'] span {
+  background: var(--accent-green);
+}
+
+.accent-swatch[data-accent-choice='amber'] span {
+  background: var(--accent-amber);
+}
+
+.accent-swatch[data-accent-choice='rose'] span {
+  background: var(--accent-rose);
+}

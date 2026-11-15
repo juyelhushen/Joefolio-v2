@@ -1,42 +1,31 @@
-import { ArrowUpRight, Sparkles } from 'lucide-react';
-import ScrollReveal, { ScrollRevealItem } from '../../../components/common/ScrollReveal';
+import { experience } from '../../experience/data/experience';
+import { skillGroups } from '../../skills/data/skills';
 import './AboutSection.css';
 
 export default function AboutSection() {
   return (
-    <section className="manifesto section-wrap" id="about" aria-labelledby="about-title">
-      <ScrollReveal className="manifesto-symbol" variant="scale-up">
-        <Sparkles size={24} strokeWidth={1.2} />
-        <span>01 / ABOUT</span>
-      </ScrollReveal>
-      <ScrollReveal className="manifesto-copy" variant="stagger-container" headingReveal>
-        <ScrollRevealItem>
-          <h2 id="about-title">
-            <span className="heading-line-mask">
-              <span className="heading-line">Build end to end.</span>
+    <section className="about-section page-column" id="about" aria-labelledby="experience-title">
+      <h2 id="experience-title">Experience</h2>
+      <ol className="experience-list">
+        {experience.map((entry) => (
+          <li className="experience-row" key={entry.id}>
+            <span className="experience-dates">{entry.dates ?? ''}</span>
+            <span>
+              {entry.role}, {entry.employer}
+              {entry.current && <span className="current-role">Current</span>}
             </span>
-            <br />
-            <span className="heading-line-mask">
-              <span className="heading-line">
-                <em>Keep the seams clear.</em>
-              </span>
-            </span>
-          </h2>
-        </ScrollRevealItem>
-        <ScrollRevealItem>
-          <p>
-            I work across the stack with a backend focus on clear APIs, system integration,
-            persistence, and dependable asynchronous workflows. My project work also explores RAG,
-            LLM applications, and agentic systems, with attention to inspectable retrieval, tools,
-            and verification.
-          </p>
-        </ScrollRevealItem>
-      </ScrollReveal>
-      <ScrollReveal className="manifesto-link-reveal" delay={0.14}>
-        <a className="button button-tertiary" href="#skills">
-          Explore my toolkit <ArrowUpRight size={16} aria-hidden="true" />
-        </a>
-      </ScrollReveal>
+          </li>
+        ))}
+      </ol>
+      <h2 id="toolbox-title">Toolbox</h2>
+      <ul className="toolbox-list" aria-labelledby="toolbox-title">
+        {skillGroups.map((group) => (
+          <li key={group.id}>
+            <span>{group.name}</span>
+            <span className="toolbox-skills">{group.skills.join(' · ')}</span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

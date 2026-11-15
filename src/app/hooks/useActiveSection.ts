@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { navItems } from '../../components/layout/Navbar/navItems';
+import { getNavigationTarget, type NavigationId } from '../navigation-target';
 
 export const useActiveSection = () => {
-  const initialHashTarget = navItems.find(
-    (item) =>
-      item.id ===
-      (typeof window === 'undefined' ? '' : window.location.hash.slice(1).split('/')[0]),
-  );
-  const [activeSection, setActiveSection] = useState<(typeof navItems)[number]['id']>(
-    initialHashTarget?.id ?? 'home',
-  );
+  const initialHashTarget =
+    typeof window === 'undefined' ? null : getNavigationTarget(window.location.hash);
+  const [activeSection, setActiveSection] = useState<NavigationId>(initialHashTarget ?? 'home');
   const activeSectionRef = useRef(activeSection);
   const [isScrolled, setIsScrolled] = useState(
     () => typeof window !== 'undefined' && window.scrollY > 64,
   );
-  const selectSection = useCallback((id: (typeof navItems)[number]['id']) => {
+  const selectSection = useCallback((id: NavigationId) => {
     activeSectionRef.current = id;
     setActiveSection((current) => (current === id ? current : id));
   }, []);
-  const pendingNavigationRef = useRef<(typeof navItems)[number]['id'] | null>(
-    initialHashTarget?.id ?? null,
-  );
+  const pendingNavigationRef = useRef<NavigationId | null>(initialHashTarget);
+  const scrollLegacyHash = () => {
+    const hashId = window.location.hash.replace(/^#/, '').split('/')[0];
+    if (!['experience', 'skills', 'ai-lab'].includes(hashId)) return;
+    const target = getNavigationTarget(window.location.hash);
+    if (target) document.getElementById(target)?.scrollIntoView({ block: 'start' });
+  };
   const updateActiveSection = useCallback(() => {
     setIsScrolled((current) => window.scrollY > (current ? 24 : 64));
     if (window.location.hash.startsWith('#projects/')) {
@@ -42,7 +42,7 @@ export const useActiveSection = () => {
       return;
     }
 
-    let currentSection: (typeof navItems)[number]['id'] = 'home';
+    let currentSection: NavigationId = 'home';
     for (const item of navItems) {
       const section = document.getElementById(item.id);
       if (section && section.getBoundingClientRect().top <= activationLine)
@@ -67,7 +67,7 @@ export const useActiveSection = () => {
     selectSection(currentSection);
   }, [selectSection]);
 
-  const handleNavigationClick = (id: (typeof navItems)[number]['id']) => {
+  const handleNavigationClick = (id: NavigationId) => {
     pendingNavigationRef.current = id;
     selectSection(id);
   };
@@ -97,13 +97,13 @@ export const useActiveSection = () => {
         window.location.hash === `#${pendingNavigationRef.current}`
       )
         return;
-      const hashId = window.location.hash.slice(1).split('/')[0];
-      const hashTarget = navItems.find((item) => item.id === hashId);
-      pendingNavigationRef.current = hashTarget?.id ?? null;
-      if (hashTarget) selectSection(hashTarget.id);
+      const hashTarget = getNavigationTarget(window.location.hash);
+      pendingNavigationRef.current = hashTarget;
+      if (hashTarget) selectSection(hashTarget);
       if (historyFrame !== undefined) cancelAnimationFrame(historyFrame);
       historyFrame = requestAnimationFrame(() => {
         historyFrame = undefined;
+        scrollLegacyHash();
         updateActiveSection();
       });
     };
@@ -116,7 +116,10 @@ export const useActiveSection = () => {
     window.addEventListener('hashchange', syncHistoryNavigation);
     window.addEventListener('popstate', syncHistoryNavigation);
     document.addEventListener('scrollend', finishPendingNavigation);
-    const initialFrame = requestAnimationFrame(updateActiveSection);
+    const initialFrame = requestAnimationFrame(() => {
+      scrollLegacyHash();
+      updateActiveSection();
+    });
     return () => {
       cancelAnimationFrame(initialFrame);
       if (historyFrame !== undefined) cancelAnimationFrame(historyFrame);

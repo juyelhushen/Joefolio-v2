@@ -203,7 +203,6 @@ export default function PortfolioAssistant({
         <span className="assistant-launcher-icon" aria-hidden="true">
           {open ? <X size={19} /> : <MessageCircle size={19} />}
         </span>
-        <span>{open ? 'Close' : 'Ask about my work'}</span>
       </button>
     </div>
   );

@@ -23,20 +23,17 @@ afterEach(() => {
   Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
 });
 
-it('renders supplied optional fields and screenshot without altering authoritative project data', () => {
+it('renders supplied optional details without altering authoritative project data', () => {
   const project: Project = {
     ...projects[0],
     role: 'Test fixture role',
     outcome: 'Test fixture outcome',
     metrics: [{ label: 'Fixture metric', value: 'Fixture value' }],
     lessons: ['Test fixture lesson'],
-    image: { src: '/test-fixture.png', alt: 'Test fixture architecture screenshot' },
     technologies: [...projects[0].technologies, 'Fixture fifth technology'],
     demoUrl: 'https://example.test/demo',
   };
-  render(
-    <ProjectCaseStudy project={project} accent="var(--cyan)" reduceMotion onClose={vi.fn()} />,
-  );
+  render(<ProjectCaseStudy project={project} onClose={vi.fn()} />);
   const dialog = screen.getByRole('dialog');
   for (const text of [
     'Test fixture role',
@@ -48,11 +45,6 @@ it('renders supplied optional fields and screenshot without altering authoritati
   ]) {
     expect(within(dialog).getByText(text)).toBeTruthy();
   }
-  expect(
-    within(dialog)
-      .getByAltText(project.image?.alt ?? '')
-      .getAttribute('src'),
-  ).toBe('/test-fixture.png');
   expect(within(dialog).getByRole('link', { name: 'Live demo' }).getAttribute('href')).toBe(
     project.demoUrl,
   );

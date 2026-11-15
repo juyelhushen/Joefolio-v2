@@ -76,8 +76,8 @@ it('supports arrows, Home, End and Enter without moving focus out of the input',
   fireEvent.keyDown(input, { key: 'Home' });
   fireEvent.keyDown(input, { key: 'ArrowDown' });
   fireEvent.keyDown(input, { key: 'Enter' });
-  expect(view.onNavigate).toHaveBeenCalledWith('about');
-  expect(location.hash).toBe('#about');
+  expect(view.onNavigate).toHaveBeenCalledWith('projects');
+  expect(location.hash).toBe('#projects');
   expect(document.activeElement).toBe(input);
 });
 

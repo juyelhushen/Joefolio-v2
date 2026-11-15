@@ -1,44 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-accent="cyan">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#090d19" />
+    <meta name="theme-color" content="#080d1b" />
     <meta
       name="description"
-      content="Juyel Hushen is a software engineer focused on backend systems and full-stack development, exploring AI engineering through document retrieval and agent workflows."
+      content="Juyel Hushen is a software engineer building reliable backend systems."
     />
-    <title>Juyel | Portfolio</title>
+    <title>Juyel Hushen | Software Engineer</title>
     <link rel="canonical" href="https://juyel.vercel.app/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Joefolio — Juyel Hushen" />
-    <meta property="og:title" content="Juyel | Portfolio" />
+    <meta property="og:title" content="Juyel Hushen | Software Engineer" />
     <meta
       property="og:description"
-      content="Backend systems, full-stack software, and practical AI exploration through document retrieval and agent workflows."
+      content="Juyel Hushen is a software engineer building reliable backend systems."
     />
     <meta property="og:url" content="https://juyel.vercel.app/" />
     <meta property="og:image" content="https://juyel.vercel.app/images/social-preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
-    <meta
-      property="og:image:alt"
-      content="Joefolio for Juyel Hushen: software engineer focused on backend systems, full-stack software, and practical AI."
-    />
+    <meta property="og:image:alt" content="Joefolio — Juyel Hushen, software engineer" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Juyel Hushen | Software Engineer" />
     <meta
       name="twitter:description"
-      content="Backend systems, full-stack software, and practical AI exploration through document retrieval and agent workflows."
+      content="Juyel Hushen is a software engineer building reliable backend systems."
     />
     <meta name="twitter:image" content="https://juyel.vercel.app/images/social-preview.png" />
-    <meta
-      name="twitter:image:alt"
-      content="Joefolio for Juyel Hushen: software engineer focused on backend systems, full-stack software, and practical AI."
-    />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -46,277 +39,58 @@
         "@id": "https://juyel.vercel.app/#person",
         "name": "Juyel Hushen",
         "url": "https://juyel.vercel.app/",
-        "jobTitle": "Software Engineer II",
+        "jobTitle": "Software Engineer",
         "sameAs": [
           "https://github.com/juyelhushen",
           "https://www.linkedin.com/in/juyel-h-770674170/"
         ],
-        "knowsAbout": ["Backend development", "Full-stack development", "AI engineering"]
+        "knowsAbout": ["Backend development", "Software engineering"]
       }
+    </script>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        try {
+          const theme = window.localStorage.getItem('portfolio-theme');
+          const accent = window.localStorage.getItem('portfolio-accent');
+          if (theme === 'dark' || theme === 'light') root.dataset.theme = theme;
+          if (['cyan', 'violet', 'green', 'amber', 'rose'].includes(accent)) {
+            root.dataset.accent = accent;
+          }
+        } catch {
+          root.dataset.theme = 'dark';
+          root.dataset.accent = 'cyan';
+        }
+      })();
+    </script>
+    <script>
+      window.addEventListener(
+        'error',
+        (event) => {
+          const target = event.target;
+          if (target instanceof HTMLScriptElement && target.type === 'module') {
+            const message = document.getElementById('startup-error');
+            if (message) message.hidden = false;
+          }
+        },
+        true,
+      );
     </script>
   </head>
   <body>
-    <style>
-      body {
-        margin: 0;
-        background: #080d1b;
-      }
-      .launch-animation {
-        position: fixed;
-        inset: 0;
-        z-index: 101;
-        background: #080d1b;
-        pointer-events: none;
-      }
-      .launch-animation[hidden],
-      .startup-signal[hidden],
-      .signal-reload[hidden] {
-        display: none;
-      }
-      .launch-animation[data-painted] {
-        background: transparent;
-      }
-      body[data-cosmic-intro] {
-        overflow: hidden;
-      }
-      body[data-cosmic-intro] .site-shell > :not(.cosmic-mesh-background):not(.starfield) {
-        visibility: hidden;
-      }
-      .startup-signal {
-        position: fixed;
-        inset: 0;
-        z-index: 102;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        box-sizing: border-box;
-        background: #080d1b;
-        color: #f0f4ff;
-        font-family: system-ui, sans-serif;
-        text-align: center;
-      }
-      .signal-composition {
-        width: min(100%, 320px);
-      }
-      .signal-monogram {
-        font-size: 48px;
-        font-weight: 600;
-        letter-spacing: -4px;
-      }
-      .signal-label {
-        margin: 28px 0 0;
-        font-size: 18px;
-        font-weight: 500;
-      }
-      .signal-support {
-        margin: 10px 0 0;
-        color: #a7b5ce;
-        font-size: 13px;
-        line-height: 1.6;
-      }
-      .signal-reload {
-        display: inline-flex;
-        min-height: 48px;
-        align-items: center;
-        padding: 0 16px;
-        margin-top: 20px;
-        border: 1px solid #62ddf5;
-        border-radius: 10px;
-        color: inherit;
-        text-decoration: none;
-      }
-      .signal-reload:focus-visible {
-        outline: 2px solid #62ddf5;
-        outline-offset: 4px;
-      }
-    </style>
-    <div
-      id="launch-animation"
-      class="launch-animation"
-      data-scene="anomaly"
-      aria-label="STELLAR FOLD — ENTER ANOTHER DIMENSION"
-      aria-hidden="true"
-      hidden
-    ></div>
-    <div id="startup-signal" class="startup-signal" role="status" aria-live="polite" hidden>
-      <div class="signal-composition">
-        <div class="signal-monogram" aria-hidden="true">JH</div>
-        <p class="signal-label">Preparing the experience</p>
-        <p class="signal-support"></p>
-        <a class="signal-reload" href="" hidden>Reload portfolio</a>
-      </div>
-    </div>
+    <div id="startup-error" role="alert" hidden>The portfolio could not start</div>
     <div id="root"></div>
     <noscript>
-      <p class="signal-support">
-        JavaScript is required for this portfolio. You can also explore
-        <a href="https://github.com/juyelhushen">Juyel's GitHub projects</a>.
-      </p>
+      <main class="no-script">
+        <h1>Juyel Hushen</h1>
+        <p>Software Engineer building reliable backend systems.</p>
+        <nav aria-label="Social profiles">
+          <a href="https://github.com/juyelhushen">GitHub</a>
+          <a href="https://www.linkedin.com/in/juyel-h-770674170/">LinkedIn</a>
+          <a href="https://leetcode.com/u/Juyel/">LeetCode</a>
+        </nav>
+      </main>
     </noscript>
-    <script id="startup-controller">
-      (() => {
-        const launch = document.getElementById('launch-animation');
-        const signal = document.getElementById('startup-signal');
-        const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-        const duration = 3200;
-        const fold = { active: !motion.matches, elapsed: 0, painted: false, settled: 0 };
-        window.__STELLAR_FOLD__ = fold;
-        let ready = false;
-        let failed = false;
-        let frame;
-        let watchdog;
-        let paintWatchdog;
-        let previous;
-
-        const clearFrames = () => {
-          window.cancelAnimationFrame(frame);
-          frame = undefined;
-        };
-        const removeIntro = () => {
-          const wasActive = fold.active;
-          clearFrames();
-          window.clearTimeout(paintWatchdog);
-          fold.active = false;
-          fold.elapsed = duration;
-          launch.remove();
-          delete document.body.dataset.cosmicIntro;
-          document.removeEventListener('visibilitychange', onVisibilityChange);
-          window.removeEventListener('stellar-fold-painted', onPainted);
-          window.removeEventListener('stellar-fold-failed', onVisualFailure);
-          window.removeEventListener('stellar-fold-settled', release);
-          motion.removeEventListener('change', onMotionChange);
-          if (wasActive) window.dispatchEvent(new Event('cosmic-intro-complete'));
-        };
-        const release = () => {
-          if (!ready || failed) return;
-          if (!fold.active) {
-            signal.remove();
-            return;
-          }
-          if (fold.elapsed < duration || document.hidden || frame !== undefined) return;
-          if (fold.settled !== 3) {
-            if (paintWatchdog === undefined)
-              paintWatchdog = window.setTimeout(onVisualFailure, 2000);
-            return;
-          }
-          window.clearTimeout(paintWatchdog);
-          paintWatchdog = undefined;
-          // Both renderers must paint the endpoint before content can uncover it.
-          frame = window.requestAnimationFrame(() => {
-            frame = undefined;
-            if (document.hidden) return;
-            signal.remove();
-            removeIntro();
-          });
-        };
-        const tick = (now) => {
-          frame = undefined;
-          if (!fold.active || document.hidden) return;
-          if (previous !== undefined)
-            fold.elapsed = Math.min(duration, fold.elapsed + now - previous);
-          previous = now;
-          launch.dataset.scene =
-            fold.elapsed < 700
-              ? 'anomaly'
-              : fold.elapsed < 1500
-                ? 'distortion'
-                : fold.elapsed < 2400
-                  ? 'formation'
-                  : 'reveal';
-          if (fold.elapsed < duration) frame = window.requestAnimationFrame(tick);
-          else release();
-        };
-        function onPainted() {
-          if (!fold.active || fold.painted) return;
-          fold.painted = true;
-          launch.dataset.painted = 'true';
-          window.clearTimeout(paintWatchdog);
-          paintWatchdog = undefined;
-          if (!document.hidden) frame = window.requestAnimationFrame(tick);
-        }
-        function onVisibilityChange() {
-          clearFrames();
-          window.clearTimeout(paintWatchdog);
-          paintWatchdog = undefined;
-          previous = undefined;
-          if (!document.hidden) {
-            if (!fold.painted) paintWatchdog = window.setTimeout(onVisualFailure, 8000);
-            else if (fold.elapsed < duration) frame = window.requestAnimationFrame(tick);
-            else release();
-          }
-        }
-        function onMotionChange() {
-          if (!motion.matches) return;
-          removeIntro();
-          if (ready) signal.remove();
-        }
-        function onVisualFailure() {
-          if (!fold.active) return;
-          console.warn(
-            'Stellar Fold is unavailable; revealing the portfolio without the cinematic delay.',
-          );
-          removeIntro();
-          if (ready) signal.remove();
-        }
-        const removeFailureListeners = () => {
-          window.removeEventListener('error', onError, true);
-          window.removeEventListener('unhandledrejection', onRejection);
-        };
-        const fail = () => {
-          if (ready || failed) return;
-          failed = true;
-          window.clearTimeout(watchdog);
-          removeIntro();
-          removeFailureListeners();
-          signal.hidden = false;
-          signal.dataset.failed = 'true';
-          signal.setAttribute('role', 'alert');
-          signal.querySelector('.signal-label').textContent = 'The portfolio could not start';
-          signal.querySelector('.signal-support').textContent =
-            'Please reload to try again, or return when your connection is available.';
-          signal.querySelector('.signal-reload').hidden = false;
-        };
-        function onError(event) {
-          if (
-            event.error ||
-            (event.target?.tagName === 'SCRIPT' && event.target.type === 'module')
-          ) {
-            console.error('Portfolio startup failed.', event.error || event);
-            fail();
-          }
-        }
-        function onRejection(event) {
-          console.error('Portfolio startup failed.', event.reason);
-          fail();
-        }
-        window.addEventListener('error', onError, true);
-        window.addEventListener('unhandledrejection', onRejection);
-        watchdog = window.setTimeout(() => {
-          console.error('Portfolio startup timed out before the critical hero became ready.');
-          fail();
-        }, 30000);
-        if (fold.active) {
-          launch.hidden = false;
-          document.body.dataset.cosmicIntro = 'active';
-          document.addEventListener('visibilitychange', onVisibilityChange);
-          window.addEventListener('stellar-fold-painted', onPainted);
-          window.addEventListener('stellar-fold-failed', onVisualFailure);
-          window.addEventListener('stellar-fold-settled', release);
-          motion.addEventListener('change', onMotionChange);
-          if (!document.hidden) paintWatchdog = window.setTimeout(onVisualFailure, 8000);
-        } else launch.remove();
-        window.__PORTFOLIO_STARTUP__ = {
-          ready() {
-            if (ready || failed) return;
-            ready = true;
-            window.clearTimeout(watchdog);
-            removeFailureListeners();
-            release();
-          },
-          fail,
-        };
-      })();
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

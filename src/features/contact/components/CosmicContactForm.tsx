@@ -32,7 +32,7 @@ export default function CosmicContactForm({
     subject: null,
     message: null,
   });
-  const busy = status === 'pending' || status === 'flying';
+  const busy = status === 'pending';
 
   const updateField = (name: FieldName, value: string) => {
     setFields((current) => ({ ...current, [name]: value }));
@@ -91,7 +91,7 @@ export default function CosmicContactForm({
       aria-label="Send a message"
     >
       <div className="contact-form-heading">
-        <span>TRANSMISSION DETAILS</span>
+        <span>Message details</span>
         <p>
           Required fields are marked <span aria-hidden="true">*</span>.
         </p>
@@ -189,17 +189,12 @@ export default function CosmicContactForm({
 
       {status === 'pending' && (
         <p className="contact-live-status" role="status" aria-live="polite">
-          Sealing your message and contacting the contact service…
-        </p>
-      )}
-      {status === 'flying' && (
-        <p className="contact-live-status" role="status" aria-live="polite">
-          The contact service accepted your message. Launching it into orbit…
+          Sending your message…
         </p>
       )}
       {status === 'success' && (
         <p className="contact-success" role="status" aria-live="polite">
-          Message launched successfully. Thank you for reaching out.
+          Your message was sent. Thank you for reaching out.
         </p>
       )}
       {status === 'error' && (
@@ -215,11 +210,11 @@ export default function CosmicContactForm({
         variant="primary"
         type="submit"
         state={busy ? 'loading' : status === 'success' ? 'success' : 'idle'}
-        loadingLabel={status === 'flying' ? 'In transit…' : 'Sending…'}
+        loadingLabel="Sending…"
         successLabel="Send another message"
       >
         <Mail aria-hidden="true" />
-        {status === 'error' ? 'Retry message' : 'Launch message'}
+        {status === 'error' ? 'Retry message' : 'Send message'}
       </Button>
     </form>
   );

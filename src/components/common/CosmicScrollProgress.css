@@ -1,9 +1,0 @@
-.cosmic-scroll-progress {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 110;
-  height: 2px;
-  transform-origin: left;
-  background: linear-gradient(90deg, var(--cyan), var(--violet));
-  pointer-events: none;
-}

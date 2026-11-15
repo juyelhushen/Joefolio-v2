@@ -1,5 +1,3 @@
-export type ProjectVisual = 'agents' | 'links' | 'knowledge' | 'library' | 'video';
-
 export type ProjectLink = Readonly<{
   label: string;
   href: string;
@@ -17,7 +15,6 @@ export type ProjectArchitecture = Readonly<{
 
 export type Project = Readonly<{
   id: string;
-  number: string;
   name: string;
   category: string;
   problem: string;
@@ -30,9 +27,7 @@ export type Project = Readonly<{
   outcome?: string;
   metrics?: readonly Readonly<{ label: string; value: string }>[];
   lessons?: readonly string[];
-  image?: Readonly<{ src: string; alt: string }>;
   technologies: readonly string[];
-  visual: ProjectVisual;
   repositoryUrl: string;
   demoUrl?: string;
   architecture: ProjectArchitecture;
@@ -42,7 +37,6 @@ export type Project = Readonly<{
 export const projects: readonly Project[] = [
   {
     id: 'sentinel',
-    number: '01',
     name: 'Sentinel',
     category: 'AGENT SYSTEMS',
     problem:
@@ -67,7 +61,6 @@ export const projects: readonly Project[] = [
     outcome:
       'A source-inspectable incident investigation API and internal repair demonstration. No measured user, traffic or business outcomes are published in this case study.',
     technologies: ['Python', 'FastAPI', 'LangGraph', 'MCP'],
-    visual: 'agents',
     repositoryUrl: 'https://github.com/juyelhushen/sentinel',
     architecture: {
       lanes: [
@@ -118,7 +111,6 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'cut2short',
-    number: '02',
     name: 'Cut2Short',
     category: 'FULL-STACK PLATFORM',
     problem:
@@ -142,7 +134,6 @@ export const projects: readonly Project[] = [
     outcome:
       'Source-backed link management, redirect hit tracking and QR-code workflows. No measured throughput or adoption results are claimed.',
     technologies: ['Java', 'Spring Boot', 'React', 'PostgreSQL'],
-    visual: 'links',
     repositoryUrl: 'https://github.com/juyelhushen/Cut2Short-backend',
     architecture: {
       lanes: [
@@ -197,7 +188,6 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'enterprise-knowledge-assistant',
-    number: '03',
     name: 'Enterprise Knowledge Assistant',
     category: 'RETRIEVAL / RAG',
     problem:
@@ -222,7 +212,6 @@ export const projects: readonly Project[] = [
     outcome:
       'An inspectable PDF-to-answer workflow with citations and interaction audit records. No production adoption or measured answer-quality result is claimed.',
     technologies: ['Python', 'FastAPI', 'LangGraph', 'ChromaDB'],
-    visual: 'knowledge',
     repositoryUrl: 'https://github.com/juyelhushen/enterprise-knowledge-assistant',
     architecture: {
       lanes: [
@@ -278,7 +267,6 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'library-management-system',
-    number: '04',
     name: 'Library Management System',
     category: 'LIBRARY SYSTEM',
     problem:
@@ -302,7 +290,6 @@ export const projects: readonly Project[] = [
     outcome:
       'A repository implementation of catalogue management and borrowing/return workflows, without published usage or performance measurements.',
     technologies: ['Java', 'Spring Boot', 'Angular', 'PostgreSQL'],
-    visual: 'library',
     repositoryUrl: 'https://github.com/juyelhushen/library.management',
     architecture: {
       lanes: [
@@ -364,7 +351,6 @@ export const projects: readonly Project[] = [
   },
   {
     id: 'youtube-clone',
-    number: '05',
     name: 'YouTube Clone',
     category: 'VIDEO PLATFORM',
     problem: 'A video platform needs connected upload, playback, user, and discussion experiences.',
@@ -387,7 +373,6 @@ export const projects: readonly Project[] = [
     outcome:
       'A source-backed video-sharing application covering uploads, playback details and user interactions, without published traffic or delivery-performance results.',
     technologies: ['Java', 'Angular', 'MongoDB', 'AWS S3'],
-    visual: 'video',
     repositoryUrl: 'https://github.com/juyelhushen/youtube-clone',
     architecture: {
       lanes: [

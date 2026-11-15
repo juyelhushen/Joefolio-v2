@@ -1,73 +1,55 @@
-.manifesto h2 {
-  font-family: var(--font-display);
-  letter-spacing: -0.045em;
-  font-weight: 600;
-  line-height: 1.02;
+.about-section {
+  padding-block: var(--space-section);
 }
-.manifesto h2 em {
-  font-weight: 600;
-  color: var(--color-accent-primary);
-  font-style: normal;
+
+.experience-list,
+.toolbox-list {
+  padding: 0;
+  margin: 0 0 var(--space-6);
+  list-style: none;
 }
-.manifesto {
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: var(--space-section) 0;
+
+.experience-row {
   display: grid;
-  grid-template-columns: 0.65fr 2fr 0.85fr;
-  gap: 30px;
-  align-items: start;
+  grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+  gap: var(--space-3);
+  padding-block: 10px;
+  border-bottom: var(--border-subtle);
 }
-.manifesto-symbol {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--orange);
-}
-.manifesto-symbol span {
-  font-family: var(--font-mono);
-  font-size: var(--type-label);
-  letter-spacing: 0.08em;
+
+.experience-dates {
   color: var(--color-text-muted);
+  font: 500 0.875rem/1.7 var(--font-mono);
 }
-.manifesto h2 {
-  font-size: var(--type-section);
-  letter-spacing: -0.045em;
-  margin: 0 0 22px;
+
+.current-role {
+  margin-left: var(--space-2);
+  color: var(--color-accent-primary);
+  font-size: 0.875rem;
 }
-.manifesto-copy > p {
-  max-width: 580px;
+
+.toolbox-list li {
+  display: grid;
+  gap: 2px;
+  padding-block: 10px;
+  border-bottom: var(--border-subtle);
+}
+
+.toolbox-list li > span:first-child {
+  font-weight: 600;
+}
+
+.toolbox-skills {
   color: var(--color-text-secondary);
-  font-size: 15px;
-  line-height: 1.75;
-  margin: 0;
 }
-.manifesto-link-reveal {
-  align-self: end;
-  margin-top: 8px;
-}
-@media (max-width: 1000px) {
-  .manifesto {
-    grid-template-columns: 0.6fr 2fr;
-  }
-  .manifesto-link-reveal {
-    grid-column: 2;
-  }
-}
-@media (max-width: 740px) {
-  .manifesto {
-    padding: 53px 0;
+
+@media (max-width: 520px) {
+  .experience-row {
     grid-template-columns: 1fr;
-    gap: 19px;
+    gap: 0;
   }
-  .manifesto h2 {
-    font-size: var(--type-section);
-  }
-  .manifesto-copy > p {
-    font-size: 14px;
-  }
-  .manifesto-link-reveal {
-    grid-column: 1;
-    margin-top: 0;
+
+  .experience-dates:empty {
+    display: none;
   }
 }

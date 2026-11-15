@@ -1,8 +1,6 @@
-import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react';
-import { m } from 'motion/react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import type { Project } from '../data/projects';
-import ProjectVisual from './ProjectVisual';
 import LoadBoundary from '../../../components/common/LoadBoundary';
 import './ProjectCaseStudy.css';
 
@@ -10,37 +8,24 @@ const ArchitectureFlow = lazy(() => import('./ArchitectureFlow'));
 
 type Props = {
   project: Project;
-  accent: string;
-  reduceMotion: boolean;
   onClose: () => void;
 };
 
-type CaseStudyStyle = CSSProperties & { '--project-accent': string };
-
-export default function ProjectCaseStudy({ project, accent, reduceMotion, onClose }: Props) {
+export default function ProjectCaseStudy({ project, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const style: CaseStudyStyle = { '--project-accent': accent };
-
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const overflow = document.body.style.overflow;
     const scrollbarGutter = document.documentElement.style.scrollbarGutter;
-    const card = document.getElementById(`project-title-${project.id}`)?.closest('article');
-    if (card) {
-      const cardAccent = getComputedStyle(card).getPropertyValue('--project-accent').trim();
-      if (cardAccent) dialog.style.setProperty('--project-accent', cardAccent);
-    }
     dialog.showModal();
-    document.dispatchEvent(new CustomEvent('cosmic-overlay-host', { detail: dialog }));
     closeRef.current?.focus();
     document.documentElement.style.scrollbarGutter = 'stable';
     document.body.style.overflow = 'hidden';
     return () => {
       dialog.close();
-      document.dispatchEvent(new CustomEvent('cosmic-overlay-host', { detail: null }));
       document.body.style.overflow = overflow;
       document.documentElement.style.scrollbarGutter = scrollbarGutter;
       if (opener?.isConnected) opener.focus({ preventScroll: true });
@@ -48,15 +33,10 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
   }, [project.id]);
 
   return (
-    <m.dialog
+    <dialog
       ref={dialogRef}
       className="project-case-study"
       aria-labelledby={`case-study-title-${project.id}`}
-      style={style}
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.97 }}
-      transition={{ duration: reduceMotion ? 0 : 0.18 }}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -83,13 +63,6 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
           >
             <X size={20} aria-hidden="true" />
           </button>
-        </div>
-        <div className="case-study-art" data-cursor-target="image">
-          {project.image ? (
-            <img src={project.image.src} alt={project.image.alt} />
-          ) : (
-            <ProjectVisual visual={project.visual} />
-          )}
         </div>
         <div className="case-study-copy">
           <span className="case-study-kicker">{project.category}</span>
@@ -123,7 +96,7 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
               }
             >
               <Suspense fallback={<div className="architecture-loading" aria-busy="true" />}>
-                <ArchitectureFlow architecture={project.architecture} reduceMotion={reduceMotion} />
+                <ArchitectureFlow architecture={project.architecture} />
               </Suspense>
             </LoadBoundary>
           </section>
@@ -235,6 +208,6 @@ export default function ProjectCaseStudy({ project, accent, reduceMotion, onClos
           </section>
         </div>
       </div>
-    </m.dialog>
+    </dialog>
   );
 }

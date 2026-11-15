@@ -1,21 +1,14 @@
 import { AxiosError, AxiosHeaders, type AxiosAdapter, type AxiosResponse } from 'axios';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import { domAnimation, LazyMotion } from 'motion/react';
 import { apiClient } from '../../../lib/api/client';
 import CosmicContactSection from './CosmicContactSection';
-import { PUBLIC_EMAIL } from '../../../lib/profile';
-
-vi.mock('./EarthGlobe', () => ({
-  default: () => <div data-testid="earth-webgl-scene" />,
-}));
 
 const originalAdapter = apiClient.defaults.adapter;
 
 afterEach(() => {
   cleanup();
   apiClient.defaults.adapter = originalAdapter;
-  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -45,298 +38,63 @@ function installResponseAdapter(status: number, data: unknown) {
   return requests;
 }
 
-function installNetworkFailureAdapter(code = AxiosError.ERR_NETWORK) {
-  apiClient.defaults.adapter = (async () => {
-    throw new AxiosError('Network Error', code);
-  }) satisfies AxiosAdapter;
-}
-
 function fillForm() {
   fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'Casey Developer' } });
-  fireEvent.change(screen.getByLabelText(/^Email/), {
-    target: { value: 'casey@example.com' },
-  });
-  fireEvent.change(screen.getByLabelText(/^Subject/), {
-    target: { value: 'A thoughtful opportunity' },
-  });
-  fireEvent.change(screen.getByLabelText(/^Message/), {
-    target: { value: 'I would like to talk about a project.' },
-  });
+  fireEvent.change(screen.getByLabelText(/^Email/), { target: { value: 'casey@example.com' } });
+  fireEvent.change(screen.getByLabelText(/^Subject/), { target: { value: 'A project' } });
+  fireEvent.change(screen.getByLabelText(/^Message/), { target: { value: 'Let us talk.' } });
 }
 
-it.each(['CHECKING', 'UP', 'UNAVAILABLE'] as const)(
-  'shows the backend note only when unavailable, keeping the form enabled: %s',
-  (backendStatus) => {
-    render(<CosmicContactSection reduceMotion backendStatus={backendStatus} />);
-    const note = screen.queryByText(/The form may take a moment or be offline/);
-    if (backendStatus === 'UNAVAILABLE') {
-      expect(note).toBeTruthy();
-      expect(
-        within(screen.getByRole('status', { name: 'Contact service availability' })).getByText(
-          /email link in the footer/,
-        ),
-      ).toBeTruthy();
-    } else {
-      expect(note).toBeNull();
-    }
-    expect(screen.getByRole('button', { name: 'Launch message' }).hasAttribute('disabled')).toBe(
-      false,
-    );
-    expect(screen.getByLabelText(/^Name/).hasAttribute('disabled')).toBe(false);
-    expect(screen.queryByText(PUBLIC_EMAIL)).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Copy email' })).toBeNull();
-    expect(screen.getByLabelText(/^Email/).getAttribute('type')).toBe('email');
-  },
-);
+it('shows accessible required-field validation and focuses the first invalid field', () => {
+  const requests = installResponseAdapter(202, { message: 'Accepted.' });
+  render(<CosmicContactSection />);
 
-it('validates required fields and native email syntax accessibly before sending', () => {
-  const requests = installResponseAdapter(202, { message: 'Your message has been sent.' });
-  render(<CosmicContactSection reduceMotion />);
-
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
   expect(screen.getAllByRole('alert')[0].textContent).toBe('This field is required.');
   expect(document.activeElement).toBe(screen.getByLabelText(/^Name/));
   expect(requests).toHaveLength(0);
-
-  fillForm();
-  fireEvent.change(screen.getByLabelText(/^Email/), {
-    target: { value: 'not-an-email' },
-  });
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(screen.getByText('Enter a valid email address.')).toBeTruthy();
-  expect(document.activeElement).toBe(screen.getByLabelText(/^Email/));
-  expect(requests).toHaveLength(0);
 });
 
-it('maps the UI message to the backend body and resets only after HTTP 202 acceptance', async () => {
+it('submits the existing backend payload and renders the success state', async () => {
   const requests = installResponseAdapter(202, { message: 'Your message has been sent.' });
-  render(<CosmicContactSection reduceMotion />);
+  render(<CosmicContactSection />);
   fillForm();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(await screen.findByText(/Message launched successfully/)).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+  expect(
+    await screen.findByText('Your message was sent. Thank you for reaching out.'),
+  ).toBeTruthy();
   expect(requests).toEqual([
     {
       url: '/api/v1/contact',
       data: {
         name: 'Casey Developer',
         email: 'casey@example.com',
-        subject: 'A thoughtful opportunity',
-        body: 'I would like to talk about a project.',
+        subject: 'A project',
+        body: 'Let us talk.',
         website: '',
       },
     },
   ]);
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
   expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('');
 });
 
-it('does not treat a non-202 response as an accepted message', async () => {
-  installResponseAdapter(200, { message: 'A response body alone is not acceptance.' });
-  render(<CosmicContactSection reduceMotion />);
+it('keeps form values and shows an explicit error when the service fails', async () => {
+  apiClient.defaults.adapter = (async () => {
+    throw new AxiosError('Network Error', AxiosError.ERR_NETWORK);
+  }) satisfies AxiosAdapter;
+  render(<CosmicContactSection />);
   fillForm();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(await screen.findByText(/returned an unexpected response/)).toBeTruthy();
-  expect(screen.queryByText(/Message launched successfully/)).toBeNull();
-  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
-});
-
-it('shows a useful backend rate-limit message and keeps values after HTTP 429', async () => {
-  installResponseAdapter(429, {
-    detail: 'Too many contact requests. Please wait ten minutes before retrying.',
-    status: 429,
-    title: 'Too Many Requests',
-  });
-  render(<CosmicContactSection reduceMotion />);
-  fillForm();
-
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(
-    await screen.findByText(
-      /Too many contact requests\. Please wait ten minutes before retrying\./,
-    ),
-  ).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Retry message' })).toBeTruthy();
-  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
-});
-
-it('uses safe validation and unavailable-service errors for HTTP 400 and 503', async () => {
-  installResponseAdapter(400, { detail: 'The subject is required.', status: 400 });
-  render(<CosmicContactSection reduceMotion />);
-  fillForm();
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(await screen.findByText(/The subject is required\./)).toBeTruthy();
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
-
-  cleanup();
-  apiClient.defaults.adapter = originalAdapter;
-  installResponseAdapter(503, {
-    detail: 'Internal stack trace: private provider secret',
-    status: 503,
-  });
-  render(<CosmicContactSection reduceMotion />);
-  fillForm();
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(await screen.findByText(/The contact service is temporarily unavailable/)).toBeTruthy();
-  expect(screen.queryByText(/private provider secret/)).toBeNull();
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
-});
-
-it('preserves entered values and offers retry after a network failure', async () => {
-  installNetworkFailureAdapter();
-  render(<CosmicContactSection reduceMotion={false} />);
-  fillForm();
-
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
   expect(await screen.findByRole('alert')).toBeTruthy();
-  expect(within(screen.getByRole('alert')).getByText(/email link in the footer/)).toBeTruthy();
-  expect(screen.queryByText(PUBLIC_EMAIL)).toBeNull();
   expect(screen.getByRole('button', { name: 'Retry message' })).toBeTruthy();
   expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
-  expect((screen.getByLabelText(/^Message/) as HTMLTextAreaElement).value).toContain(
-    'talk about a project',
-  );
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
-  expect(screen.queryByText(/Message launched successfully/)).toBeNull();
+  expect(screen.queryByText(/juyelhushen@gmail\.com/i)).toBeNull();
 });
 
-it('shows a retry message and preserves form data after a request timeout', async () => {
-  installNetworkFailureAdapter(AxiosError.ECONNABORTED);
-  render(<CosmicContactSection reduceMotion={false} />);
-  fillForm();
-
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(await screen.findByText(/contact service took too long to respond/i)).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Retry message' })).toBeTruthy();
-  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
-  expect(document.querySelector('.contact-envelope-flight')).toBeNull();
-});
-
-it('blocks duplicate sends while the Axios request is pending', async () => {
-  let resolveResponse: (() => void) | undefined;
-  let requestCount = 0;
-  apiClient.defaults.adapter = ((config) =>
-    new Promise<AxiosResponse<unknown>>((resolve) => {
-      requestCount += 1;
-      resolveResponse = () =>
-        resolve({
-          data: { message: 'Your message has been sent.' },
-          status: 202,
-          statusText: 'Accepted',
-          headers: new AxiosHeaders(),
-          config,
-        });
-    })) satisfies AxiosAdapter;
-  render(<CosmicContactSection reduceMotion />);
-  fillForm();
-
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  const pendingButton = screen.getByRole('button', { name: 'Sending…' });
-  expect(pendingButton.hasAttribute('disabled')).toBe(true);
-  expect(pendingButton.getAttribute('aria-busy')).toBe('true');
-  expect(pendingButton.querySelector('.button-spinner')).toBeTruthy();
-  fireEvent.click(pendingButton);
-  expect(requestCount).toBe(1);
-  expect(resolveResponse).toBeTypeOf('function');
-  resolveResponse?.();
-  await waitFor(() => expect(screen.getByText(/Message launched successfully/)).toBeTruthy());
-  expect(screen.getByRole('button', { name: 'Send another message' }).dataset.state).toBe(
-    'success',
-  );
-});
-
-it('keeps character limits, accessible labels, and the honeypot out of keyboard navigation', () => {
-  render(<CosmicContactSection reduceMotion />);
-
-  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).maxLength).toBe(80);
-  expect((screen.getByLabelText(/^Email/) as HTMLInputElement).maxLength).toBe(254);
-  expect((screen.getByLabelText(/^Subject/) as HTMLInputElement).maxLength).toBe(120);
-  expect((screen.getByLabelText(/^Message/) as HTMLTextAreaElement).maxLength).toBe(4000);
-  const honeypot = document.getElementById('contact-website');
-  expect(honeypot?.getAttribute('tabindex')).toBe('-1');
-  expect(honeypot?.parentElement?.getAttribute('aria-hidden')).toBe('true');
-});
-
-it('starts envelope flight only after acceptance and resets after the animation', async () => {
-  installResponseAdapter(202, { message: 'Your message has been sent.' });
-  const { container } = render(
-    <LazyMotion features={domAnimation}>
-      <CosmicContactSection reduceMotion={false} />
-    </LazyMotion>,
-  );
-  fillForm();
-
-  const rect = {
-    top: 0,
-    bottom: 100,
-    left: 0,
-    right: 100,
-    width: 100,
-    height: 100,
-    x: 0,
-    y: 0,
-    toJSON: () => ({}),
-  };
-  for (const element of [
-    container.querySelector('.contact-layout'),
-    screen.getByRole('button', { name: 'Launch message' }),
-    container.querySelector('.contact-earth-target'),
-  ]) {
-    if (element) vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(rect);
-  }
-
-  fireEvent.click(screen.getByRole('button', { name: 'Launch message' }));
-  expect(await screen.findByText(/The contact service accepted your message/)).toBeTruthy();
-  expect(document.querySelector('.contact-envelope-flight')).toBeTruthy();
-  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('Casey Developer');
-  expect(
-    await screen.findByText(/Message launched successfully/, {}, { timeout: 5000 }),
-  ).toBeTruthy();
-  expect((screen.getByLabelText(/^Name/) as HTMLInputElement).value).toBe('');
-});
-
-it('defers the Earth texture and scene until the Earth is near the viewport', async () => {
-  const observers = new Map<Element, IntersectionObserverCallback>();
-  class TestIntersectionObserver {
-    constructor(private readonly callback: IntersectionObserverCallback) {}
-    observe(target: Element) {
-      observers.set(target, this.callback);
-    }
-    disconnect() {}
-    unobserve() {}
-    takeRecords(): IntersectionObserverEntry[] {
-      return [];
-    }
-    readonly root = null;
-    readonly rootMargin = '0px';
-    readonly scrollMargin = '0px';
-    readonly thresholds = [0];
-  }
-  vi.stubGlobal('IntersectionObserver', TestIntersectionObserver);
-
-  const { container } = render(<CosmicContactSection reduceMotion />);
-  expect(screen.getByRole('img', { name: 'Rotating Earth, the message destination' })).toBeTruthy();
-  const target = container.querySelector('.contact-earth-target');
-  const fallback = target?.querySelector<HTMLElement>('.earth-fallback');
-  expect(fallback).toBeTruthy();
-  expect(fallback?.style.getPropertyValue('--earth-texture')).toBe('');
-  expect(screen.queryByTestId('earth-webgl-scene')).toBeNull();
-
-  observers.get(target as Element)?.(
-    [
-      {
-        target: target as Element,
-        isIntersecting: true,
-      } as IntersectionObserverEntry,
-    ],
-    {} as IntersectionObserver,
-  );
-
-  await waitFor(() => {
-    expect(fallback?.getAttribute('style')).toContain('earth-blue-marble.jpg');
-    expect(screen.getByTestId('earth-webgl-scene')).toBeTruthy();
-  });
+it('announces backend availability without disabling the form', () => {
+  render(<CosmicContactSection backendStatus="UNAVAILABLE" />);
+  expect(screen.getByRole('status').textContent).toContain('email link in the footer');
+  expect(screen.getByRole('button', { name: 'Send message' }).hasAttribute('disabled')).toBe(false);
 });

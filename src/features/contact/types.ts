@@ -6,4 +6,4 @@ export type ContactMessage = {
   website: string;
 };
 
-export type ContactStatus = 'idle' | 'pending' | 'flying' | 'success' | 'error';
+export type ContactStatus = 'idle' | 'pending' | 'success' | 'error';

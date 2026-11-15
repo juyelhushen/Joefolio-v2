@@ -55,12 +55,12 @@ it('stays unavailable and does not call the API without a configured URL', async
   expect(adapter).not.toHaveBeenCalled();
 });
 
-it('keeps the floating launcher label and chat icon', () => {
+it('keeps the floating launcher icon-only with an accessible label', () => {
   render(<PortfolioAssistant apiBaseUrl="" reduceMotion={false} />);
 
   const launcher = screen.getByRole('button', { name: 'Open portfolio assistant' });
-  expect(launcher.textContent).toContain('Ask about my work');
   expect(launcher.querySelector('svg')).toBeTruthy();
+  expect(launcher.textContent).toBe('');
 });
 
 it('opens, closes with Escape, and restores focus to the launcher', async () => {
